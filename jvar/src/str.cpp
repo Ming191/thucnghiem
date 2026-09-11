@@ -488,9 +488,8 @@ void Parser::internalParse()
             }
             else
             {
-                switch (state)
-                {
-                    case QuoteTok:
+                if ((state == QuoteTok)) {
+
                     {
                         if (lastc == '\\')
                         {
@@ -557,9 +556,11 @@ void Parser::internalParse()
                             }
                         }
                     }
-                    break;
+                    
 
-                    case WordTok:
+                    
+                } else if ((state == WordTok)) {
+
                     {
                         if (charWord(c))
                         {
@@ -570,15 +571,19 @@ void Parser::internalParse()
                             done = true;
                         }
                     }
-                    break;
+                    
 
-                    case BracTok:
+                    
+                } else if ((state == BracTok)) {
+
                     {
                         done = true;
                     }
-                    break;
+                    
 
-                    case PuncTok:
+                    
+                } else if ((state == PuncTok)) {
+
                     {
                         bool besingle = (lastc == ':') || (lastc == ',');
                         if (!mSinglePunc && !besingle && charPunc(c))
@@ -590,11 +595,14 @@ void Parser::internalParse()
                             done = true;
                         }
                     }
-                    break;
+                    
 
-                    default:
+                    
+                } else {
+
                     // TODO: what should happen here.
-                    break;
+                    
+                
                 }
             }
         }

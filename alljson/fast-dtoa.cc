@@ -643,17 +643,21 @@ bool FastDtoa(double v,
 
   bool result = false;
   int decimal_exponent = 0;
-  switch (mode) {
-    case FAST_DTOA_SHORTEST:
-    case FAST_DTOA_SHORTEST_SINGLE:
+  if ((mode == FAST_DTOA_SHORTEST) || (mode == FAST_DTOA_SHORTEST_SINGLE)) {
+
       result = Grisu3(v, mode, buffer, length, &decimal_exponent);
-      break;
-    case FAST_DTOA_PRECISION:
+      
+    
+  } else if ((mode == FAST_DTOA_PRECISION)) {
+
       result = Grisu3Counted(v, requested_digits,
                              buffer, length, &decimal_exponent);
-      break;
-    default:
+      
+    
+  } else {
+
       DOUBLE_CONVERSION_UNREACHABLE();
+  
   }
   if (result) {
     *decimal_point = *length + decimal_exponent;

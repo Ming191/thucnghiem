@@ -145,25 +145,31 @@ void BignumDtoa(double v, BignumDtoaMode mode, int requested_digits,
                   &delta_minus, &delta_plus);
   // We now have v = (numerator / denominator) * 10^(decimal_point-1), and
   //  1 <= (numerator + delta_plus) / denominator < 10
-  switch (mode) {
-    case BIGNUM_DTOA_SHORTEST:
-    case BIGNUM_DTOA_SHORTEST_SINGLE:
+  if ((mode == BIGNUM_DTOA_SHORTEST) || (mode == BIGNUM_DTOA_SHORTEST_SINGLE)) {
+
       GenerateShortestDigits(&numerator, &denominator,
                              &delta_minus, &delta_plus,
                              is_even, buffer, length);
-      break;
-    case BIGNUM_DTOA_FIXED:
+      
+    
+  } else if ((mode == BIGNUM_DTOA_FIXED)) {
+
       BignumToFixed(requested_digits, decimal_point,
                     &numerator, &denominator,
                     buffer, length);
-      break;
-    case BIGNUM_DTOA_PRECISION:
+      
+    
+  } else if ((mode == BIGNUM_DTOA_PRECISION)) {
+
       GenerateCountedDigits(requested_digits, decimal_point,
                             &numerator, &denominator,
                             buffer, length);
-      break;
-    default:
+      
+    
+  } else {
+
       DOUBLE_CONVERSION_UNREACHABLE();
+  
   }
   buffer[*length] = '\0';
 }

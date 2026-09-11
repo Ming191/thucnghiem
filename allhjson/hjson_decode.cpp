@@ -110,23 +110,30 @@ static unsigned char _peek(Parser *p, int offs) {
 
 
 static unsigned char _escapee(unsigned char c) {
-  switch (c)
-  {
-  case '"':
-  case '\'':
-  case '\\':
-  case '/':
+  if ((c == '"') || (c == '\'') || (c == '\\') || (c == '/')) {
+
     return c;
-  case 'b':
+  
+  } else if ((c == 'b')) {
+
     return '\b';
-  case 'f':
+  
+  } else if ((c == 'f')) {
+
     return '\f';
-  case 'n':
+  
+  } else if ((c == 'n')) {
+
     return '\n';
-  case 'r':
+  
+  } else if ((c == 'r')) {
+
     return '\r';
-  case 't':
+  
+  } else if ((c == 't')) {
+
     return '\t';
+  
   }
 
   return 0;
@@ -442,30 +449,36 @@ static Value _readTfnns2(Parser *p, size_t &valEnd) {
       const char *pVal = reinterpret_cast<const char*>(p->data) + valStart;
       size_t valLen = valEnd - valStart;
 
-      switch (*pVal)
-      {
-      case 'f':
+      if ((*pVal == 'f')) {
+
         if (valLen == 5 && !std::strncmp(pVal, "false", 5)) {
           return false;
         }
-        break;
-      case 'n':
+        
+      
+      } else if ((*pVal == 'n')) {
+
         if (valLen == 4 && !std::strncmp(pVal, "null", 4)) {
           return Value(Type::Null);
         }
-        break;
-      case 't':
+        
+      
+      } else if ((*pVal == 't')) {
+
         if (valLen == 4 && !std::strncmp(pVal, "true", 4)) {
           return true;
         }
-        break;
-      default:
+        
+      
+      } else {
+
         if (*pVal == '-' || (*pVal >= '0' && *pVal <= '9')) {
           Value number;
           if (tryParseNumber(&number, pVal, valLen, false)) {
             return number;
           }
         }
+      
       }
       if (isEol) {
         return std::string(pVal, valLen);
@@ -647,22 +660,28 @@ static void _readValueBegin(Parser *p) {
   p->vParent.push_back(DecodeParent());
   p->vParent.back().ciBefore = _white(p);
 
-  switch (p->ch) {
-  case '{':
+  if ((p->ch == '{')) {
+
     p->vState.back() = ParseState::MapBegin;
-    break;
-  case '[':
+    
+  
+  } else if ((p->ch == '[')) {
+
     p->vState.back() =  ParseState::VectorBegin;
-    break;
-  case '"':
-  case '\'':
+    
+  
+  } else if ((p->ch == '"') || (p->ch == '\'')) {
+
     p->vParent.back().val.assign_with_comments(_readString(p, true));
     p->vState.back() = ParseState::ValueEnd;
-    break;
-  default:
+    
+  
+  } else {
+
     p->vParent.back().val.assign_with_comments(_readTfnns(p));
     p->vState.back() = ParseState::ValueEnd;
-    break;
+    
+  
   }
 }
 
@@ -685,28 +704,41 @@ static Value _hasTrailing(Parser *p, CommentInfo *ci) {
 
 static void _parseLoop(Parser* p) {
   while (!p->vState.empty()) {
-    switch (p->vState.back()) {
-    case ParseState::ValueBegin:
+    if ((p->vState.back() == ParseState::ValueBegin)) {
+
       _readValueBegin(p);
-      break;
-    case ParseState::ValueEnd:
+      
+    
+    } else if ((p->vState.back() == ParseState::ValueEnd)) {
+
       _readValueEnd(p);
-      break;
-    case ParseState::MapBegin:
+      
+    
+    } else if ((p->vState.back() == ParseState::MapBegin)) {
+
       _readObjectBegin(p);
-      break;
-    case ParseState::MapElemBegin:
+      
+    
+    } else if ((p->vState.back() == ParseState::MapElemBegin)) {
+
       _readObjectElemBegin(p);
-      break;
-    case ParseState::MapElemEnd:
+      
+    
+    } else if ((p->vState.back() == ParseState::MapElemEnd)) {
+
       _readObjectElemEnd(p);
-      break;
-    case ParseState::VectorBegin:
+      
+    
+    } else if ((p->vState.back() == ParseState::VectorBegin)) {
+
       _readArrayBegin(p);
-      break;
-    case ParseState::VectorElemEnd:
+      
+    
+    } else if ((p->vState.back() == ParseState::VectorElemEnd)) {
+
       _readArrayElemEnd(p);
-      break;
+      
+    
     }
   }
 }

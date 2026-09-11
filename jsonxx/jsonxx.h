@@ -278,30 +278,45 @@ class Value {
   }
   void import( const Value &other ) {
     if (this != &other)
-    switch (other.type_) {
-      case NULL_:
+    if ((other.type_ == NULL_)) {
+
         import( Null() );
-        break;
-      case BOOL_:
+        
+      
+    } else if ((other.type_ == BOOL_)) {
+
         import( other.bool_value_ );
-        break;
-      case NUMBER_:
+        
+      
+    } else if ((other.type_ == NUMBER_)) {
+
         import( other.number_value_ );
-        break;
-      case STRING_:
+        
+      
+    } else if ((other.type_ == STRING_)) {
+
         import( *other.string_value_ );
-        break;
-      case ARRAY_:
+        
+      
+    } else if ((other.type_ == ARRAY_)) {
+
         import( *other.array_value_ );
-        break;
-      case OBJECT_:
+        
+      
+    } else if ((other.type_ == OBJECT_)) {
+
         import( *other.object_value_ );
-        break;
-      case INVALID_:
+        
+      
+    } else if ((other.type_ == INVALID_)) {
+
         type_ = INVALID_;
-        break;
-      default:
+        
+      
+    } else {
+
         JSONXX_ASSERT( !"not implemented" );
+    
     }
   }
   template<typename T>

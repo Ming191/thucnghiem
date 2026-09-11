@@ -80,18 +80,23 @@ void Variant::format(const char* fmt, ...)
 
 longint Variant::makeInt() const
 {
-    switch (mData.type)
-    {
-        case V_INT:
+    if ((mData.type == V_INT)) {
+
             return mData.intData;
 
-        case V_BOOL:
+        
+    } else if ((mData.type == V_BOOL)) {
+
             return (longint)mData.boolData;
 
-        case V_DOUBLE:
+        
+    } else if ((mData.type == V_DOUBLE)) {
+
             return (longint)mData.dblData;
 
-        case V_STRING:
+        
+    } else if ((mData.type == V_STRING)) {
+
         {
             std::string* strdata = mData.strData();
             char* end;
@@ -104,7 +109,9 @@ longint Variant::makeInt() const
             return value;
         }
 
-        case V_POINTER:
+        
+    } else if ((mData.type == V_POINTER)) {
+
         {
             if (mData.vptrData != NULL)
             {
@@ -116,26 +123,34 @@ longint Variant::makeInt() const
             }
         }
 
-        default:
+        
+    } else {
+
             return 0;
+    
     }
 }
 
 
 double Variant::makeDbl() const
 {
-    switch (mData.type)
-    {
-        case V_INT:
+    if ((mData.type == V_INT)) {
+
             return (double)mData.intData;
 
-        case V_BOOL:
+        
+    } else if ((mData.type == V_BOOL)) {
+
             return (double)mData.boolData;
 
-        case V_DOUBLE:
+        
+    } else if ((mData.type == V_DOUBLE)) {
+
             return mData.dblData;
 
-        case V_STRING:
+        
+    } else if ((mData.type == V_STRING)) {
+
         {
             std::string* strdata = mData.strData();
             char* end;
@@ -147,7 +162,9 @@ double Variant::makeDbl() const
             return value;
         }
 
-        case V_POINTER:
+        
+    } else if ((mData.type == V_POINTER)) {
+
         {
             if (mData.vptrData != NULL)
             {
@@ -159,17 +176,19 @@ double Variant::makeDbl() const
             }
         }
 
-        default:
+        
+    } else {
+
             return 0.0;
+    
     }
 }
 
 
 void Variant::makeString(StrBld& s, int level, bool json)
 {
-    switch (mData.type)
-    {
-        case V_STRING:
+    if ((mData.type == V_STRING)) {
+
         {
             s.clear();
             s.append( *(mData.strData()) );
@@ -179,16 +198,20 @@ void Variant::makeString(StrBld& s, int level, bool json)
                 jsonifyStr(s);
             }
         }
-        break;
+        
 
-        case V_INT:
+        
+    } else if ((mData.type == V_INT)) {
+
         {
             s.clear();
             s.appendFmt("%ld", mData.intData);
         }
-        break;
+        
 
-        case V_DOUBLE:
+        
+    } else if ((mData.type == V_DOUBLE)) {
+
         {
             //TODO: Verify it is ok not to do the following
             // if (tmp.find_first_of('.') == std::string::npos)
@@ -198,31 +221,39 @@ void Variant::makeString(StrBld& s, int level, bool json)
             s.clear();
             s.appendFmt("%lg", mData.dblData);
         }
-        break;
+        
 
-        case V_BOOL:
+        
+    } else if ((mData.type == V_BOOL)) {
+
         {
             s.clear();
             s.append(mData.boolData ? "true" : "false");
         }
-        break;
+        
 
-        case V_EMPTY:
+        
+    } else if ((mData.type == V_EMPTY)) {
+
         {
             //TODO: Revisit this value--should work for json
             s.clear();
             s.append("null");
         }
-        break;
+        
 
-        case V_NULL:
+        
+    } else if ((mData.type == V_NULL)) {
+
         {
             s.clear();
             s.append("null");
         }
-        break;
+        
 
-        case V_ARRAY:
+        
+    } else if ((mData.type == V_ARRAY)) {
+
         {
             s.append('[');
             level++;
@@ -248,9 +279,11 @@ void Variant::makeString(StrBld& s, int level, bool json)
             appendNewline(s, level, json);
             s.append(']');
         }
-        break;
+        
 
-        case V_OBJECT:
+        
+    } else if ((mData.type == V_OBJECT)) {
+
         {
             s.append('{');
 
@@ -294,16 +327,20 @@ void Variant::makeString(StrBld& s, int level, bool json)
             appendNewline(s, level, json);
             s.append('}');
         }
-        break;
+        
 
-        case V_FUNCTION:
+        
+    } else if ((mData.type == V_FUNCTION)) {
+
         {
             s.clear();
             s.append("(function)");
         }
-        break;
+        
 
-        case V_POINTER:
+        
+    } else if ((mData.type == V_POINTER)) {
+
         {
             if (mData.vptrData != NULL)
             {
@@ -311,10 +348,13 @@ void Variant::makeString(StrBld& s, int level, bool json)
             }
         }
 
-        default:
+        
+    } else {
+
         {
             dbgerr("TODO: makeString not handled for type %d\n", mData.type);
         }
+    
     }
 
     level--;
@@ -1038,9 +1078,8 @@ bool Variant::deleteData()
     //assert(this != &VNULL);
     //assert(this != &VEMPTY);
 
-    switch (mData.type)
-    {
-        case V_STRING:
+    if ((mData.type == V_STRING)) {
+
         {
             std::string* strdata = mData.strData();
 
@@ -1049,29 +1088,36 @@ bool Variant::deleteData()
 	    strdata->std::string::~string();
             //strdata->std::string::~basic_string();
         }
-        break;
+        
 
-        case V_ARRAY:
+        
+    } else if ((mData.type == V_ARRAY)) {
+
         {
             delete mData.arrayData;
             mData.arrayData = NULL;
         }
-        break;
+        
 
-        case V_OBJECT:
+        
+    } else if ((mData.type == V_OBJECT)) {
+
         {
             delete mData.objectData;
             mData.objectData = NULL;
         }
-        break;
+        
 
-        case V_FUNCTION:
+        
+    } else if ((mData.type == V_FUNCTION)) {
+
         {
             delete mData.funcData;
             mData.funcData = NULL;
         }
-        break;
+        
 
+    
     }
     mData.type = V_EMPTY;
     return true;
@@ -1090,27 +1136,32 @@ void Variant::copyFrom(const Variant* src)
         mData.type = src->mData.type;
         setModified();
 
-        switch (src->mData.type)
-        {
-            case V_INT:
+        if ((src->mData.type == V_INT)) {
+
             {
                 mData.intData = src->mData.intData;
             }
-            break;
+            
 
-            case V_BOOL:
+            
+        } else if ((src->mData.type == V_BOOL)) {
+
             {
                 mData.boolData = src->mData.boolData;
             }
-            break;
+            
 
-            case V_DOUBLE:
+            
+        } else if ((src->mData.type == V_DOUBLE)) {
+
             {
                 mData.dblData = src->mData.dblData;
             }
-            break;
+            
 
-            case V_STRING:
+            
+        } else if ((src->mData.type == V_STRING)) {
+
             {
                 //TODO: Should not deleteData() above and new here if already string type
 
@@ -1119,56 +1170,68 @@ void Variant::copyFrom(const Variant* src)
 
                 new (&mData.strMemData) std::string(*(src->mData.strData()));
             }
-            break;
+            
 
-            case V_ARRAY:
+            
+        } else if ((src->mData.type == V_ARRAY)) {
+
             {
                 // Create the array object using the copy constructor.
 
                 mData.arrayData = new ObjArray<Variant>(*(src->mData.arrayData));
             }
-            break;
+            
 
-            case V_OBJECT:
+            
+        } else if ((src->mData.type == V_OBJECT)) {
+
             {
                 // Create the proparray object using the copy constructor.
 
                 mData.objectData = new PropArray<Variant>(*(src->mData.objectData));
             }
-            break;
+            
 
-            case V_FUNCTION:
+            
+        } else if ((src->mData.type == V_FUNCTION)) {
+
             {
                 // Create the function object using the copy constructor.
 
                 mData.funcData = new VarFuncObj(*(src->mData.funcData));
             }
-            break;
+            
 
-            case V_POINTER:
+            
+        } else if ((src->mData.type == V_POINTER)) {
+
             {
                 // We simply need to copy the pointer value.
 
                 mData.vptrData = src->mData.vptrData;
             }
-            break;
+            
 
-            case V_EMPTY:
-            case V_NULL:
+            
+        } else if ((src->mData.type == V_EMPTY) || (src->mData.type == V_NULL)) {
+
             {
                 // If a NULL or EMPTY is being copied, we set the data type of src to EMPTY.
                 // Setting it to NULL is not good because further assignments will fail.
 
                 mData.type = V_EMPTY;
             }
-            break;
+            
 
-            default:
+            
+        } else {
+
             {
                 dbgerr("TODO: copyfrom missing %d\n", src->mData.type);
 
                 //assert(false);
             }
+        
         }
     }
 }

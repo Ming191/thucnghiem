@@ -94,27 +94,38 @@ bool parse_string(std::istream& input, String& value) {
         }
         if (ch == '\\') {
             input.get(ch);
-            switch(ch) {
-                case '\\':
-                case '/':
+            if ((ch == '\\') || (ch == '/')) {
+
                     value.push_back(ch);
-                    break;
-                case 'b':
+                    
+                
+            } else if ((ch == 'b')) {
+
                     value.push_back('\b');
-                    break;
-                case 'f':
+                    
+                
+            } else if ((ch == 'f')) {
+
                     value.push_back('\f');
-                    break;
-                case 'n':
+                    
+                
+            } else if ((ch == 'n')) {
+
                     value.push_back('\n');
-                    break;
-                case 'r':
+                    
+                
+            } else if ((ch == 'r')) {
+
                     value.push_back('\r');
-                    break;
-                case 't':
+                    
+                
+            } else if ((ch == 't')) {
+
                     value.push_back('\t');
-                    break;
-                case 'u': {
+                    
+                
+            } else if ((ch == 'u')) {
+ {
                         int i;
                         std::stringstream ss;
                         for( i = 0; (!input.eof() && input.good()) && i < 4; ++i ) {
@@ -124,13 +135,16 @@ bool parse_string(std::istream& input, String& value) {
                         if( input.good() && (ss >> i) )
                             value.push_back(static_cast<char>(i));
                     }
-                    break;
-                default:
+                    
+                
+            } else {
+
                     if (ch != delimiter) {
                         value.push_back('\\');
                         value.push_back(ch);
                     } else value.push_back(ch);
-                    break;
+                    
+            
             }
         } else {
             value.push_back(ch);
@@ -442,32 +456,48 @@ static std::ostream& stream_string(std::ostream& stream,
     stream << '"';
     for (std::string::const_iterator i = string.begin(),
                  e = string.end(); i != e; ++i) {
-        switch (*i) {
-            case '"':
+        if ((*i == '"')) {
+
                 stream << "\\\"";
-                break;
-            case '\\':
+                
+            
+        } else if ((*i == '\\')) {
+
                 stream << "\\\\";
-                break;
-            case '/':
+                
+            
+        } else if ((*i == '/')) {
+
                 stream << "\\/";
-                break;
-            case '\b':
+                
+            
+        } else if ((*i == '\b')) {
+
                 stream << "\\b";
-                break;
-            case '\f':
+                
+            
+        } else if ((*i == '\f')) {
+
                 stream << "\\f";
-                break;
-            case '\n':
+                
+            
+        } else if ((*i == '\n')) {
+
                 stream << "\\n";
-                break;
-            case '\r':
+                
+            
+        } else if ((*i == '\r')) {
+
                 stream << "\\r";
-                break;
-            case '\t':
+                
+            
+        } else if ((*i == '\t')) {
+
                 stream << "\\t";
-                break;
-            default:
+                
+            
+        } else {
+
                 if (*i < 32) {
                     stream << "\\u" << std::hex << std::setw(4) <<
                             std::setfill('0') << static_cast<int>(*i) << std::dec <<
@@ -475,6 +505,7 @@ static std::ostream& stream_string(std::ostream& stream,
                 } else {
                     stream << *i;
                 }
+        
         }
     }
     stream << '"';
@@ -607,40 +638,49 @@ namespace json {
         else
             ss << tab;
 
-        switch( t.type_ )
-        {
-            default:
-            case jsonxx::Value::NULL_:
+        if ((t.type_ == jsonxx::Value::NULL_)) {
+
                 ss << "null";
                 return ss.str() + ",\n";
 
-            case jsonxx::Value::BOOL_:
+            
+        } else if ((t.type_ == jsonxx::Value::BOOL_)) {
+
                 ss << ( t.bool_value_ ? "true" : "false" );
                 return ss.str() + ",\n";
 
-            case jsonxx::Value::ARRAY_:
+            
+        } else if ((t.type_ == jsonxx::Value::ARRAY_)) {
+
                 ss << "[\n";
                 for(Array::container::const_iterator it = t.array_value_->values().begin(),
                     end = t.array_value_->values().end(); it != end; ++it )
                   ss << tag( format, depth+1, std::string(), **it );
                 return remove_last_comma( ss.str() ) + tab + "]" ",\n";
 
-            case jsonxx::Value::STRING_:
+            
+        } else if ((t.type_ == jsonxx::Value::STRING_)) {
+
                 ss << '\"' << escape_string( *t.string_value_ ) << '\"';
                 return ss.str() + ",\n";
 
-            case jsonxx::Value::OBJECT_:
+            
+        } else if ((t.type_ == jsonxx::Value::OBJECT_)) {
+
                 ss << "{\n";
                 for(Object::container::const_iterator it=t.object_value_->kv_map().begin(),
                     end = t.object_value_->kv_map().end(); it != end ; ++it)
                   ss << tag( format, depth+1, it->first, *it->second );
                 return remove_last_comma( ss.str() ) + tab + "}" ",\n";
 
-            case jsonxx::Value::NUMBER_:
+            
+        } else if ((t.type_ == jsonxx::Value::NUMBER_)) {
+
                 // max precision
                 ss << std::setprecision(std::numeric_limits<long double>::digits10 + 1);
                 ss << t.number_value_;
                 return ss.str() + ",\n";
+        
         }
     }
 } // namespace jsonxx::anon::json
@@ -675,17 +715,11 @@ std::string escape_tag( const std::string &input, unsigned format ) {
         map[ byte('<') ] = "&lt;";
         map[ byte('>') ] = "&gt;";
 
-        switch( format )
-        {
-            default:
-                break;
+        if ((format == jsonxx::JXML) || (format == jsonxx::JXMLex) || (format == jsonxx::JSONx) || (format == jsonxx::TaggedXML)) {
 
-            case jsonxx::JXML:
-            case jsonxx::JXMLex:
-            case jsonxx::JSONx:
-            case jsonxx::TaggedXML:
                 map[ byte('&') ] = "&amp;";
-                break;
+                
+        
         }
 
         once = map;
@@ -699,90 +733,133 @@ std::string escape_tag( const std::string &input, unsigned format ) {
 
 std::string open_tag( unsigned format, char type, const std::string &name, const std::string &attr = std::string(), const std::string &text = std::string() ) {
     std::string tagname;
-    switch( format )
-    {
-        default:
+    if (true) {
+
             return std::string();
 
-        case jsonxx::JXML:
+        
+    } else if ((format == jsonxx::JXML)) {
+
             if( name.empty() )
                 tagname = std::string("j son=\"") + type + '\"';
             else
                 tagname = std::string("j son=\"") + type + ':' + escape_string(name) + '\"';
-            break;
+            
 
-        case jsonxx::JXMLex:
+        
+    } else if ((format == jsonxx::JXMLex)) {
+
             if( name.empty() )
                 tagname = std::string("j son=\"") + type + '\"';
             else
                 tagname = std::string("j son=\"") + type + ':' + escape_string(name) + "\" " + escape_attrib(name) + "=\"" + escape_string(text) + "\"";
-            break;
+            
 
-        case jsonxx::JSONx:
+        
+    } else if ((format == jsonxx::JSONx)) {
+
             if( !name.empty() )
                 tagname = std::string(" name=\"") + escape_string(name) + "\"";
-            switch( type ) {
-                default:
-                case '0': tagname = "json:null" + tagname; break;
-                case 'b': tagname = "json:boolean" + tagname; break;
-                case 'a': tagname = "json:array" + tagname; break;
-                case 's': tagname = "json:string" + tagname; break;
-                case 'o': tagname = "json:object" + tagname; break;
-                case 'n': tagname = "json:number" + tagname; break;
+            if ((type == '0')) {
+ tagname = "json:null" + tagname; 
+                
+            } else if ((type == 'b')) {
+ tagname = "json:boolean" + tagname; 
+                
+            } else if ((type == 'a')) {
+ tagname = "json:array" + tagname; 
+                
+            } else if ((type == 's')) {
+ tagname = "json:string" + tagname; 
+                
+            } else if ((type == 'o')) {
+ tagname = "json:object" + tagname; 
+                
+            } else if ((type == 'n')) {
+ tagname = "json:number" + tagname; 
+            
             }
-            break;
+            
 
-        case jsonxx::TaggedXML: // @TheMadButcher
+        
+    } else if ((format == jsonxx::TaggedXML)) {
+ // @TheMadButcher
             if( !name.empty() )
                 tagname = escape_attrib(name);
             else
                 tagname = "JsonItem";
-            switch( type ) {
-                default:
-                case '0': tagname += " type=\"json:null\""; break;
-                case 'b': tagname += " type=\"json:boolean\""; break;
-                case 'a': tagname += " type=\"json:array\""; break;
-                case 's': tagname += " type=\"json:string\""; break;
-                case 'o': tagname += " type=\"json:object\""; break;
-                case 'n': tagname += " type=\"json:number\""; break;
+            if ((type == '0')) {
+ tagname += " type=\"json:null\""; 
+                
+            } else if ((type == 'b')) {
+ tagname += " type=\"json:boolean\""; 
+                
+            } else if ((type == 'a')) {
+ tagname += " type=\"json:array\""; 
+                
+            } else if ((type == 's')) {
+ tagname += " type=\"json:string\""; 
+                
+            } else if ((type == 'o')) {
+ tagname += " type=\"json:object\""; 
+                
+            } else if ((type == 'n')) {
+ tagname += " type=\"json:number\""; 
+            
             }
 
             if( !name.empty() )
                 tagname += std::string(" name=\"") + escape_string(name) + "\"";
 
-            break;
+            
+    
     }
 
     return std::string("<") + tagname + attr + ">";
 }
 
 std::string close_tag( unsigned format, char type, const std::string &name ) {
-    switch( format )
-    {
-        default:
+    if (true) {
+
             return std::string();
 
-        case jsonxx::JXML:
-        case jsonxx::JXMLex:
+        
+    } else if ((format == jsonxx::JXML) || (format == jsonxx::JXMLex)) {
+
             return "</j>";
 
-        case jsonxx::JSONx:
-            switch( type ) {
-                default:
-                case '0': return "</json:null>";
-                case 'b': return "</json:boolean>";
-                case 'a': return "</json:array>";
-                case 'o': return "</json:object>";
-                case 's': return "</json:string>";
-                case 'n': return "</json:number>";
-            }
-            break;
+        
+    } else if ((format == jsonxx::JSONx)) {
 
-        case jsonxx::TaggedXML: // @TheMadButcher
+            if ((type == '0')) {
+ return "</json:null>";
+                
+            } else if ((type == 'b')) {
+ return "</json:boolean>";
+                
+            } else if ((type == 'a')) {
+ return "</json:array>";
+                
+            } else if ((type == 'o')) {
+ return "</json:object>";
+                
+            } else if ((type == 's')) {
+ return "</json:string>";
+                
+            } else if ((type == 'n')) {
+ return "</json:number>";
+            
+            }
+            
+
+        
+    } else if ((format == jsonxx::TaggedXML)) {
+ // @TheMadButcher
             if( !name.empty() )
                 return "</"+escape_attrib(name)+">";
             else
                 return "</JsonItem>";
+    
     }
 }
 
@@ -790,19 +867,21 @@ std::string tag( unsigned format, unsigned depth, const std::string &name, const
     std::stringstream ss;
     const std::string tab(depth, '\t');
 
-    switch( t.type_ )
-    {
-        default:
-        case jsonxx::Value::NULL_:
+    if ((t.type_ == jsonxx::Value::NULL_)) {
+
             return tab + open_tag( format, '0', name, " /" ) + '\n';
 
-        case jsonxx::Value::BOOL_:
+        
+    } else if ((t.type_ == jsonxx::Value::BOOL_)) {
+
             ss << ( t.bool_value_ ? "true" : "false" );
             return tab + open_tag( format, 'b', name, std::string(), format == jsonxx::JXMLex ? ss.str() : std::string() )
                        + ss.str()
                        + close_tag( format, 'b', name ) + '\n';
 
-        case jsonxx::Value::ARRAY_:
+        
+    } else if ((t.type_ == jsonxx::Value::ARRAY_)) {
+
             for(Array::container::const_iterator it = t.array_value_->values().begin(),
                 end = t.array_value_->values().end(); it != end; ++it )
               ss << tag( format, depth+1, std::string(), **it );
@@ -810,13 +889,17 @@ std::string tag( unsigned format, unsigned depth, const std::string &name, const
                        + ss.str()
                  + tab + close_tag( format, 'a', name ) + '\n';
 
-        case jsonxx::Value::STRING_:
+        
+    } else if ((t.type_ == jsonxx::Value::STRING_)) {
+
             ss << escape_tag( *t.string_value_, format );
             return tab + open_tag( format, 's', name, std::string(), format == jsonxx::JXMLex ? ss.str() : std::string() )
                        + ss.str()
                        + close_tag( format, 's', name ) + '\n';
 
-        case jsonxx::Value::OBJECT_:
+        
+    } else if ((t.type_ == jsonxx::Value::OBJECT_)) {
+
             for(Object::container::const_iterator it=t.object_value_->kv_map().begin(),
                 end = t.object_value_->kv_map().end(); it != end ; ++it)
               ss << tag( format, depth+1, it->first, *it->second );
@@ -824,13 +907,16 @@ std::string tag( unsigned format, unsigned depth, const std::string &name, const
                        + ss.str()
                  + tab + close_tag( format, 'o', name ) + '\n';
 
-        case jsonxx::Value::NUMBER_:
+        
+    } else if ((t.type_ == jsonxx::Value::NUMBER_)) {
+
             // max precision
             ss << std::setprecision(std::numeric_limits<long double>::digits10 + 1);
             ss << t.number_value_;
             return tab + open_tag( format, 'n', name, std::string(), format == jsonxx::JXMLex ? ss.str() : std::string() )
                        + ss.str()
                        + close_tag( format, 'n', name ) + '\n';
+    
     }
 }
 

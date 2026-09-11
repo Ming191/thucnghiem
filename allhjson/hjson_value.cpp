@@ -96,19 +96,21 @@ Value::ValueImpl::ValueImpl(const std::string &input)
 Value::ValueImpl::ValueImpl(Type _type)
   : type(_type)
 {
-  switch (_type)
-  {
-  case Type::String:
+  if ((_type == Type::String)) {
+
     s = new std::string();
-    break;
-  case Type::Vector:
+    
+  
+  } else if ((_type == Type::Vector)) {
+
     v = new ValueVec();
-    break;
-  case Type::Map:
+    
+  
+  } else if ((_type == Type::Map)) {
+
     m = new ValueVecMap();
-    break;
-  default:
-    break;
+    
+  
   }
 }
 
@@ -139,25 +141,27 @@ void Value::ValueImpl::DeepClear(Value &val) {
 
 
 Value::ValueImpl::~ValueImpl() {
-  switch (type)
-  {
-  case Type::String:
+  if ((type == Type::String)) {
+
     delete s;
-    break;
-  case Type::Vector:
+    
+  
+  } else if ((type == Type::Vector)) {
+
     for (auto e = v->begin(); e != v->end(); ++e) {
       DeepClear(*e);
     }
     delete v;
-    break;
-  case Type::Map:
+    
+  
+  } else if ((type == Type::Map)) {
+
     for (auto e = m->m.begin(); e != m->m.end(); ++e) {
       DeepClear(e->second);
     }
     delete m;
-    break;
-  default:
-    break;
+    
+  
   }
 }
 
@@ -339,33 +343,41 @@ Value& Value::operator=(Value&& other) {
 
 
 const Value& Value::at(const std::string& name) const {
-  switch (prv->type)
-  {
-  case Type::Undefined:
+  if ((prv->type == Type::Undefined)) {
+
     throw index_out_of_bounds("Key not found.");
-  case Type::Map:
+  
+  } else if ((prv->type == Type::Map)) {
+
     try {
       return prv->m->m.at(name);
     } catch(const std::out_of_range&) {}
     throw index_out_of_bounds("Key not found.");
-  default:
+  
+  } else {
+
     throw type_mismatch("Must be of type Map for that operation.");
+  
   }
 }
 
 
 Value& Value::at(const std::string& name) {
-  switch (prv->type)
-  {
-  case Type::Undefined:
+  if ((prv->type == Type::Undefined)) {
+
     throw index_out_of_bounds("Key not found.");
-  case Type::Map:
+  
+  } else if ((prv->type == Type::Map)) {
+
     try {
       return prv->m->m.at(name);
     } catch(const std::out_of_range&) {}
     throw index_out_of_bounds("Key not found.");
-  default:
+  
+  } else {
+
     throw type_mismatch("Must be of type Map for that operation.");
+  
   }
 }
 
@@ -433,61 +445,67 @@ MapProxy Value::operator[](char *input) {
 
 
 const Value& Value::operator[](int index) const {
-  switch (prv->type)
-  {
-  case Type::Undefined:
+  if ((prv->type == Type::Undefined)) {
+
     throw index_out_of_bounds("Index out of bounds.");
-  case Type::Vector:
-  case Type::Map:
+  
+  } else if ((prv->type == Type::Vector) || (prv->type == Type::Map)) {
+
     if (index < 0 || index >= size()) {
       throw index_out_of_bounds("Index out of bounds.");
     }
 
-    switch (prv->type)
-    {
-    case Type::Vector:
+    if ((prv->type == Type::Vector)) {
+
       return prv->v[0][index];
-    case Type::Map:
+    
+    } else if ((prv->type == Type::Map)) {
+
       {
         auto it = prv->m->m.find(prv->m->v[index]);
         assert(it != prv->m->m.end());
         return it->second;
       }
-    default:
-      break;
+    
     }
-  default:
+  
+  } else {
+
     throw type_mismatch("Must be of type Undefined, Vector or Map for that operation.");
+  
   }
 }
 
 
 Value& Value::operator[](int index) {
-  switch (prv->type)
-  {
-  case Type::Undefined:
+  if ((prv->type == Type::Undefined)) {
+
     throw index_out_of_bounds("Index out of bounds.");
-  case Type::Vector:
-  case Type::Map:
+  
+  } else if ((prv->type == Type::Vector) || (prv->type == Type::Map)) {
+
     if (index < 0 || index >= size()) {
       throw index_out_of_bounds("Index out of bounds.");
     }
 
-    switch (prv->type)
-    {
-    case Type::Vector:
+    if ((prv->type == Type::Vector)) {
+
       return prv->v[0][index];
-    case Type::Map:
+    
+    } else if ((prv->type == Type::Map)) {
+
       {
         auto it = prv->m->m.find(prv->m->v[index]);
         assert(it != prv->m->m.end());
         return it->second;
       }
-    default:
-      break;
+    
     }
-  default:
+  
+  } else {
+
     throw type_mismatch("Must be of type Undefined, Vector or Map for that operation.");
+  
   }
 }
 
@@ -585,15 +603,18 @@ Value operator+(const Value& a, const Value& b) {
     throw type_mismatch("The values must be of the same type for this operation.");
   }
 
-  switch (a.prv->type) {
-  case Type::Double:
+  if ((a.prv->type == Type::Double)) {
+
     return a.prv->d + b.prv->d;
-  case Type::Int64:
+  
+  } else if ((a.prv->type == Type::Int64)) {
+
     return a.prv->i + b.prv->i;
-  case Type::String:
+  
+  } else if ((a.prv->type == Type::String)) {
+
     return *a.prv->s + *b.prv->s;
-  default:
-    break;
+  
   }
 
   throw type_mismatch("The values must be of type Double, Int64 or String for this operation.");
@@ -611,15 +632,18 @@ bool operator<(const Value& a, const Value& b) {
     throw type_mismatch("The values must be of the same type for this operation.");
   }
 
-  switch (a.prv->type) {
-  case Type::Double:
+  if ((a.prv->type == Type::Double)) {
+
     return a.prv->d < b.prv->d;
-  case Type::Int64:
+  
+  } else if ((a.prv->type == Type::Int64)) {
+
     return a.prv->i < b.prv->i;
-  case Type::String:
+  
+  } else if ((a.prv->type == Type::String)) {
+
     return *a.prv->s < *b.prv->s;
-  default:
-    break;
+  
   }
 
   throw type_mismatch("The values must be of type Double, Int64 or String for this operation.");
@@ -637,15 +661,18 @@ bool operator>(const Value& a, const Value& b) {
     throw type_mismatch("The values must be of the same type for this operation.");
   }
 
-  switch (a.prv->type) {
-  case Type::Double:
+  if ((a.prv->type == Type::Double)) {
+
     return a.prv->d > b.prv->d;
-  case Type::Int64:
+  
+  } else if ((a.prv->type == Type::Int64)) {
+
     return a.prv->i > b.prv->i;
-  case Type::String:
+  
+  } else if ((a.prv->type == Type::String)) {
+
     return *a.prv->s > *b.prv->s;
-  default:
-    break;
+  
   }
 
   throw type_mismatch("The values must be of type Double, Int64 or String for this operation.");
@@ -663,15 +690,18 @@ bool operator<=(const Value& a, const Value& b) {
     throw type_mismatch("The values must be of the same type for this operation.");
   }
 
-  switch (a.prv->type) {
-  case Type::Double:
+  if ((a.prv->type == Type::Double)) {
+
     return a.prv->d <= b.prv->d;
-  case Type::Int64:
+  
+  } else if ((a.prv->type == Type::Int64)) {
+
     return a.prv->i <= b.prv->i;
-  case Type::String:
+  
+  } else if ((a.prv->type == Type::String)) {
+
     return *a.prv->s <= *b.prv->s;
-  default:
-    break;
+  
   }
 
   throw type_mismatch("The values must be of type Double, Int64 or String for this operation.");
@@ -689,15 +719,18 @@ bool operator>=(const Value& a, const Value& b) {
     throw type_mismatch("The values must be of the same type for this operation.");
   }
 
-  switch (a.prv->type) {
-  case Type::Double:
+  if ((a.prv->type == Type::Double)) {
+
     return a.prv->d >= b.prv->d;
-  case Type::Int64:
+  
+  } else if ((a.prv->type == Type::Int64)) {
+
     return a.prv->i >= b.prv->i;
-  case Type::String:
+  
+  } else if ((a.prv->type == Type::String)) {
+
     return *a.prv->s >= *b.prv->s;
-  default:
-    break;
+  
   }
 
   throw type_mismatch("The values must be of type Double, Int64 or String for this operation.");
@@ -715,22 +748,34 @@ bool operator==(const Value& a, const Value& b) {
     return false;
   }
 
-  switch (a.prv->type) {
-  case Type::Undefined:
-  case Type::Null:
+  if ((a.prv->type == Type::Undefined) || (a.prv->type == Type::Null)) {
+
     return true;
-  case Type::Bool:
+  
+  } else if ((a.prv->type == Type::Bool)) {
+
     return a.prv->b == b.prv->b;
-  case Type::Double:
+  
+  } else if ((a.prv->type == Type::Double)) {
+
     return a.prv->d == b.prv->d;
-  case Type::String:
+  
+  } else if ((a.prv->type == Type::String)) {
+
     return *a.prv->s == *b.prv->s;
-  case Type::Vector:
+  
+  } else if ((a.prv->type == Type::Vector)) {
+
     return a.prv->v == b.prv->v;
-  case Type::Map:
+  
+  } else if ((a.prv->type == Type::Map)) {
+
     return a.prv->m == b.prv->m;
-  case Type::Int64:
+  
+  } else if ((a.prv->type == Type::Int64)) {
+
     return a.prv->i == b.prv->i;
+  
   }
 
   assert(!"Unknown type");
@@ -755,13 +800,14 @@ Value operator-(const Value& a, const Value& b) {
     throw type_mismatch("The values must be of the same type for this operation.");
   }
 
-  switch (a.prv->type) {
-  case Type::Double:
+  if ((a.prv->type == Type::Double)) {
+
     return a.prv->d - b.prv->d;
-  case Type::Int64:
+  
+  } else if ((a.prv->type == Type::Int64)) {
+
     return a.prv->i - b.prv->i;
-  default:
-    break;
+  
   }
 
   throw type_mismatch("The values must be of type Double or Int64 for this operation.");
@@ -779,13 +825,14 @@ Value operator*(const Value& a, const Value& b) {
     throw type_mismatch("The values must be of the same type for this operation.");
   }
 
-  switch (a.prv->type) {
-  case Type::Double:
+  if ((a.prv->type == Type::Double)) {
+
     return a.prv->d * b.prv->d;
-  case Type::Int64:
+  
+  } else if ((a.prv->type == Type::Int64)) {
+
     return a.prv->i * b.prv->i;
-  default:
-    break;
+  
   }
 
   throw type_mismatch("The values must be of type Double or Int64 for this operation.");
@@ -803,13 +850,14 @@ Value operator/(const Value& a, const Value& b) {
     throw type_mismatch("The values must be of the same type for this operation.");
   }
 
-  switch (a.prv->type) {
-  case Type::Double:
+  if ((a.prv->type == Type::Double)) {
+
     return a.prv->d / b.prv->d;
-  case Type::Int64:
+  
+  } else if ((a.prv->type == Type::Int64)) {
+
     return a.prv->i / b.prv->i;
-  default:
-    break;
+  
   }
 
   throw type_mismatch("The values must be of type Double or Int64 for this operation.");
@@ -881,19 +929,26 @@ Value& Value::operator+=(const Value& b) {
       throw type_mismatch("The values must be of the same type for this operation.");
     }
 
-    switch (prv->type) {
-    case Type::Double:
+    if ((prv->type == Type::Double)) {
+
       prv->d += b.prv->d;
-      break;
-    case Type::Int64:
+      
+    
+    } else if ((prv->type == Type::Int64)) {
+
       prv->i += b.prv->i;
-      break;
-    case Type::String:
+      
+    
+    } else if ((prv->type == Type::String)) {
+
       *prv->s += *b.prv->s;
-      break;
-    default:
+      
+    
+    } else {
+
       throw type_mismatch("The values must be of type Double, Int64 or String for this operation.");
-      break;
+      
+    
     }
   }
 
@@ -918,16 +973,21 @@ Value& Value::operator*=(const Value& b) {
       throw type_mismatch("The values must be of the same type for this operation.");
     }
 
-    switch (prv->type) {
-    case Type::Double:
+    if ((prv->type == Type::Double)) {
+
       prv->d *= b.prv->d;
-      break;
-    case Type::Int64:
+      
+    
+    } else if ((prv->type == Type::Int64)) {
+
       prv->i *= b.prv->i;
-      break;
-    default:
+      
+    
+    } else {
+
       throw type_mismatch("The values must be of type Double or Int64 for this operation.");
-      break;
+      
+    
     }
   }
 
@@ -945,16 +1005,21 @@ Value& Value::operator/=(const Value& b) {
       throw type_mismatch("The values must be of the same type for this operation.");
     }
 
-    switch (prv->type) {
-    case Type::Double:
+    if ((prv->type == Type::Double)) {
+
       prv->d /= b.prv->d;
-      break;
-    case Type::Int64:
+      
+    
+    } else if ((prv->type == Type::Int64)) {
+
       prv->i /= b.prv->i;
-      break;
-    default:
+      
+    
+    } else {
+
       throw type_mismatch("The values must be of type Double or Int64 for this operation.");
-      break;
+      
+    
     }
   }
 
@@ -974,14 +1039,19 @@ Value& Value::operator%=(const Value& b) {
 
 
 Value Value::operator+() const {
-  switch (prv->type) {
-  case Type::Double:
+  if ((prv->type == Type::Double)) {
+
     return prv->d;
-  case Type::Int64:
+  
+  } else if ((prv->type == Type::Int64)) {
+
     return prv->i;
-  default:
+  
+  } else {
+
     throw type_mismatch("The value must be of type Double or Int64 for this operation.");
-    break;
+    
+  
   }
 
   return *this;
@@ -989,14 +1059,19 @@ Value Value::operator+() const {
 
 
 Value Value::operator-() const {
-  switch (prv->type) {
-  case Type::Double:
+  if ((prv->type == Type::Double)) {
+
     return -prv->d;
-  case Type::Int64:
+  
+  } else if ((prv->type == Type::Int64)) {
+
     return -prv->i;
-  default:
+  
+  } else {
+
     throw type_mismatch("The value must be of type Double or Int64 for this operation.");
-    break;
+    
+  
   }
 
   return *this;
@@ -1004,16 +1079,21 @@ Value Value::operator-() const {
 
 
 Value& Value::operator++() {
-  switch (prv->type) {
-  case Type::Double:
+  if ((prv->type == Type::Double)) {
+
     prv->d++;
-    break;
-  case Type::Int64:
+    
+  
+  } else if ((prv->type == Type::Int64)) {
+
     prv->i++;
-    break;
-  default:
+    
+  
+  } else {
+
     throw type_mismatch("The values must be of type Double or Int64 for this operation.");
-    break;
+    
+  
   }
 
   return *this;
@@ -1021,16 +1101,21 @@ Value& Value::operator++() {
 
 
 Value& Value::operator--() {
-  switch (prv->type) {
-  case Type::Double:
+  if ((prv->type == Type::Double)) {
+
     prv->d--;
-    break;
-  case Type::Int64:
+    
+  
+  } else if ((prv->type == Type::Int64)) {
+
     prv->i--;
-    break;
-  default:
+    
+  
+  } else {
+
     throw type_mismatch("The values must be of type Double or Int64 for this operation.");
-    break;
+    
+  
   }
 
   return *this;
@@ -1040,18 +1125,23 @@ Value& Value::operator--() {
 Value Value::operator++(int) {
   Value ret;
 
-  switch (prv->type) {
-  case Type::Double:
+  if ((prv->type == Type::Double)) {
+
     ret = prv->d;
     prv->d++;
-    break;
-  case Type::Int64:
+    
+  
+  } else if ((prv->type == Type::Int64)) {
+
     ret = prv->i;
     prv->i++;
-    break;
-  default:
+    
+  
+  } else {
+
     throw type_mismatch("The values must be of type Double or Int64 for this operation.");
-    break;
+    
+  
   }
 
   return ret;
@@ -1061,18 +1151,23 @@ Value Value::operator++(int) {
 Value Value::operator--(int) {
   Value ret;
 
-  switch (prv->type) {
-  case Type::Double:
+  if ((prv->type == Type::Double)) {
+
     ret = prv->d;
     prv->d--;
-    break;
-  case Type::Int64:
+    
+  
+  } else if ((prv->type == Type::Int64)) {
+
     ret = prv->i;
     prv->i--;
-    break;
-  default:
+    
+  
+  } else {
+
     throw type_mismatch("The values must be of type Double or Int64 for this operation.");
-    break;
+    
+  
   }
 
   return ret;
@@ -1080,16 +1175,18 @@ Value Value::operator--(int) {
 
 
 Value::operator bool() const {
-  switch (prv->type)
-  {
-  case Type::Double:
+  if ((prv->type == Type::Double)) {
+
     return !!prv->d;
-  case Type::Int64:
+  
+  } else if ((prv->type == Type::Int64)) {
+
     return !!prv->i;
-  case Type::Bool:
+  
+  } else if ((prv->type == Type::Bool)) {
+
     return prv->b;
-  default:
-    break;
+  
   }
 
   return !empty();
@@ -1102,14 +1199,14 @@ Value::operator float() const {
 
 
 Value::operator double() const {
-  switch (prv->type)
-  {
-  case Type::Double:
+  if ((prv->type == Type::Double)) {
+
     return prv->d;
-  case Type::Int64:
+  
+  } else if ((prv->type == Type::Int64)) {
+
     return static_cast<double>(prv->i);
-  default:
-    break;
+  
   }
 
   throw type_mismatch("Must be of type Double or Int64 for that operation.");
@@ -1140,14 +1237,14 @@ HJSON_CONV_INT_IMPL(unsigned long long)
 
 
 Value::operator long long() const {
-  switch (prv->type)
-  {
-  case Type::Double:
+  if ((prv->type == Type::Double)) {
+
     return static_cast<long long>(prv->d);
-  case Type::Int64:
+  
+  } else if ((prv->type == Type::Int64)) {
+
     return prv->i;
-  default:
-    break;
+  
   }
 
   throw type_mismatch("Must be of type Double or Int64 for that operation.");
@@ -1204,14 +1301,14 @@ bool Value::is_numeric() const {
 
 
 size_t Value::size() const {
-  switch (prv->type)
-  {
-  case Type::Vector:
+  if ((prv->type == Type::Vector)) {
+
     return prv->v->size();
-  case Type::Map:
+  
+  } else if ((prv->type == Type::Map)) {
+
     return prv->m->m.size();
-  default:
-    break;
+  
   }
 
   return 0;
@@ -1227,9 +1324,8 @@ bool Value::deep_equal(const Value& other) const {
     return false;
   }
 
-  switch (prv->type)
-  {
-  case Type::Vector:
+  if ((prv->type == Type::Vector)) {
+
     {
       auto itA = this->prv->v->begin();
       auto endA = this->prv->v->end();
@@ -1244,7 +1340,9 @@ bool Value::deep_equal(const Value& other) const {
     }
     return true;
 
-  case Type::Map:
+  
+  } else if ((prv->type == Type::Map)) {
+
     {
       auto itA = this->begin(), endA = this->end(), itB = other.begin();
       while (itA != endA) {
@@ -1257,8 +1355,7 @@ bool Value::deep_equal(const Value& other) const {
     }
     return true;
 
-  default:
-    break;
+  
   }
 
   return false;
@@ -1266,8 +1363,8 @@ bool Value::deep_equal(const Value& other) const {
 
 
 Value Value::clone() const {
-  switch (prv->type) {
-  case Type::Vector:
+  if ((prv->type == Type::Vector)) {
+
     {
       Value ret;
       for (int index = 0; index < int(size()); ++index) {
@@ -1277,7 +1374,9 @@ Value Value::clone() const {
       return ret;
     }
 
-  case Type::Map:
+  
+  } else if ((prv->type == Type::Map)) {
+
     {
       Value ret;
       for (int index = 0; index < size(); ++index) {
@@ -1287,8 +1386,7 @@ Value Value::clone() const {
       return ret;
     }
 
-  default:
-    break;
+  
   }
 
   return *this;
@@ -1296,52 +1394,53 @@ Value Value::clone() const {
 
 
 void Value::clear() {
-  switch (prv->type) {
-  case Type::Vector:
-    prv->v->clear();
-    break;
+  if ((prv->type == Type::Vector)) {
 
-  case Type::Map:
+    prv->v->clear();
+    
+
+  
+  } else if ((prv->type == Type::Map)) {
+
     prv->m->m.clear();
     prv->m->v.clear();
-    break;
+    
 
-  default:
-    break;
+  
   }
 }
 
 
 void Value::erase(int index) {
-  switch (prv->type)
-  {
-  case Type::Undefined:
-  case Type::Vector:
-  case Type::Map:
+  if ((prv->type == Type::Undefined) || (prv->type == Type::Vector) || (prv->type == Type::Map)) {
+
     if (index < 0 || index >= size()) {
       throw index_out_of_bounds("Index out of bounds.");
     }
 
-    switch (prv->type)
-    {
-    case Type::Vector:
+    if ((prv->type == Type::Vector)) {
+
       {
         prv->v->erase(prv->v->begin() + index);
       }
-      break;
-    case Type::Map:
+      
+    
+    } else if ((prv->type == Type::Map)) {
+
       {
         prv->m->m.erase(prv->m->v[index]);
         prv->m->v.erase(prv->m->v.begin() + index);
       }
-      break;
-    default:
-      break;
+      
+    
     }
-    break;
+    
 
-  default:
+  
+  } else {
+
     throw type_mismatch("Must be of type Vector or Map for that operation.");
+  
   }
 }
 
@@ -1360,11 +1459,8 @@ void Value::push_back(const Value& other) {
 
 
 void Value::move(int from, int to) {
-  switch (prv->type)
-  {
-  case Type::Undefined:
-  case Type::Vector:
-  case Type::Map:
+  if ((prv->type == Type::Undefined) || (prv->type == Type::Vector) || (prv->type == Type::Map)) {
+
     if (from < 0 || to < 0 || from >= size() || to > size()) {
       throw index_out_of_bounds("Index out of bounds.");
     }
@@ -1373,9 +1469,8 @@ void Value::move(int from, int to) {
       return;
     }
 
-    switch (prv->type)
-    {
-    case Type::Vector:
+    if ((prv->type == Type::Vector)) {
+
       {
         auto it = prv->v->begin();
 
@@ -1385,8 +1480,10 @@ void Value::move(int from, int to) {
         }
         prv->v->erase(prv->v->begin() + from);
       }
-      break;
-    case Type::Map:
+      
+    
+    } else if ((prv->type == Type::Map)) {
+
       {
         auto vec = &prv->m->v;
         auto it = vec->begin();
@@ -1397,29 +1494,32 @@ void Value::move(int from, int to) {
         }
         vec->erase(vec->begin() + from);
       }
-      break;
-    default:
-      break;
+      
+    
     }
-    break;
+    
 
-  default:
+  
+  } else {
+
     throw type_mismatch("Must be of type Vector or Map for that operation.");
+  
   }
 }
 
 
 std::string Value::key(int index) const {
-  switch (prv->type)
-  {
-  case Type::Undefined:
-  case Type::Map:
+  if ((prv->type == Type::Undefined) || (prv->type == Type::Map)) {
+
     if (index < 0 || index >= size()) {
       throw index_out_of_bounds("Index out of bounds.");
     }
     return prv->m->v[index];
-  default:
+  
+  } else {
+
     throw type_mismatch("Must be of type Map for that operation.");
+  
   }
 }
 
@@ -1497,17 +1597,24 @@ size_t Value::erase(const char *key) {
 
 
 double Value::to_double() const {
-  switch (prv->type) {
-  case Type::Undefined:
-  case Type::Null:
+  if ((prv->type == Type::Undefined) || (prv->type == Type::Null)) {
+
     return 0.0;
-  case Type::Bool:
+  
+  } else if ((prv->type == Type::Bool)) {
+
     return (prv->b ? 1.0 : 0.0);
-  case Type::Double:
+  
+  } else if ((prv->type == Type::Double)) {
+
     return prv->d;
-  case Type::Int64:
+  
+  } else if ((prv->type == Type::Int64)) {
+
     return static_cast<double>(prv->i);
-  case Type::String:
+  
+  } else if ((prv->type == Type::String)) {
+
     {
       double ret;
 
@@ -1541,8 +1648,7 @@ double Value::to_double() const {
 
       return ret;
     }
-  default:
-    break;
+  
   }
 
   throw type_mismatch("Illegal type for this operation.");
@@ -1550,17 +1656,24 @@ double Value::to_double() const {
 
 
 std::int64_t Value::to_int64() const {
-  switch (prv->type) {
-  case Type::Undefined:
-  case Type::Null:
+  if ((prv->type == Type::Undefined) || (prv->type == Type::Null)) {
+
     return 0;
-  case Type::Bool:
+  
+  } else if ((prv->type == Type::Bool)) {
+
     return (prv->b ? 1 : 0);
-  case Type::Double:
+  
+  } else if ((prv->type == Type::Double)) {
+
     return static_cast<std::int64_t>(prv->d);
-  case Type::Int64:
+  
+  } else if ((prv->type == Type::Int64)) {
+
     return prv->i;
-  case Type::String:
+  
+  } else if ((prv->type == Type::String)) {
+
     {
       std::int64_t ret;
 
@@ -1595,8 +1708,7 @@ std::int64_t Value::to_int64() const {
 
       return ret;
     }
-  default:
-    break;
+  
   }
 
   throw type_mismatch("Illegal type for this operation.");
@@ -1604,14 +1716,20 @@ std::int64_t Value::to_int64() const {
 
 
 std::string Value::to_string() const {
-  switch (prv->type) {
-  case Type::Undefined:
+  if ((prv->type == Type::Undefined)) {
+
     return "";
-  case Type::Null:
+  
+  } else if ((prv->type == Type::Null)) {
+
     return "null";
-  case Type::Bool:
+  
+  } else if ((prv->type == Type::Bool)) {
+
     return (prv->b ? "true" : "false");
-  case Type::Double:
+  
+  } else if ((prv->type == Type::Double)) {
+
     {
 #if HJSON_USE_CHARCONV
       std::array<char, 32> buf;
@@ -1672,7 +1790,9 @@ std::string Value::to_string() const {
       return oss.str();
 #endif
     }
-  case Type::Int64:
+  
+  } else if ((prv->type == Type::Int64)) {
+
     {
 #if HJSON_USE_CHARCONV
       std::array<char, 32> buf;
@@ -1697,10 +1817,11 @@ std::string Value::to_string() const {
       return oss.str();
 #endif
     }
-  case Type::String:
+  
+  } else if ((prv->type == Type::String)) {
+
     return *prv->s;
-  default:
-    break;
+  
   }
 
   throw type_mismatch("Illegal type for this operation.");

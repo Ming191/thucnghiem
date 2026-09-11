@@ -267,17 +267,21 @@ ckd_mul(__T* __res, __U __a, __V __b)
                static_cast<__ckd_intmax_t>(__z) < 0));
         }
     }
-    switch (std::is_signed<__T>::value << 2 | //
+    if ((std::is_signed<__T>::value << 2 | //
             std::is_signed<__U>::value << 1 | //
-            std::is_signed<__V>::value) {
-        case 0: { // u = u * u
+            std::is_signed<__V>::value == 0)) {
+ { // u = u * u
             __ckd_uintmax_t __z = __x * __y;
             int __o = __x && __z / __x != __y;
             *__res = __z;
             return __o | (sizeof(__T) < sizeof(__z) &&
                           __z != static_cast<__ckd_uintmax_t>(*__res));
         }
-        case 1: { // u = u * s
+        
+    } else if ((std::is_signed<__T>::value << 2 | //
+            std::is_signed<__U>::value << 1 | //
+            std::is_signed<__V>::value == 1)) {
+ { // u = u * s
             __ckd_uintmax_t __z = __x * __y;
             int __o = __x && __z / __x != __y;
             *__res = __z;
@@ -285,7 +289,11 @@ ckd_mul(__T* __res, __U __a, __V __b)
                     (sizeof(__T) < sizeof(__z) &&
                      __z != static_cast<__ckd_uintmax_t>(*__res)));
         }
-        case 2: { // u = s * u
+        
+    } else if ((std::is_signed<__T>::value << 2 | //
+            std::is_signed<__U>::value << 1 | //
+            std::is_signed<__V>::value == 2)) {
+ { // u = s * u
             __ckd_uintmax_t __z = __x * __y;
             int __o = __x && __z / __x != __y;
             *__res = __z;
@@ -293,7 +301,11 @@ ckd_mul(__T* __res, __U __a, __V __b)
                     (sizeof(__T) < sizeof(__z) &&
                      __z != static_cast<__ckd_uintmax_t>(*__res)));
         }
-        case 3: { // u = s * s
+        
+    } else if ((std::is_signed<__T>::value << 2 | //
+            std::is_signed<__U>::value << 1 | //
+            std::is_signed<__V>::value == 3)) {
+ { // u = s * s
             int __o = false;
             if (static_cast<__ckd_intmax_t>(__x & __y) < 0) {
                 __x = 0 - __x;
@@ -307,7 +319,11 @@ ckd_mul(__T* __res, __U __a, __V __b)
             return __o | (sizeof(__T) < sizeof(__z) &&
                           __z != static_cast<__ckd_uintmax_t>(*__res));
         }
-        case 4: { // s = u * u
+        
+    } else if ((std::is_signed<__T>::value << 2 | //
+            std::is_signed<__U>::value << 1 | //
+            std::is_signed<__V>::value == 4)) {
+ { // s = u * u
             __ckd_uintmax_t __z = __x * __y;
             int __o = __x && __z / __x != __y;
             *__res = __z;
@@ -315,7 +331,11 @@ ckd_mul(__T* __res, __U __a, __V __b)
                     (sizeof(__T) < sizeof(__z) &&
                      __z != static_cast<__ckd_uintmax_t>(*__res)));
         }
-        case 5: { // s = u * s
+        
+    } else if ((std::is_signed<__T>::value << 2 | //
+            std::is_signed<__U>::value << 1 | //
+            std::is_signed<__V>::value == 5)) {
+ { // s = u * s
             __ckd_uintmax_t __t = 0 - __y;
             __t = static_cast<__ckd_intmax_t>(__t) < 0 ? __y : __t;
             __ckd_uintmax_t __p = __t * __x;
@@ -328,7 +348,11 @@ ckd_mul(__T* __res, __U __a, __V __b)
                     (sizeof(__T) < sizeof(__z) &&
                      __z != static_cast<__ckd_uintmax_t>(*__res)));
         }
-        case 6: { // s = s * u
+        
+    } else if ((std::is_signed<__T>::value << 2 | //
+            std::is_signed<__U>::value << 1 | //
+            std::is_signed<__V>::value == 6)) {
+ { // s = s * u
             __ckd_uintmax_t __t = 0 - __x;
             __t = static_cast<__ckd_intmax_t>(__t) < 0 ? __x : __t;
             __ckd_uintmax_t __p = __t * __y;
@@ -341,7 +365,11 @@ ckd_mul(__T* __res, __U __a, __V __b)
                     (sizeof(__T) < sizeof(__z) &&
                      __z != static_cast<__ckd_uintmax_t>(*__res)));
         }
-        case 7: { // s = s * s
+        
+    } else if ((std::is_signed<__T>::value << 2 | //
+            std::is_signed<__U>::value << 1 | //
+            std::is_signed<__V>::value == 7)) {
+ { // s = s * s
             __ckd_uintmax_t __z = __x * __y;
             *__res = __z;
             return ((((static_cast<__ckd_intmax_t>(__y) < 0) &&
@@ -353,9 +381,12 @@ ckd_mul(__T* __res, __U __a, __V __b)
                     (sizeof(__T) < sizeof(__z) &&
                      __z != static_cast<__ckd_uintmax_t>(*__res)));
         }
-        default:
+        
+    } else {
+
             for (;;)
                 (void)0;
+    
     }
 }
 

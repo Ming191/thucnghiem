@@ -47,22 +47,34 @@ bool startsWithNumber(const char *text, size_t textSize);
 
 // table of character substitutions
 static const char *_meta(char c) {
-  switch (c)
-  {
-  case '\b':
+  if ((c == '\b')) {
+
     return "\\b";
-  case '\t':
+  
+  } else if ((c == '\t')) {
+
     return "\\t";
-  case '\n':
+  
+  } else if ((c == '\n')) {
+
     return "\\n";
-  case '\f':
+  
+  } else if ((c == '\f')) {
+
     return "\\f";
-  case '\r':
+  
+  } else if ((c == '\r')) {
+
     return "\\r";
-  case '"':
+  
+  } else if ((c == '"')) {
+
     return "\\\"";
-  case '\\':
+  
+  } else if ((c == '\\')) {
+
     return "\\\\";
+  
   }
 
   return 0;
@@ -296,16 +308,14 @@ static bool _quoteForComment(Encoder *e, const std::string& comment) {
   }
 
   for (char ch : comment) {
-    switch (ch)
-    {
-    case '\r':
-    case '\n':
+    if ((ch == '\r') || (ch == '\n')) {
+
       return false;
-    case '/':
-    case '#':
+    
+    } else if ((ch == '/') || (ch == '#')) {
+
       return true;
-    default:
-      break;
+    
     }
   }
 
@@ -322,18 +332,23 @@ static bool _isInComment(const std::string& comment) {
   char prev = ' ';
 
   for (char ch : comment) {
-    switch (ch) {
-    case '\n':
+    if ((ch == '\n')) {
+
       endsInsideComment = false;
-      break;
-    case '#':
+      
+    
+    } else if ((ch == '#')) {
+
       endsInsideComment = true;
-      break;
-    case '/':
+      
+    
+    } else if ((ch == '/')) {
+
       if (prev == '/') {
         endsInsideComment = true;
       }
-      break;
+      
+    
     }
     prev = ch;
   }
@@ -350,8 +365,8 @@ static void _writeValueBegin(Encoder *e) {
     *e->os << value.get_comment_key();
   }
 
-  switch (value.type()) {
-  case Type::Double:
+  if ((value.type() == Type::Double)) {
+
     if (std::isnan(static_cast<double>(value)) || std::isinf(static_cast<double>(value))) {
       *e->os << Value(Type::Null).to_string();
     } else if (!e->opt.allowMinusZero && value == 0 && std::signbit(static_cast<double>(value))) {
@@ -359,20 +374,26 @@ static void _writeValueBegin(Encoder *e) {
     } else {
       *e->os << value.to_string();
     }
-    break;
+    
 
-  case Type::String:
+  
+  } else if ((value.type() == Type::String)) {
+
     _quote(e, value, _quoteForComment(e, value.get_comment_after()));
-    break;
+    
 
-  case Type::Vector:
+  
+  } else if ((value.type() == Type::Vector)) {
+
     *e->os << "[";
     e->indent++;
     e->vParent.back().commentAfter = value.get_comment_inside();
     e->vState.back() = EncodeState::VectorElemBegin;
     return;
 
-  case Type::Map:
+  
+  } else if ((value.type() == Type::Map)) {
+
     if (!e->opt.omitRootBraces || e->vParent.size() > 1 || value.empty()) {
       *e->os << "{";
       e->indent++;
@@ -382,8 +403,11 @@ static void _writeValueBegin(Encoder *e) {
     e->vState.back() = EncodeState::MapElemBegin;
     return;
 
-  default:
+  
+  } else {
+
     *e->os << value.to_string();
+  
   }
 
   e->vState.back() = EncodeState::ValueEnd;
@@ -586,19 +610,26 @@ static void _writeMapElemBegin(Encoder *e) {
 
 static void _marshalLoop(Encoder *e, const Value &v) {
   while (!e->vState.empty()) {
-    switch (e->vState.back()) {
-    case EncodeState::ValueBegin:
+    if ((e->vState.back() == EncodeState::ValueBegin)) {
+
       _writeValueBegin(e);
-      break;
-    case EncodeState::ValueEnd:
+      
+    
+    } else if ((e->vState.back() == EncodeState::ValueEnd)) {
+
       _writeValueEnd(e);
-      break;
-    case EncodeState::VectorElemBegin:
+      
+    
+    } else if ((e->vState.back() == EncodeState::VectorElemBegin)) {
+
       _writeVectorElemBegin(e);
-      break;
-    case EncodeState::MapElemBegin:
+      
+    
+    } else if ((e->vState.back() == EncodeState::MapElemBegin)) {
+
       _writeMapElemBegin(e);
-      break;
+      
+    
     }
   }
 }
