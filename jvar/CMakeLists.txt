@@ -21,6 +21,10 @@ target_include_directories(jvar PUBLIC
 
 target_compile_features(jvar PUBLIC cxx_std_11)
 
+if(UNIX AND NOT APPLE)
+    target_compile_definitions(jvar PRIVATE _GNU_SOURCE)
+endif()
+
 target_compile_options(jvar PRIVATE
     -Wall
     -Wextra
