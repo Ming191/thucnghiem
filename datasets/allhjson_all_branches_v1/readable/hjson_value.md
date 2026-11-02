@@ -114,13 +114,133 @@ Value::ValueImpl::ValueImpl(Type _type)
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value vector API declarations
+  // -- Vector and Map specific functions
+  // Removes all child elements from this Value if it is of type Vector or Map.
+  // Does nothing if this Value is of any other type.
+  void clear();
+  // Returns the number of child elements contained in this Value if this Value
+  // is of type Vector or Map. Returns 0 if this Value is of any other type.
+  size_t size() const;
+
+  // -- Vector specific function
+  // Increases the size of this Vector by adding a Value at the end. Throws
+  // Hjson::type_mismatch if this Value is of any other type than Vector or
+  // Undefined.
+  void push_back(const Value&);
+
+// Relevant Value map API declarations
+  // -- Map specific functions
+  // Get key by its zero-based insertion index. Throws
+  // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
+  // of type Undefined or Map. Throws Hjson::type_mismatch if this Value is of
+  // any other type.
+  std::string key(int) const;
+  // Returns a reference to the Value specified by the key parameter. Throws
+  // Hjson::index_out_of_bounds if this Value does not contain the specified
+  // key and this Value is of type Undefined or Map. Throws
+  // Hjson::type_mismatch if this Value is of any other type.
+  const Value& at(const std::string& key) const;
+  Value& at(const std::string& key);
+  const Value& at(const char *key) const;
+  Value& at(const char *key);
+  // Iterations are always done in alphabetical key order. Returns a default
+  // constructed iterator if this Value is of any other type than Map.
+  std::map<std::string, Value>::iterator begin();
+  std::map<std::string, Value>::iterator end();
+  std::map<std::string, Value>::const_iterator begin() const;
+  std::map<std::string, Value>::const_iterator end() const;
+  // Removes the child element specified by the input key if this Value is of
+  // type Map. Returns the number of erased elements (0 or 1). Throws
+  // Hjson::type_mismatch if this Value is of any other type than Map or
+  // Undefined.
+  size_t erase(const std::string&);
+  size_t erase(const char*);
+
+// Build: test TU includes "hjson_value.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -160,13 +280,114 @@ void Value::ValueImpl::DeepClear(Value &val) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value vector API declarations
+  // -- Vector and Map specific functions
+  // Removes all child elements from this Value if it is of type Vector or Map.
+  // Does nothing if this Value is of any other type.
+  void clear();
+  // Returns the number of child elements contained in this Value if this Value
+  // is of type Vector or Map. Returns 0 if this Value is of any other type.
+  size_t size() const;
+
+  // -- Vector specific function
+  // Increases the size of this Vector by adding a Value at the end. Throws
+  // Hjson::type_mismatch if this Value is of any other type than Vector or
+  // Undefined.
+  void push_back(const Value&);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: test TU includes "hjson_value.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -207,13 +428,133 @@ Value::ValueImpl::~ValueImpl() {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value vector API declarations
+  // -- Vector and Map specific functions
+  // Removes all child elements from this Value if it is of type Vector or Map.
+  // Does nothing if this Value is of any other type.
+  void clear();
+  // Returns the number of child elements contained in this Value if this Value
+  // is of type Vector or Map. Returns 0 if this Value is of any other type.
+  size_t size() const;
+
+  // -- Vector specific function
+  // Increases the size of this Vector by adding a Value at the end. Throws
+  // Hjson::type_mismatch if this Value is of any other type than Vector or
+  // Undefined.
+  void push_back(const Value&);
+
+// Relevant Value map API declarations
+  // -- Map specific functions
+  // Get key by its zero-based insertion index. Throws
+  // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
+  // of type Undefined or Map. Throws Hjson::type_mismatch if this Value is of
+  // any other type.
+  std::string key(int) const;
+  // Returns a reference to the Value specified by the key parameter. Throws
+  // Hjson::index_out_of_bounds if this Value does not contain the specified
+  // key and this Value is of type Undefined or Map. Throws
+  // Hjson::type_mismatch if this Value is of any other type.
+  const Value& at(const std::string& key) const;
+  Value& at(const std::string& key);
+  const Value& at(const char *key) const;
+  Value& at(const char *key);
+  // Iterations are always done in alphabetical key order. Returns a default
+  // constructed iterator if this Value is of any other type than Map.
+  std::map<std::string, Value>::iterator begin();
+  std::map<std::string, Value>::iterator end();
+  std::map<std::string, Value>::const_iterator begin() const;
+  std::map<std::string, Value>::const_iterator end() const;
+  // Removes the child element specified by the input key if this Value is of
+  // type Map. Returns the number of erased elements (0 or 1). Throws
+  // Hjson::type_mismatch if this Value is of any other type than Map or
+  // Undefined.
+  size_t erase(const std::string&);
+  size_t erase(const char*);
+
+// Build: test TU includes "hjson_value.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -239,12 +580,117 @@ Value::Value(const Value& other)
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value comment API declarations
+  void set_comment_before(const std::string&);
+  std::string get_comment_before() const;
+  // Sets comment shown between the key and this Value. If this Value is
+  // not an element in a Map, the comment is shown between the "before"
+  // comment and this Value.
+  void set_comment_key(const std::string&);
+  std::string get_comment_key() const;
+  // Sets comment shown right after "[" if this Value is a Vector, or right
+  // after "{" if this Value is a Map. The comment is not shown if this Value
+  // is of any other type than Vector or Map.
+  void set_comment_inside(const std::string&);
+  std::string get_comment_inside() const;
+  // Sets comment shown after this Value.
+  void set_comment_after(const std::string&);
+  std::string get_comment_after() const;
+
+  // Copies all comments from the other Hjson::Value.
+  void set_comments(const Value&);
+  // Removes all comments from this Value.
+  void clear_comments();
+  // A combination of the assignment operator (=) and set_comments(). The
+  // normal assignment operator (=) will not change any comments, unless the
+  // receiving Value is of type Undefined.
+  Value& assign_with_comments(const Value&);
+  Value& assign_with_comments(Value&&);
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -272,12 +718,65 @@ Value& Value::operator=(const Value& other) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value comment API declarations
+  void set_comment_before(const std::string&);
+  std::string get_comment_before() const;
+  // Sets comment shown between the key and this Value. If this Value is
+  // not an element in a Map, the comment is shown between the "before"
+  // comment and this Value.
+  void set_comment_key(const std::string&);
+  std::string get_comment_key() const;
+  // Sets comment shown right after "[" if this Value is a Vector, or right
+  // after "{" if this Value is a Map. The comment is not shown if this Value
+  // is of any other type than Vector or Map.
+  void set_comment_inside(const std::string&);
+  std::string get_comment_inside() const;
+  // Sets comment shown after this Value.
+  void set_comment_after(const std::string&);
+  std::string get_comment_after() const;
+
+  // Copies all comments from the other Hjson::Value.
+  void set_comments(const Value&);
+  // Removes all comments from this Value.
+  void clear_comments();
+  // A combination of the assignment operator (=) and set_comments(). The
+  // normal assignment operator (=) will not change any comments, unless the
+  // receiving Value is of type Undefined.
+  Value& assign_with_comments(const Value&);
+  Value& assign_with_comments(Value&&);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  Value withComments(1);
+  withComments.set_comment_before("# note\n");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -305,12 +804,36 @@ Value& Value::operator=(Value&& other) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -345,13 +868,129 @@ const Value& Value::at(const std::string& name) const {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value map API declarations
+  // -- Map specific functions
+  // Get key by its zero-based insertion index. Throws
+  // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
+  // of type Undefined or Map. Throws Hjson::type_mismatch if this Value is of
+  // any other type.
+  std::string key(int) const;
+  // Returns a reference to the Value specified by the key parameter. Throws
+  // Hjson::index_out_of_bounds if this Value does not contain the specified
+  // key and this Value is of type Undefined or Map. Throws
+  // Hjson::type_mismatch if this Value is of any other type.
+  const Value& at(const std::string& key) const;
+  Value& at(const std::string& key);
+  const Value& at(const char *key) const;
+  Value& at(const char *key);
+  // Iterations are always done in alphabetical key order. Returns a default
+  // constructed iterator if this Value is of any other type than Map.
+  std::map<std::string, Value>::iterator begin();
+  std::map<std::string, Value>::iterator end();
+  std::map<std::string, Value>::const_iterator begin() const;
+  std::map<std::string, Value>::const_iterator end() const;
+  // Removes the child element specified by the input key if this Value is of
+  // type Map. Returns the number of erased elements (0 or 1). Throws
+  // Hjson::type_mismatch if this Value is of any other type than Map or
+  // Undefined.
+  size_t erase(const std::string&);
+  size_t erase(const char*);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value array(Type::Vector);
+  array.push_back(Value(1));
+  Value object(Type::Map);
+  object["key"] = Value(1);
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -386,13 +1025,129 @@ Value& Value::at(const std::string& name) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value map API declarations
+  // -- Map specific functions
+  // Get key by its zero-based insertion index. Throws
+  // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
+  // of type Undefined or Map. Throws Hjson::type_mismatch if this Value is of
+  // any other type.
+  std::string key(int) const;
+  // Returns a reference to the Value specified by the key parameter. Throws
+  // Hjson::index_out_of_bounds if this Value does not contain the specified
+  // key and this Value is of type Undefined or Map. Throws
+  // Hjson::type_mismatch if this Value is of any other type.
+  const Value& at(const std::string& key) const;
+  Value& at(const std::string& key);
+  const Value& at(const char *key) const;
+  Value& at(const char *key);
+  // Iterations are always done in alphabetical key order. Returns a default
+  // constructed iterator if this Value is of any other type than Map.
+  std::map<std::string, Value>::iterator begin();
+  std::map<std::string, Value>::iterator end();
+  std::map<std::string, Value>::const_iterator begin() const;
+  std::map<std::string, Value>::const_iterator end() const;
+  // Removes the child element specified by the input key if this Value is of
+  // type Map. Returns the number of erased elements (0 or 1). Throws
+  // Hjson::type_mismatch if this Value is of any other type than Map or
+  // Undefined.
+  size_t erase(const std::string&);
+  size_t erase(const char*);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value array(Type::Vector);
+  array.push_back(Value(1));
+  Value object(Type::Map);
+  object["key"] = Value(1);
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -422,13 +1177,129 @@ const Value Value::operator[](const std::string& name) const {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value map API declarations
+  // -- Map specific functions
+  // Get key by its zero-based insertion index. Throws
+  // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
+  // of type Undefined or Map. Throws Hjson::type_mismatch if this Value is of
+  // any other type.
+  std::string key(int) const;
+  // Returns a reference to the Value specified by the key parameter. Throws
+  // Hjson::index_out_of_bounds if this Value does not contain the specified
+  // key and this Value is of type Undefined or Map. Throws
+  // Hjson::type_mismatch if this Value is of any other type.
+  const Value& at(const std::string& key) const;
+  Value& at(const std::string& key);
+  const Value& at(const char *key) const;
+  Value& at(const char *key);
+  // Iterations are always done in alphabetical key order. Returns a default
+  // constructed iterator if this Value is of any other type than Map.
+  std::map<std::string, Value>::iterator begin();
+  std::map<std::string, Value>::iterator end();
+  std::map<std::string, Value>::const_iterator begin() const;
+  std::map<std::string, Value>::const_iterator end() const;
+  // Removes the child element specified by the input key if this Value is of
+  // type Map. Returns the number of erased elements (0 or 1). Throws
+  // Hjson::type_mismatch if this Value is of any other type than Map or
+  // Undefined.
+  size_t erase(const std::string&);
+  size_t erase(const char*);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value array(Type::Vector);
+  array.push_back(Value(1));
+  Value object(Type::Map);
+  object["key"] = Value(1);
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -460,13 +1331,164 @@ MapProxy Value::operator[](const std::string& name) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Original MapProxy declaration from hjson.h (access patch applies in benchmark copy only)
+// MapProxy is only used for temporary references to elements in a Map. It is
+// not possible to store a MapProxy in a variable. It only exists to make it
+// possible to check for the existence of a specific key in a Map without
+// creating an empty element in the Map with that key.
+class MapProxy : public Value {
+  private:
+  friend class Value;
+
+
+  std::shared_ptr<ValueImpl> parentPrv;
+  std::string key;
+  Value *pTarget;
+  // True if an explicit assignment has been made to this MapProxy.
+  bool wasAssigned;
+
+  MapProxy(std::shared_ptr<ValueImpl> parent, const std::string& key,
+    Value *pTarget);
+
+  // Make the copy constructor private in order to avoid accidental creation of
+  // MapProxy variables like this:
+  //   auto myVal = val["one"];
+  MapProxy(const MapProxy&) = default;
+  MapProxy(Value&&);
+
+public:
+  ~MapProxy() override;
+  MapProxy& operator =(const MapProxy&);
+  MapProxy& operator =(const Value&);
+  MapProxy& operator =(Value&&);
+  MapProxy& assign_with_comments(const MapProxy&);
+  MapProxy& assign_with_comments(const Value&);
+  MapProxy& assign_with_comments(Value&&);
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value map API declarations
+  // -- Map specific functions
+  // Get key by its zero-based insertion index. Throws
+  // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
+  // of type Undefined or Map. Throws Hjson::type_mismatch if this Value is of
+  // any other type.
+  std::string key(int) const;
+  // Returns a reference to the Value specified by the key parameter. Throws
+  // Hjson::index_out_of_bounds if this Value does not contain the specified
+  // key and this Value is of type Undefined or Map. Throws
+  // Hjson::type_mismatch if this Value is of any other type.
+  const Value& at(const std::string& key) const;
+  Value& at(const std::string& key);
+  const Value& at(const char *key) const;
+  Value& at(const char *key);
+  // Iterations are always done in alphabetical key order. Returns a default
+  // constructed iterator if this Value is of any other type than Map.
+  std::map<std::string, Value>::iterator begin();
+  std::map<std::string, Value>::iterator end();
+  std::map<std::string, Value>::const_iterator begin() const;
+  std::map<std::string, Value>::const_iterator end() const;
+  // Removes the child element specified by the input key if this Value is of
+  // type Map. Returns the number of erased elements (0 or 1). Throws
+  // Hjson::type_mismatch if this Value is of any other type than Map or
+  // Undefined.
+  size_t erase(const std::string&);
+  size_t erase(const char*);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value array(Type::Vector);
+  array.push_back(Value(1));
+  Value object(Type::Map);
+  object["key"] = Value(1);
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -514,13 +1536,144 @@ const Value& Value::operator[](int index) const {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value vector API declarations
+  // -- Vector and Map specific functions
+  // Removes all child elements from this Value if it is of type Vector or Map.
+  // Does nothing if this Value is of any other type.
+  void clear();
+  // Returns the number of child elements contained in this Value if this Value
+  // is of type Vector or Map. Returns 0 if this Value is of any other type.
+  size_t size() const;
+
+  // -- Vector specific function
+  // Increases the size of this Vector by adding a Value at the end. Throws
+  // Hjson::type_mismatch if this Value is of any other type than Vector or
+  // Undefined.
+  void push_back(const Value&);
+
+// Relevant Value map API declarations
+  // -- Map specific functions
+  // Get key by its zero-based insertion index. Throws
+  // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
+  // of type Undefined or Map. Throws Hjson::type_mismatch if this Value is of
+  // any other type.
+  std::string key(int) const;
+  // Returns a reference to the Value specified by the key parameter. Throws
+  // Hjson::index_out_of_bounds if this Value does not contain the specified
+  // key and this Value is of type Undefined or Map. Throws
+  // Hjson::type_mismatch if this Value is of any other type.
+  const Value& at(const std::string& key) const;
+  Value& at(const std::string& key);
+  const Value& at(const char *key) const;
+  Value& at(const char *key);
+  // Iterations are always done in alphabetical key order. Returns a default
+  // constructed iterator if this Value is of any other type than Map.
+  std::map<std::string, Value>::iterator begin();
+  std::map<std::string, Value>::iterator end();
+  std::map<std::string, Value>::const_iterator begin() const;
+  std::map<std::string, Value>::const_iterator end() const;
+  // Removes the child element specified by the input key if this Value is of
+  // type Map. Returns the number of erased elements (0 or 1). Throws
+  // Hjson::type_mismatch if this Value is of any other type than Map or
+  // Undefined.
+  size_t erase(const std::string&);
+  size_t erase(const char*);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value array(Type::Vector);
+  array.push_back(Value(1));
+  Value object(Type::Map);
+  object["key"] = Value(1);
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -568,13 +1721,144 @@ Value& Value::operator[](int index) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value vector API declarations
+  // -- Vector and Map specific functions
+  // Removes all child elements from this Value if it is of type Vector or Map.
+  // Does nothing if this Value is of any other type.
+  void clear();
+  // Returns the number of child elements contained in this Value if this Value
+  // is of type Vector or Map. Returns 0 if this Value is of any other type.
+  size_t size() const;
+
+  // -- Vector specific function
+  // Increases the size of this Vector by adding a Value at the end. Throws
+  // Hjson::type_mismatch if this Value is of any other type than Vector or
+  // Undefined.
+  void push_back(const Value&);
+
+// Relevant Value map API declarations
+  // -- Map specific functions
+  // Get key by its zero-based insertion index. Throws
+  // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
+  // of type Undefined or Map. Throws Hjson::type_mismatch if this Value is of
+  // any other type.
+  std::string key(int) const;
+  // Returns a reference to the Value specified by the key parameter. Throws
+  // Hjson::index_out_of_bounds if this Value does not contain the specified
+  // key and this Value is of type Undefined or Map. Throws
+  // Hjson::type_mismatch if this Value is of any other type.
+  const Value& at(const std::string& key) const;
+  Value& at(const std::string& key);
+  const Value& at(const char *key) const;
+  Value& at(const char *key);
+  // Iterations are always done in alphabetical key order. Returns a default
+  // constructed iterator if this Value is of any other type than Map.
+  std::map<std::string, Value>::iterator begin();
+  std::map<std::string, Value>::iterator end();
+  std::map<std::string, Value>::const_iterator begin() const;
+  std::map<std::string, Value>::const_iterator end() const;
+  // Removes the child element specified by the input key if this Value is of
+  // type Map. Returns the number of erased elements (0 or 1). Throws
+  // Hjson::type_mismatch if this Value is of any other type than Map or
+  // Undefined.
+  size_t erase(const std::string&);
+  size_t erase(const char*);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value array(Type::Vector);
+  array.push_back(Value(1));
+  Value object(Type::Map);
+  object["key"] = Value(1);
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -618,13 +1902,99 @@ Value operator+(const Value& a, const Value& b) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -668,13 +2038,99 @@ bool operator<(const Value& a, const Value& b) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -718,13 +2174,99 @@ bool operator>(const Value& a, const Value& b) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -768,13 +2310,99 @@ bool operator<=(const Value& a, const Value& b) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -818,13 +2446,99 @@ bool operator>=(const Value& a, const Value& b) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -886,13 +2600,144 @@ bool operator==(const Value& a, const Value& b) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value vector API declarations
+  // -- Vector and Map specific functions
+  // Removes all child elements from this Value if it is of type Vector or Map.
+  // Does nothing if this Value is of any other type.
+  void clear();
+  // Returns the number of child elements contained in this Value if this Value
+  // is of type Vector or Map. Returns 0 if this Value is of any other type.
+  size_t size() const;
+
+  // -- Vector specific function
+  // Increases the size of this Vector by adding a Value at the end. Throws
+  // Hjson::type_mismatch if this Value is of any other type than Vector or
+  // Undefined.
+  void push_back(const Value&);
+
+// Relevant Value map API declarations
+  // -- Map specific functions
+  // Get key by its zero-based insertion index. Throws
+  // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
+  // of type Undefined or Map. Throws Hjson::type_mismatch if this Value is of
+  // any other type.
+  std::string key(int) const;
+  // Returns a reference to the Value specified by the key parameter. Throws
+  // Hjson::index_out_of_bounds if this Value does not contain the specified
+  // key and this Value is of type Undefined or Map. Throws
+  // Hjson::type_mismatch if this Value is of any other type.
+  const Value& at(const std::string& key) const;
+  Value& at(const std::string& key);
+  const Value& at(const char *key) const;
+  Value& at(const char *key);
+  // Iterations are always done in alphabetical key order. Returns a default
+  // constructed iterator if this Value is of any other type than Map.
+  std::map<std::string, Value>::iterator begin();
+  std::map<std::string, Value>::iterator end();
+  std::map<std::string, Value>::const_iterator begin() const;
+  std::map<std::string, Value>::const_iterator end() const;
+  // Removes the child element specified by the input key if this Value is of
+  // type Map. Returns the number of erased elements (0 or 1). Throws
+  // Hjson::type_mismatch if this Value is of any other type than Map or
+  // Undefined.
+  size_t erase(const std::string&);
+  size_t erase(const char*);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value array(Type::Vector);
+  array.push_back(Value(1));
+  Value object(Type::Map);
+  object["key"] = Value(1);
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -932,13 +2777,99 @@ Value operator-(const Value& a, const Value& b) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -978,13 +2909,99 @@ Value operator*(const Value& a, const Value& b) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1024,13 +3041,99 @@ Value operator/(const Value& a, const Value& b) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1054,13 +3157,99 @@ Value operator%(const Value& a, const Value& b) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1086,13 +3275,99 @@ Value& Value::operator+=(const std::string& b) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1144,13 +3419,99 @@ Value& Value::operator+=(const Value& b) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1197,13 +3558,99 @@ Value& Value::operator*=(const Value& b) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1250,13 +3697,99 @@ Value& Value::operator/=(const Value& b) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1282,13 +3815,99 @@ Value& Value::operator%=(const Value& b) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1323,13 +3942,99 @@ Value Value::operator+() const {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1364,13 +4069,99 @@ Value Value::operator-() const {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1407,13 +4198,99 @@ Value& Value::operator++() {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1450,13 +4327,99 @@ Value& Value::operator--() {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1497,13 +4460,99 @@ Value Value::operator++(int) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1544,13 +4593,99 @@ Value Value::operator--(int) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1584,13 +4719,99 @@ Value::operator bool() const {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1622,13 +4843,99 @@ Value::operator double() const {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1676,13 +4983,100 @@ Value::operator long long() const {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// HJSON_CONV_INT_IMPL expands integer conversion operators; the branch-bearing implementation in this focal block is Value::operator long long().
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1706,13 +5100,99 @@ Value::operator const char*() const {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1736,13 +5216,99 @@ Value::operator std::string() const {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1766,13 +5332,144 @@ bool Value::empty() const {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value vector API declarations
+  // -- Vector and Map specific functions
+  // Removes all child elements from this Value if it is of type Vector or Map.
+  // Does nothing if this Value is of any other type.
+  void clear();
+  // Returns the number of child elements contained in this Value if this Value
+  // is of type Vector or Map. Returns 0 if this Value is of any other type.
+  size_t size() const;
+
+  // -- Vector specific function
+  // Increases the size of this Vector by adding a Value at the end. Throws
+  // Hjson::type_mismatch if this Value is of any other type than Vector or
+  // Undefined.
+  void push_back(const Value&);
+
+// Relevant Value map API declarations
+  // -- Map specific functions
+  // Get key by its zero-based insertion index. Throws
+  // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
+  // of type Undefined or Map. Throws Hjson::type_mismatch if this Value is of
+  // any other type.
+  std::string key(int) const;
+  // Returns a reference to the Value specified by the key parameter. Throws
+  // Hjson::index_out_of_bounds if this Value does not contain the specified
+  // key and this Value is of type Undefined or Map. Throws
+  // Hjson::type_mismatch if this Value is of any other type.
+  const Value& at(const std::string& key) const;
+  Value& at(const std::string& key);
+  const Value& at(const char *key) const;
+  Value& at(const char *key);
+  // Iterations are always done in alphabetical key order. Returns a default
+  // constructed iterator if this Value is of any other type than Map.
+  std::map<std::string, Value>::iterator begin();
+  std::map<std::string, Value>::iterator end();
+  std::map<std::string, Value>::const_iterator begin() const;
+  std::map<std::string, Value>::const_iterator end() const;
+  // Removes the child element specified by the input key if this Value is of
+  // type Map. Returns the number of erased elements (0 or 1). Throws
+  // Hjson::type_mismatch if this Value is of any other type than Map or
+  // Undefined.
+  size_t erase(const std::string&);
+  size_t erase(const char*);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value array(Type::Vector);
+  array.push_back(Value(1));
+  Value object(Type::Map);
+  object["key"] = Value(1);
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1792,13 +5489,144 @@ bool Value::is_container() const {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value vector API declarations
+  // -- Vector and Map specific functions
+  // Removes all child elements from this Value if it is of type Vector or Map.
+  // Does nothing if this Value is of any other type.
+  void clear();
+  // Returns the number of child elements contained in this Value if this Value
+  // is of type Vector or Map. Returns 0 if this Value is of any other type.
+  size_t size() const;
+
+  // -- Vector specific function
+  // Increases the size of this Vector by adding a Value at the end. Throws
+  // Hjson::type_mismatch if this Value is of any other type than Vector or
+  // Undefined.
+  void push_back(const Value&);
+
+// Relevant Value map API declarations
+  // -- Map specific functions
+  // Get key by its zero-based insertion index. Throws
+  // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
+  // of type Undefined or Map. Throws Hjson::type_mismatch if this Value is of
+  // any other type.
+  std::string key(int) const;
+  // Returns a reference to the Value specified by the key parameter. Throws
+  // Hjson::index_out_of_bounds if this Value does not contain the specified
+  // key and this Value is of type Undefined or Map. Throws
+  // Hjson::type_mismatch if this Value is of any other type.
+  const Value& at(const std::string& key) const;
+  Value& at(const std::string& key);
+  const Value& at(const char *key) const;
+  Value& at(const char *key);
+  // Iterations are always done in alphabetical key order. Returns a default
+  // constructed iterator if this Value is of any other type than Map.
+  std::map<std::string, Value>::iterator begin();
+  std::map<std::string, Value>::iterator end();
+  std::map<std::string, Value>::const_iterator begin() const;
+  std::map<std::string, Value>::const_iterator end() const;
+  // Removes the child element specified by the input key if this Value is of
+  // type Map. Returns the number of erased elements (0 or 1). Throws
+  // Hjson::type_mismatch if this Value is of any other type than Map or
+  // Undefined.
+  size_t erase(const std::string&);
+  size_t erase(const char*);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value array(Type::Vector);
+  array.push_back(Value(1));
+  Value object(Type::Map);
+  object["key"] = Value(1);
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1818,13 +5646,99 @@ bool Value::is_numeric() const {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1854,13 +5768,144 @@ size_t Value::size() const {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value vector API declarations
+  // -- Vector and Map specific functions
+  // Removes all child elements from this Value if it is of type Vector or Map.
+  // Does nothing if this Value is of any other type.
+  void clear();
+  // Returns the number of child elements contained in this Value if this Value
+  // is of type Vector or Map. Returns 0 if this Value is of any other type.
+  size_t size() const;
+
+  // -- Vector specific function
+  // Increases the size of this Vector by adding a Value at the end. Throws
+  // Hjson::type_mismatch if this Value is of any other type than Vector or
+  // Undefined.
+  void push_back(const Value&);
+
+// Relevant Value map API declarations
+  // -- Map specific functions
+  // Get key by its zero-based insertion index. Throws
+  // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
+  // of type Undefined or Map. Throws Hjson::type_mismatch if this Value is of
+  // any other type.
+  std::string key(int) const;
+  // Returns a reference to the Value specified by the key parameter. Throws
+  // Hjson::index_out_of_bounds if this Value does not contain the specified
+  // key and this Value is of type Undefined or Map. Throws
+  // Hjson::type_mismatch if this Value is of any other type.
+  const Value& at(const std::string& key) const;
+  Value& at(const std::string& key);
+  const Value& at(const char *key) const;
+  Value& at(const char *key);
+  // Iterations are always done in alphabetical key order. Returns a default
+  // constructed iterator if this Value is of any other type than Map.
+  std::map<std::string, Value>::iterator begin();
+  std::map<std::string, Value>::iterator end();
+  std::map<std::string, Value>::const_iterator begin() const;
+  std::map<std::string, Value>::const_iterator end() const;
+  // Removes the child element specified by the input key if this Value is of
+  // type Map. Returns the number of erased elements (0 or 1). Throws
+  // Hjson::type_mismatch if this Value is of any other type than Map or
+  // Undefined.
+  size_t erase(const std::string&);
+  size_t erase(const char*);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value array(Type::Vector);
+  array.push_back(Value(1));
+  Value object(Type::Map);
+  object["key"] = Value(1);
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1922,13 +5967,144 @@ bool Value::deep_equal(const Value& other) const {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value vector API declarations
+  // -- Vector and Map specific functions
+  // Removes all child elements from this Value if it is of type Vector or Map.
+  // Does nothing if this Value is of any other type.
+  void clear();
+  // Returns the number of child elements contained in this Value if this Value
+  // is of type Vector or Map. Returns 0 if this Value is of any other type.
+  size_t size() const;
+
+  // -- Vector specific function
+  // Increases the size of this Vector by adding a Value at the end. Throws
+  // Hjson::type_mismatch if this Value is of any other type than Vector or
+  // Undefined.
+  void push_back(const Value&);
+
+// Relevant Value map API declarations
+  // -- Map specific functions
+  // Get key by its zero-based insertion index. Throws
+  // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
+  // of type Undefined or Map. Throws Hjson::type_mismatch if this Value is of
+  // any other type.
+  std::string key(int) const;
+  // Returns a reference to the Value specified by the key parameter. Throws
+  // Hjson::index_out_of_bounds if this Value does not contain the specified
+  // key and this Value is of type Undefined or Map. Throws
+  // Hjson::type_mismatch if this Value is of any other type.
+  const Value& at(const std::string& key) const;
+  Value& at(const std::string& key);
+  const Value& at(const char *key) const;
+  Value& at(const char *key);
+  // Iterations are always done in alphabetical key order. Returns a default
+  // constructed iterator if this Value is of any other type than Map.
+  std::map<std::string, Value>::iterator begin();
+  std::map<std::string, Value>::iterator end();
+  std::map<std::string, Value>::const_iterator begin() const;
+  std::map<std::string, Value>::const_iterator end() const;
+  // Removes the child element specified by the input key if this Value is of
+  // type Map. Returns the number of erased elements (0 or 1). Throws
+  // Hjson::type_mismatch if this Value is of any other type than Map or
+  // Undefined.
+  size_t erase(const std::string&);
+  size_t erase(const char*);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value array(Type::Vector);
+  array.push_back(Value(1));
+  Value object(Type::Map);
+  object["key"] = Value(1);
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1974,13 +6150,173 @@ Value Value::clone() const {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value vector API declarations
+  // -- Vector and Map specific functions
+  // Removes all child elements from this Value if it is of type Vector or Map.
+  // Does nothing if this Value is of any other type.
+  void clear();
+  // Returns the number of child elements contained in this Value if this Value
+  // is of type Vector or Map. Returns 0 if this Value is of any other type.
+  size_t size() const;
+
+  // -- Vector specific function
+  // Increases the size of this Vector by adding a Value at the end. Throws
+  // Hjson::type_mismatch if this Value is of any other type than Vector or
+  // Undefined.
+  void push_back(const Value&);
+
+// Relevant Value map API declarations
+  // -- Map specific functions
+  // Get key by its zero-based insertion index. Throws
+  // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
+  // of type Undefined or Map. Throws Hjson::type_mismatch if this Value is of
+  // any other type.
+  std::string key(int) const;
+  // Returns a reference to the Value specified by the key parameter. Throws
+  // Hjson::index_out_of_bounds if this Value does not contain the specified
+  // key and this Value is of type Undefined or Map. Throws
+  // Hjson::type_mismatch if this Value is of any other type.
+  const Value& at(const std::string& key) const;
+  Value& at(const std::string& key);
+  const Value& at(const char *key) const;
+  Value& at(const char *key);
+  // Iterations are always done in alphabetical key order. Returns a default
+  // constructed iterator if this Value is of any other type than Map.
+  std::map<std::string, Value>::iterator begin();
+  std::map<std::string, Value>::iterator end();
+  std::map<std::string, Value>::const_iterator begin() const;
+  std::map<std::string, Value>::const_iterator end() const;
+  // Removes the child element specified by the input key if this Value is of
+  // type Map. Returns the number of erased elements (0 or 1). Throws
+  // Hjson::type_mismatch if this Value is of any other type than Map or
+  // Undefined.
+  size_t erase(const std::string&);
+  size_t erase(const char*);
+
+// Relevant Value comment API declarations
+  void set_comment_before(const std::string&);
+  std::string get_comment_before() const;
+  // Sets comment shown between the key and this Value. If this Value is
+  // not an element in a Map, the comment is shown between the "before"
+  // comment and this Value.
+  void set_comment_key(const std::string&);
+  std::string get_comment_key() const;
+  // Sets comment shown right after "[" if this Value is a Vector, or right
+  // after "{" if this Value is a Map. The comment is not shown if this Value
+  // is of any other type than Vector or Map.
+  void set_comment_inside(const std::string&);
+  std::string get_comment_inside() const;
+  // Sets comment shown after this Value.
+  void set_comment_after(const std::string&);
+  std::string get_comment_after() const;
+
+  // Copies all comments from the other Hjson::Value.
+  void set_comments(const Value&);
+  // Removes all comments from this Value.
+  void clear_comments();
+  // A combination of the assignment operator (=) and set_comments(). The
+  // normal assignment operator (=) will not change any comments, unless the
+  // receiving Value is of type Undefined.
+  Value& assign_with_comments(const Value&);
+  Value& assign_with_comments(Value&&);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value array(Type::Vector);
+  array.push_back(Value(1));
+  Value object(Type::Map);
+  object["key"] = Value(1);
+  Value withComments(1);
+  withComments.set_comment_before("# note\n");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2013,13 +6349,144 @@ void Value::clear() {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value vector API declarations
+  // -- Vector and Map specific functions
+  // Removes all child elements from this Value if it is of type Vector or Map.
+  // Does nothing if this Value is of any other type.
+  void clear();
+  // Returns the number of child elements contained in this Value if this Value
+  // is of type Vector or Map. Returns 0 if this Value is of any other type.
+  size_t size() const;
+
+  // -- Vector specific function
+  // Increases the size of this Vector by adding a Value at the end. Throws
+  // Hjson::type_mismatch if this Value is of any other type than Vector or
+  // Undefined.
+  void push_back(const Value&);
+
+// Relevant Value map API declarations
+  // -- Map specific functions
+  // Get key by its zero-based insertion index. Throws
+  // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
+  // of type Undefined or Map. Throws Hjson::type_mismatch if this Value is of
+  // any other type.
+  std::string key(int) const;
+  // Returns a reference to the Value specified by the key parameter. Throws
+  // Hjson::index_out_of_bounds if this Value does not contain the specified
+  // key and this Value is of type Undefined or Map. Throws
+  // Hjson::type_mismatch if this Value is of any other type.
+  const Value& at(const std::string& key) const;
+  Value& at(const std::string& key);
+  const Value& at(const char *key) const;
+  Value& at(const char *key);
+  // Iterations are always done in alphabetical key order. Returns a default
+  // constructed iterator if this Value is of any other type than Map.
+  std::map<std::string, Value>::iterator begin();
+  std::map<std::string, Value>::iterator end();
+  std::map<std::string, Value>::const_iterator begin() const;
+  std::map<std::string, Value>::const_iterator end() const;
+  // Removes the child element specified by the input key if this Value is of
+  // type Map. Returns the number of erased elements (0 or 1). Throws
+  // Hjson::type_mismatch if this Value is of any other type than Map or
+  // Undefined.
+  size_t erase(const std::string&);
+  size_t erase(const char*);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value array(Type::Vector);
+  array.push_back(Value(1));
+  Value object(Type::Map);
+  object["key"] = Value(1);
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2068,13 +6535,144 @@ void Value::erase(int index) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value vector API declarations
+  // -- Vector and Map specific functions
+  // Removes all child elements from this Value if it is of type Vector or Map.
+  // Does nothing if this Value is of any other type.
+  void clear();
+  // Returns the number of child elements contained in this Value if this Value
+  // is of type Vector or Map. Returns 0 if this Value is of any other type.
+  size_t size() const;
+
+  // -- Vector specific function
+  // Increases the size of this Vector by adding a Value at the end. Throws
+  // Hjson::type_mismatch if this Value is of any other type than Vector or
+  // Undefined.
+  void push_back(const Value&);
+
+// Relevant Value map API declarations
+  // -- Map specific functions
+  // Get key by its zero-based insertion index. Throws
+  // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
+  // of type Undefined or Map. Throws Hjson::type_mismatch if this Value is of
+  // any other type.
+  std::string key(int) const;
+  // Returns a reference to the Value specified by the key parameter. Throws
+  // Hjson::index_out_of_bounds if this Value does not contain the specified
+  // key and this Value is of type Undefined or Map. Throws
+  // Hjson::type_mismatch if this Value is of any other type.
+  const Value& at(const std::string& key) const;
+  Value& at(const std::string& key);
+  const Value& at(const char *key) const;
+  Value& at(const char *key);
+  // Iterations are always done in alphabetical key order. Returns a default
+  // constructed iterator if this Value is of any other type than Map.
+  std::map<std::string, Value>::iterator begin();
+  std::map<std::string, Value>::iterator end();
+  std::map<std::string, Value>::const_iterator begin() const;
+  std::map<std::string, Value>::const_iterator end() const;
+  // Removes the child element specified by the input key if this Value is of
+  // type Map. Returns the number of erased elements (0 or 1). Throws
+  // Hjson::type_mismatch if this Value is of any other type than Map or
+  // Undefined.
+  size_t erase(const std::string&);
+  size_t erase(const char*);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value array(Type::Vector);
+  array.push_back(Value(1));
+  Value object(Type::Map);
+  object["key"] = Value(1);
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2102,13 +6700,116 @@ void Value::push_back(const Value& other) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value vector API declarations
+  // -- Vector and Map specific functions
+  // Removes all child elements from this Value if it is of type Vector or Map.
+  // Does nothing if this Value is of any other type.
+  void clear();
+  // Returns the number of child elements contained in this Value if this Value
+  // is of type Vector or Map. Returns 0 if this Value is of any other type.
+  size_t size() const;
+
+  // -- Vector specific function
+  // Increases the size of this Vector by adding a Value at the end. Throws
+  // Hjson::type_mismatch if this Value is of any other type than Vector or
+  // Undefined.
+  void push_back(const Value&);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value array(Type::Vector);
+  array.push_back(Value(1));
+  Value object(Type::Map);
+  object["key"] = Value(1);
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2173,13 +6874,144 @@ void Value::move(int from, int to) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value vector API declarations
+  // -- Vector and Map specific functions
+  // Removes all child elements from this Value if it is of type Vector or Map.
+  // Does nothing if this Value is of any other type.
+  void clear();
+  // Returns the number of child elements contained in this Value if this Value
+  // is of type Vector or Map. Returns 0 if this Value is of any other type.
+  size_t size() const;
+
+  // -- Vector specific function
+  // Increases the size of this Vector by adding a Value at the end. Throws
+  // Hjson::type_mismatch if this Value is of any other type than Vector or
+  // Undefined.
+  void push_back(const Value&);
+
+// Relevant Value map API declarations
+  // -- Map specific functions
+  // Get key by its zero-based insertion index. Throws
+  // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
+  // of type Undefined or Map. Throws Hjson::type_mismatch if this Value is of
+  // any other type.
+  std::string key(int) const;
+  // Returns a reference to the Value specified by the key parameter. Throws
+  // Hjson::index_out_of_bounds if this Value does not contain the specified
+  // key and this Value is of type Undefined or Map. Throws
+  // Hjson::type_mismatch if this Value is of any other type.
+  const Value& at(const std::string& key) const;
+  Value& at(const std::string& key);
+  const Value& at(const char *key) const;
+  Value& at(const char *key);
+  // Iterations are always done in alphabetical key order. Returns a default
+  // constructed iterator if this Value is of any other type than Map.
+  std::map<std::string, Value>::iterator begin();
+  std::map<std::string, Value>::iterator end();
+  std::map<std::string, Value>::const_iterator begin() const;
+  std::map<std::string, Value>::const_iterator end() const;
+  // Removes the child element specified by the input key if this Value is of
+  // type Map. Returns the number of erased elements (0 or 1). Throws
+  // Hjson::type_mismatch if this Value is of any other type than Map or
+  // Undefined.
+  size_t erase(const std::string&);
+  size_t erase(const char*);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value array(Type::Vector);
+  array.push_back(Value(1));
+  Value object(Type::Map);
+  object["key"] = Value(1);
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2210,13 +7042,129 @@ std::string Value::key(int index) const {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value map API declarations
+  // -- Map specific functions
+  // Get key by its zero-based insertion index. Throws
+  // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
+  // of type Undefined or Map. Throws Hjson::type_mismatch if this Value is of
+  // any other type.
+  std::string key(int) const;
+  // Returns a reference to the Value specified by the key parameter. Throws
+  // Hjson::index_out_of_bounds if this Value does not contain the specified
+  // key and this Value is of type Undefined or Map. Throws
+  // Hjson::type_mismatch if this Value is of any other type.
+  const Value& at(const std::string& key) const;
+  Value& at(const std::string& key);
+  const Value& at(const char *key) const;
+  Value& at(const char *key);
+  // Iterations are always done in alphabetical key order. Returns a default
+  // constructed iterator if this Value is of any other type than Map.
+  std::map<std::string, Value>::iterator begin();
+  std::map<std::string, Value>::iterator end();
+  std::map<std::string, Value>::const_iterator begin() const;
+  std::map<std::string, Value>::const_iterator end() const;
+  // Removes the child element specified by the input key if this Value is of
+  // type Map. Returns the number of erased elements (0 or 1). Throws
+  // Hjson::type_mismatch if this Value is of any other type than Map or
+  // Undefined.
+  size_t erase(const std::string&);
+  size_t erase(const char*);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value array(Type::Vector);
+  array.push_back(Value(1));
+  Value object(Type::Map);
+  object["key"] = Value(1);
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2242,13 +7190,129 @@ ValueMap::iterator Value::begin() {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value map API declarations
+  // -- Map specific functions
+  // Get key by its zero-based insertion index. Throws
+  // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
+  // of type Undefined or Map. Throws Hjson::type_mismatch if this Value is of
+  // any other type.
+  std::string key(int) const;
+  // Returns a reference to the Value specified by the key parameter. Throws
+  // Hjson::index_out_of_bounds if this Value does not contain the specified
+  // key and this Value is of type Undefined or Map. Throws
+  // Hjson::type_mismatch if this Value is of any other type.
+  const Value& at(const std::string& key) const;
+  Value& at(const std::string& key);
+  const Value& at(const char *key) const;
+  Value& at(const char *key);
+  // Iterations are always done in alphabetical key order. Returns a default
+  // constructed iterator if this Value is of any other type than Map.
+  std::map<std::string, Value>::iterator begin();
+  std::map<std::string, Value>::iterator end();
+  std::map<std::string, Value>::const_iterator begin() const;
+  std::map<std::string, Value>::const_iterator end() const;
+  // Removes the child element specified by the input key if this Value is of
+  // type Map. Returns the number of erased elements (0 or 1). Throws
+  // Hjson::type_mismatch if this Value is of any other type than Map or
+  // Undefined.
+  size_t erase(const std::string&);
+  size_t erase(const char*);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value array(Type::Vector);
+  array.push_back(Value(1));
+  Value object(Type::Map);
+  object["key"] = Value(1);
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2274,13 +7338,129 @@ ValueMap::iterator Value::end() {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value map API declarations
+  // -- Map specific functions
+  // Get key by its zero-based insertion index. Throws
+  // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
+  // of type Undefined or Map. Throws Hjson::type_mismatch if this Value is of
+  // any other type.
+  std::string key(int) const;
+  // Returns a reference to the Value specified by the key parameter. Throws
+  // Hjson::index_out_of_bounds if this Value does not contain the specified
+  // key and this Value is of type Undefined or Map. Throws
+  // Hjson::type_mismatch if this Value is of any other type.
+  const Value& at(const std::string& key) const;
+  Value& at(const std::string& key);
+  const Value& at(const char *key) const;
+  Value& at(const char *key);
+  // Iterations are always done in alphabetical key order. Returns a default
+  // constructed iterator if this Value is of any other type than Map.
+  std::map<std::string, Value>::iterator begin();
+  std::map<std::string, Value>::iterator end();
+  std::map<std::string, Value>::const_iterator begin() const;
+  std::map<std::string, Value>::const_iterator end() const;
+  // Removes the child element specified by the input key if this Value is of
+  // type Map. Returns the number of erased elements (0 or 1). Throws
+  // Hjson::type_mismatch if this Value is of any other type than Map or
+  // Undefined.
+  size_t erase(const std::string&);
+  size_t erase(const char*);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value array(Type::Vector);
+  array.push_back(Value(1));
+  Value object(Type::Map);
+  object["key"] = Value(1);
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2306,13 +7486,129 @@ ValueMap::const_iterator Value::begin() const {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value map API declarations
+  // -- Map specific functions
+  // Get key by its zero-based insertion index. Throws
+  // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
+  // of type Undefined or Map. Throws Hjson::type_mismatch if this Value is of
+  // any other type.
+  std::string key(int) const;
+  // Returns a reference to the Value specified by the key parameter. Throws
+  // Hjson::index_out_of_bounds if this Value does not contain the specified
+  // key and this Value is of type Undefined or Map. Throws
+  // Hjson::type_mismatch if this Value is of any other type.
+  const Value& at(const std::string& key) const;
+  Value& at(const std::string& key);
+  const Value& at(const char *key) const;
+  Value& at(const char *key);
+  // Iterations are always done in alphabetical key order. Returns a default
+  // constructed iterator if this Value is of any other type than Map.
+  std::map<std::string, Value>::iterator begin();
+  std::map<std::string, Value>::iterator end();
+  std::map<std::string, Value>::const_iterator begin() const;
+  std::map<std::string, Value>::const_iterator end() const;
+  // Removes the child element specified by the input key if this Value is of
+  // type Map. Returns the number of erased elements (0 or 1). Throws
+  // Hjson::type_mismatch if this Value is of any other type than Map or
+  // Undefined.
+  size_t erase(const std::string&);
+  size_t erase(const char*);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value array(Type::Vector);
+  array.push_back(Value(1));
+  Value object(Type::Map);
+  object["key"] = Value(1);
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2338,13 +7634,129 @@ ValueMap::const_iterator Value::end() const {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value map API declarations
+  // -- Map specific functions
+  // Get key by its zero-based insertion index. Throws
+  // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
+  // of type Undefined or Map. Throws Hjson::type_mismatch if this Value is of
+  // any other type.
+  std::string key(int) const;
+  // Returns a reference to the Value specified by the key parameter. Throws
+  // Hjson::index_out_of_bounds if this Value does not contain the specified
+  // key and this Value is of type Undefined or Map. Throws
+  // Hjson::type_mismatch if this Value is of any other type.
+  const Value& at(const std::string& key) const;
+  Value& at(const std::string& key);
+  const Value& at(const char *key) const;
+  Value& at(const char *key);
+  // Iterations are always done in alphabetical key order. Returns a default
+  // constructed iterator if this Value is of any other type than Map.
+  std::map<std::string, Value>::iterator begin();
+  std::map<std::string, Value>::iterator end();
+  std::map<std::string, Value>::const_iterator begin() const;
+  std::map<std::string, Value>::const_iterator end() const;
+  // Removes the child element specified by the input key if this Value is of
+  // type Map. Returns the number of erased elements (0 or 1). Throws
+  // Hjson::type_mismatch if this Value is of any other type than Map or
+  // Undefined.
+  size_t erase(const std::string&);
+  size_t erase(const char*);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value array(Type::Vector);
+  array.push_back(Value(1));
+  Value object(Type::Map);
+  object["key"] = Value(1);
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2382,13 +7794,129 @@ size_t Value::erase(const std::string &key) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value map API declarations
+  // -- Map specific functions
+  // Get key by its zero-based insertion index. Throws
+  // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
+  // of type Undefined or Map. Throws Hjson::type_mismatch if this Value is of
+  // any other type.
+  std::string key(int) const;
+  // Returns a reference to the Value specified by the key parameter. Throws
+  // Hjson::index_out_of_bounds if this Value does not contain the specified
+  // key and this Value is of type Undefined or Map. Throws
+  // Hjson::type_mismatch if this Value is of any other type.
+  const Value& at(const std::string& key) const;
+  Value& at(const std::string& key);
+  const Value& at(const char *key) const;
+  Value& at(const char *key);
+  // Iterations are always done in alphabetical key order. Returns a default
+  // constructed iterator if this Value is of any other type than Map.
+  std::map<std::string, Value>::iterator begin();
+  std::map<std::string, Value>::iterator end();
+  std::map<std::string, Value>::const_iterator begin() const;
+  std::map<std::string, Value>::const_iterator end() const;
+  // Removes the child element specified by the input key if this Value is of
+  // type Map. Returns the number of erased elements (0 or 1). Throws
+  // Hjson::type_mismatch if this Value is of any other type than Map or
+  // Undefined.
+  size_t erase(const std::string&);
+  size_t erase(const char*);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value array(Type::Vector);
+  array.push_back(Value(1));
+  Value object(Type::Map);
+  object["key"] = Value(1);
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2462,13 +7990,99 @@ double Value::to_double() const {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2543,13 +8157,99 @@ std::int64_t Value::to_int64() const {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2677,13 +8377,114 @@ std::string Value::to_string() const {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value vector API declarations
+  // -- Vector and Map specific functions
+  // Removes all child elements from this Value if it is of type Vector or Map.
+  // Does nothing if this Value is of any other type.
+  void clear();
+  // Returns the number of child elements contained in this Value if this Value
+  // is of type Vector or Map. Returns 0 if this Value is of any other type.
+  size_t size() const;
+
+  // -- Vector specific function
+  // Increases the size of this Vector by adding a Value at the end. Throws
+  // Hjson::type_mismatch if this Value is of any other type than Vector or
+  // Undefined.
+  void push_back(const Value&);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2710,12 +8511,128 @@ void Value::set_comment_before(const std::string& str) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value comment API declarations
+  void set_comment_before(const std::string&);
+  std::string get_comment_before() const;
+  // Sets comment shown between the key and this Value. If this Value is
+  // not an element in a Map, the comment is shown between the "before"
+  // comment and this Value.
+  void set_comment_key(const std::string&);
+  std::string get_comment_key() const;
+  // Sets comment shown right after "[" if this Value is a Vector, or right
+  // after "{" if this Value is a Map. The comment is not shown if this Value
+  // is of any other type than Vector or Map.
+  void set_comment_inside(const std::string&);
+  std::string get_comment_inside() const;
+  // Sets comment shown after this Value.
+  void set_comment_after(const std::string&);
+  std::string get_comment_after() const;
+
+  // Copies all comments from the other Hjson::Value.
+  void set_comments(const Value&);
+  // Removes all comments from this Value.
+  void clear_comments();
+  // A combination of the assignment operator (=) and set_comments(). The
+  // normal assignment operator (=) will not change any comments, unless the
+  // receiving Value is of type Undefined.
+  Value& assign_with_comments(const Value&);
+  Value& assign_with_comments(Value&&);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  Value withComments(1);
+  withComments.set_comment_before("# note\n");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2739,12 +8656,128 @@ std::string Value::get_comment_before() const {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value comment API declarations
+  void set_comment_before(const std::string&);
+  std::string get_comment_before() const;
+  // Sets comment shown between the key and this Value. If this Value is
+  // not an element in a Map, the comment is shown between the "before"
+  // comment and this Value.
+  void set_comment_key(const std::string&);
+  std::string get_comment_key() const;
+  // Sets comment shown right after "[" if this Value is a Vector, or right
+  // after "{" if this Value is a Map. The comment is not shown if this Value
+  // is of any other type than Vector or Map.
+  void set_comment_inside(const std::string&);
+  std::string get_comment_inside() const;
+  // Sets comment shown after this Value.
+  void set_comment_after(const std::string&);
+  std::string get_comment_after() const;
+
+  // Copies all comments from the other Hjson::Value.
+  void set_comments(const Value&);
+  // Removes all comments from this Value.
+  void clear_comments();
+  // A combination of the assignment operator (=) and set_comments(). The
+  // normal assignment operator (=) will not change any comments, unless the
+  // receiving Value is of type Undefined.
+  Value& assign_with_comments(const Value&);
+  Value& assign_with_comments(Value&&);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  Value withComments(1);
+  withComments.set_comment_before("# note\n");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2771,12 +8804,128 @@ void Value::set_comment_key(const std::string& str) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value comment API declarations
+  void set_comment_before(const std::string&);
+  std::string get_comment_before() const;
+  // Sets comment shown between the key and this Value. If this Value is
+  // not an element in a Map, the comment is shown between the "before"
+  // comment and this Value.
+  void set_comment_key(const std::string&);
+  std::string get_comment_key() const;
+  // Sets comment shown right after "[" if this Value is a Vector, or right
+  // after "{" if this Value is a Map. The comment is not shown if this Value
+  // is of any other type than Vector or Map.
+  void set_comment_inside(const std::string&);
+  std::string get_comment_inside() const;
+  // Sets comment shown after this Value.
+  void set_comment_after(const std::string&);
+  std::string get_comment_after() const;
+
+  // Copies all comments from the other Hjson::Value.
+  void set_comments(const Value&);
+  // Removes all comments from this Value.
+  void clear_comments();
+  // A combination of the assignment operator (=) and set_comments(). The
+  // normal assignment operator (=) will not change any comments, unless the
+  // receiving Value is of type Undefined.
+  Value& assign_with_comments(const Value&);
+  Value& assign_with_comments(Value&&);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  Value withComments(1);
+  withComments.set_comment_before("# note\n");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2800,12 +8949,128 @@ std::string Value::get_comment_key() const {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value comment API declarations
+  void set_comment_before(const std::string&);
+  std::string get_comment_before() const;
+  // Sets comment shown between the key and this Value. If this Value is
+  // not an element in a Map, the comment is shown between the "before"
+  // comment and this Value.
+  void set_comment_key(const std::string&);
+  std::string get_comment_key() const;
+  // Sets comment shown right after "[" if this Value is a Vector, or right
+  // after "{" if this Value is a Map. The comment is not shown if this Value
+  // is of any other type than Vector or Map.
+  void set_comment_inside(const std::string&);
+  std::string get_comment_inside() const;
+  // Sets comment shown after this Value.
+  void set_comment_after(const std::string&);
+  std::string get_comment_after() const;
+
+  // Copies all comments from the other Hjson::Value.
+  void set_comments(const Value&);
+  // Removes all comments from this Value.
+  void clear_comments();
+  // A combination of the assignment operator (=) and set_comments(). The
+  // normal assignment operator (=) will not change any comments, unless the
+  // receiving Value is of type Undefined.
+  Value& assign_with_comments(const Value&);
+  Value& assign_with_comments(Value&&);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  Value withComments(1);
+  withComments.set_comment_before("# note\n");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2832,12 +9097,128 @@ void Value::set_comment_inside(const std::string& str) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value comment API declarations
+  void set_comment_before(const std::string&);
+  std::string get_comment_before() const;
+  // Sets comment shown between the key and this Value. If this Value is
+  // not an element in a Map, the comment is shown between the "before"
+  // comment and this Value.
+  void set_comment_key(const std::string&);
+  std::string get_comment_key() const;
+  // Sets comment shown right after "[" if this Value is a Vector, or right
+  // after "{" if this Value is a Map. The comment is not shown if this Value
+  // is of any other type than Vector or Map.
+  void set_comment_inside(const std::string&);
+  std::string get_comment_inside() const;
+  // Sets comment shown after this Value.
+  void set_comment_after(const std::string&);
+  std::string get_comment_after() const;
+
+  // Copies all comments from the other Hjson::Value.
+  void set_comments(const Value&);
+  // Removes all comments from this Value.
+  void clear_comments();
+  // A combination of the assignment operator (=) and set_comments(). The
+  // normal assignment operator (=) will not change any comments, unless the
+  // receiving Value is of type Undefined.
+  Value& assign_with_comments(const Value&);
+  Value& assign_with_comments(Value&&);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  Value withComments(1);
+  withComments.set_comment_before("# note\n");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2861,12 +9242,128 @@ std::string Value::get_comment_inside() const {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value comment API declarations
+  void set_comment_before(const std::string&);
+  std::string get_comment_before() const;
+  // Sets comment shown between the key and this Value. If this Value is
+  // not an element in a Map, the comment is shown between the "before"
+  // comment and this Value.
+  void set_comment_key(const std::string&);
+  std::string get_comment_key() const;
+  // Sets comment shown right after "[" if this Value is a Vector, or right
+  // after "{" if this Value is a Map. The comment is not shown if this Value
+  // is of any other type than Vector or Map.
+  void set_comment_inside(const std::string&);
+  std::string get_comment_inside() const;
+  // Sets comment shown after this Value.
+  void set_comment_after(const std::string&);
+  std::string get_comment_after() const;
+
+  // Copies all comments from the other Hjson::Value.
+  void set_comments(const Value&);
+  // Removes all comments from this Value.
+  void clear_comments();
+  // A combination of the assignment operator (=) and set_comments(). The
+  // normal assignment operator (=) will not change any comments, unless the
+  // receiving Value is of type Undefined.
+  Value& assign_with_comments(const Value&);
+  Value& assign_with_comments(Value&&);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  Value withComments(1);
+  withComments.set_comment_before("# note\n");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2893,12 +9390,128 @@ void Value::set_comment_after(const std::string& str) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value comment API declarations
+  void set_comment_before(const std::string&);
+  std::string get_comment_before() const;
+  // Sets comment shown between the key and this Value. If this Value is
+  // not an element in a Map, the comment is shown between the "before"
+  // comment and this Value.
+  void set_comment_key(const std::string&);
+  std::string get_comment_key() const;
+  // Sets comment shown right after "[" if this Value is a Vector, or right
+  // after "{" if this Value is a Map. The comment is not shown if this Value
+  // is of any other type than Vector or Map.
+  void set_comment_inside(const std::string&);
+  std::string get_comment_inside() const;
+  // Sets comment shown after this Value.
+  void set_comment_after(const std::string&);
+  std::string get_comment_after() const;
+
+  // Copies all comments from the other Hjson::Value.
+  void set_comments(const Value&);
+  // Removes all comments from this Value.
+  void clear_comments();
+  // A combination of the assignment operator (=) and set_comments(). The
+  // normal assignment operator (=) will not change any comments, unless the
+  // receiving Value is of type Undefined.
+  Value& assign_with_comments(const Value&);
+  Value& assign_with_comments(Value&&);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  Value withComments(1);
+  withComments.set_comment_before("# note\n");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2922,12 +9535,128 @@ std::string Value::get_comment_after() const {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value comment API declarations
+  void set_comment_before(const std::string&);
+  std::string get_comment_before() const;
+  // Sets comment shown between the key and this Value. If this Value is
+  // not an element in a Map, the comment is shown between the "before"
+  // comment and this Value.
+  void set_comment_key(const std::string&);
+  std::string get_comment_key() const;
+  // Sets comment shown right after "[" if this Value is a Vector, or right
+  // after "{" if this Value is a Map. The comment is not shown if this Value
+  // is of any other type than Vector or Map.
+  void set_comment_inside(const std::string&);
+  std::string get_comment_inside() const;
+  // Sets comment shown after this Value.
+  void set_comment_after(const std::string&);
+  std::string get_comment_after() const;
+
+  // Copies all comments from the other Hjson::Value.
+  void set_comments(const Value&);
+  // Removes all comments from this Value.
+  void clear_comments();
+  // A combination of the assignment operator (=) and set_comments(). The
+  // normal assignment operator (=) will not change any comments, unless the
+  // receiving Value is of type Undefined.
+  Value& assign_with_comments(const Value&);
+  Value& assign_with_comments(Value&&);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  Value withComments(1);
+  withComments.set_comment_before("# note\n");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2955,12 +9684,128 @@ void Value::set_comments(const Value& other) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value comment API declarations
+  void set_comment_before(const std::string&);
+  std::string get_comment_before() const;
+  // Sets comment shown between the key and this Value. If this Value is
+  // not an element in a Map, the comment is shown between the "before"
+  // comment and this Value.
+  void set_comment_key(const std::string&);
+  std::string get_comment_key() const;
+  // Sets comment shown right after "[" if this Value is a Vector, or right
+  // after "{" if this Value is a Map. The comment is not shown if this Value
+  // is of any other type than Vector or Map.
+  void set_comment_inside(const std::string&);
+  std::string get_comment_inside() const;
+  // Sets comment shown after this Value.
+  void set_comment_after(const std::string&);
+  std::string get_comment_after() const;
+
+  // Copies all comments from the other Hjson::Value.
+  void set_comments(const Value&);
+  // Removes all comments from this Value.
+  void clear_comments();
+  // A combination of the assignment operator (=) and set_comments(). The
+  // normal assignment operator (=) will not change any comments, unless the
+  // receiving Value is of type Undefined.
+  Value& assign_with_comments(const Value&);
+  Value& assign_with_comments(Value&&);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  Value withComments(1);
+  withComments.set_comment_before("# note\n");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2985,12 +9830,65 @@ Value& Value::assign_with_comments(const Value& other) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value comment API declarations
+  void set_comment_before(const std::string&);
+  std::string get_comment_before() const;
+  // Sets comment shown between the key and this Value. If this Value is
+  // not an element in a Map, the comment is shown between the "before"
+  // comment and this Value.
+  void set_comment_key(const std::string&);
+  std::string get_comment_key() const;
+  // Sets comment shown right after "[" if this Value is a Vector, or right
+  // after "{" if this Value is a Map. The comment is not shown if this Value
+  // is of any other type than Vector or Map.
+  void set_comment_inside(const std::string&);
+  std::string get_comment_inside() const;
+  // Sets comment shown after this Value.
+  void set_comment_after(const std::string&);
+  std::string get_comment_after() const;
+
+  // Copies all comments from the other Hjson::Value.
+  void set_comments(const Value&);
+  // Removes all comments from this Value.
+  void clear_comments();
+  // A combination of the assignment operator (=) and set_comments(). The
+  // normal assignment operator (=) will not change any comments, unless the
+  // receiving Value is of type Undefined.
+  Value& assign_with_comments(const Value&);
+  Value& assign_with_comments(Value&&);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  Value withComments(1);
+  withComments.set_comment_before("# note\n");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -3015,12 +9913,65 @@ Value& Value::assign_with_comments(Value&& other) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value comment API declarations
+  void set_comment_before(const std::string&);
+  std::string get_comment_before() const;
+  // Sets comment shown between the key and this Value. If this Value is
+  // not an element in a Map, the comment is shown between the "before"
+  // comment and this Value.
+  void set_comment_key(const std::string&);
+  std::string get_comment_key() const;
+  // Sets comment shown right after "[" if this Value is a Vector, or right
+  // after "{" if this Value is a Map. The comment is not shown if this Value
+  // is of any other type than Vector or Map.
+  void set_comment_inside(const std::string&);
+  std::string get_comment_inside() const;
+  // Sets comment shown after this Value.
+  void set_comment_after(const std::string&);
+  std::string get_comment_after() const;
+
+  // Copies all comments from the other Hjson::Value.
+  void set_comments(const Value&);
+  // Removes all comments from this Value.
+  void clear_comments();
+  // A combination of the assignment operator (=) and set_comments(). The
+  // normal assignment operator (=) will not change any comments, unless the
+  // receiving Value is of type Undefined.
+  Value& assign_with_comments(const Value&);
+  Value& assign_with_comments(Value&&);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value value(1);
+  Value other("text");
+  Value withComments(1);
+  withComments.set_comment_before("# note\n");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -3047,14 +9998,168 @@ MapProxy::MapProxy(std::shared_ptr<ValueImpl> _parent, const std::string &_key,
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
-The original MapProxy constructor is private in hjson.h; the benchmark-local copy makes that access section public.
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Original MapProxy declaration from hjson.h (access patch applies in benchmark copy only)
+// MapProxy is only used for temporary references to elements in a Map. It is
+// not possible to store a MapProxy in a variable. It only exists to make it
+// possible to check for the existence of a specific key in a Map without
+// creating an empty element in the Map with that key.
+class MapProxy : public Value {
+  private:
+  friend class Value;
+
+
+  std::shared_ptr<ValueImpl> parentPrv;
+  std::string key;
+  Value *pTarget;
+  // True if an explicit assignment has been made to this MapProxy.
+  bool wasAssigned;
+
+  MapProxy(std::shared_ptr<ValueImpl> parent, const std::string& key,
+    Value *pTarget);
+
+  // Make the copy constructor private in order to avoid accidental creation of
+  // MapProxy variables like this:
+  //   auto myVal = val["one"];
+  MapProxy(const MapProxy&) = default;
+  MapProxy(Value&&);
+
+public:
+  ~MapProxy() override;
+  MapProxy& operator =(const MapProxy&);
+  MapProxy& operator =(const Value&);
+  MapProxy& operator =(Value&&);
+  MapProxy& assign_with_comments(const MapProxy&);
+  MapProxy& assign_with_comments(const Value&);
+  MapProxy& assign_with_comments(Value&&);
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value map API declarations
+  // -- Map specific functions
+  // Get key by its zero-based insertion index. Throws
+  // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
+  // of type Undefined or Map. Throws Hjson::type_mismatch if this Value is of
+  // any other type.
+  std::string key(int) const;
+  // Returns a reference to the Value specified by the key parameter. Throws
+  // Hjson::index_out_of_bounds if this Value does not contain the specified
+  // key and this Value is of type Undefined or Map. Throws
+  // Hjson::type_mismatch if this Value is of any other type.
+  const Value& at(const std::string& key) const;
+  Value& at(const std::string& key);
+  const Value& at(const char *key) const;
+  Value& at(const char *key);
+  // Iterations are always done in alphabetical key order. Returns a default
+  // constructed iterator if this Value is of any other type than Map.
+  std::map<std::string, Value>::iterator begin();
+  std::map<std::string, Value>::iterator end();
+  std::map<std::string, Value>::const_iterator begin() const;
+  std::map<std::string, Value>::const_iterator end() const;
+  // Removes the child element specified by the input key if this Value is of
+  // type Map. Returns the number of erased elements (0 or 1). Throws
+  // Hjson::type_mismatch if this Value is of any other type than Map or
+  // Undefined.
+  size_t erase(const std::string&);
+  size_t erase(const char*);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value array(Type::Vector);
+  array.push_back(Value(1));
+  Value object(Type::Map);
+  object["key"] = Value(1);
+  // With the benchmark-local MapProxy visibility patch applied:
+  Value existing(2);
+  MapProxy withTarget(object.prv, "existing", &existing);
+  MapProxy withoutTarget(object.prv, "new", nullptr);
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: use the benchmark-local hjson.h with the MapProxy visibility patch.
 ```
 
 ---
@@ -3092,13 +10197,209 @@ MapProxy::~MapProxy() {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original backing types from hjson_value.cpp
+typedef std::vector<std::string> KeyVec;
+typedef std::vector<Value> ValueVec;
+typedef std::map<std::string, Value> ValueMap;
+
+
+class ValueVecMap {
+public:
+  KeyVec v;
+  ValueMap m;
+};
+
+
+class Value::ValueImpl {
+public:
+  Type type;
+  union {
+    bool b;
+    double d;
+    std::int64_t i;
+    std::string *s;
+    ValueVec *v;
+    ValueVecMap *m;
+  };
+
+  ValueImpl();
+  ValueImpl(bool);
+  ValueImpl(double);
+  explicit ValueImpl(std::int64_t);
+  ValueImpl(const std::string&);
+  ValueImpl(Type);
+  ~ValueImpl();
+  static void DeepClear(Value &val);
+};
+
+
+class Value::Comments {
+public:
+  std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
+};
+
+// Original MapProxy declaration from hjson.h (access patch applies in benchmark copy only)
+// MapProxy is only used for temporary references to elements in a Map. It is
+// not possible to store a MapProxy in a variable. It only exists to make it
+// possible to check for the existence of a specific key in a Map without
+// creating an empty element in the Map with that key.
+class MapProxy : public Value {
+  private:
+  friend class Value;
+
+
+  std::shared_ptr<ValueImpl> parentPrv;
+  std::string key;
+  Value *pTarget;
+  // True if an explicit assignment has been made to this MapProxy.
+  bool wasAssigned;
+
+  MapProxy(std::shared_ptr<ValueImpl> parent, const std::string& key,
+    Value *pTarget);
+
+  // Make the copy constructor private in order to avoid accidental creation of
+  // MapProxy variables like this:
+  //   auto myVal = val["one"];
+  MapProxy(const MapProxy&) = default;
+  MapProxy(Value&&);
+
+public:
+  ~MapProxy() override;
+  MapProxy& operator =(const MapProxy&);
+  MapProxy& operator =(const Value&);
+  MapProxy& operator =(Value&&);
+  MapProxy& assign_with_comments(const MapProxy&);
+  MapProxy& assign_with_comments(const Value&);
+  MapProxy& assign_with_comments(Value&&);
+};
+
+// Value member declarations from hjson.h; excerpts inside class Value
+  friend class MapProxy;
+  class ValueImpl;
+  class Comments;
+
+  std::shared_ptr<ValueImpl> prv;
+  std::shared_ptr<Comments> cm;
+
+  Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value vector API declarations
+  // -- Vector and Map specific functions
+  // Removes all child elements from this Value if it is of type Vector or Map.
+  // Does nothing if this Value is of any other type.
+  void clear();
+  // Returns the number of child elements contained in this Value if this Value
+  // is of type Vector or Map. Returns 0 if this Value is of any other type.
+  size_t size() const;
+
+  // -- Vector specific function
+  // Increases the size of this Vector by adding a Value at the end. Throws
+  // Hjson::type_mismatch if this Value is of any other type than Vector or
+  // Undefined.
+  void push_back(const Value&);
+
+// Relevant Value map API declarations
+  // -- Map specific functions
+  // Get key by its zero-based insertion index. Throws
+  // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
+  // of type Undefined or Map. Throws Hjson::type_mismatch if this Value is of
+  // any other type.
+  std::string key(int) const;
+  // Returns a reference to the Value specified by the key parameter. Throws
+  // Hjson::index_out_of_bounds if this Value does not contain the specified
+  // key and this Value is of type Undefined or Map. Throws
+  // Hjson::type_mismatch if this Value is of any other type.
+  const Value& at(const std::string& key) const;
+  Value& at(const std::string& key);
+  const Value& at(const char *key) const;
+  Value& at(const char *key);
+  // Iterations are always done in alphabetical key order. Returns a default
+  // constructed iterator if this Value is of any other type than Map.
+  std::map<std::string, Value>::iterator begin();
+  std::map<std::string, Value>::iterator end();
+  std::map<std::string, Value>::const_iterator begin() const;
+  std::map<std::string, Value>::const_iterator end() const;
+  // Removes the child element specified by the input key if this Value is of
+  // type Map. Returns the number of erased elements (0 or 1). Throws
+  // Hjson::type_mismatch if this Value is of any other type than Map or
+  // Undefined.
+  size_t erase(const std::string&);
+  size_t erase(const char*);
+
+// Relevant Value comment API declarations
+  void set_comment_before(const std::string&);
+  std::string get_comment_before() const;
+  // Sets comment shown between the key and this Value. If this Value is
+  // not an element in a Map, the comment is shown between the "before"
+  // comment and this Value.
+  void set_comment_key(const std::string&);
+  std::string get_comment_key() const;
+  // Sets comment shown right after "[" if this Value is a Vector, or right
+  // after "{" if this Value is a Map. The comment is not shown if this Value
+  // is of any other type than Vector or Map.
+  void set_comment_inside(const std::string&);
+  std::string get_comment_inside() const;
+  // Sets comment shown after this Value.
+  void set_comment_after(const std::string&);
+  std::string get_comment_after() const;
+
+  // Copies all comments from the other Hjson::Value.
+  void set_comments(const Value&);
+  // Removes all comments from this Value.
+  void clear_comments();
+  // A combination of the assignment operator (=) and set_comments(). The
+  // normal assignment operator (=) will not change any comments, unless the
+  // receiving Value is of type Undefined.
+  Value& assign_with_comments(const Value&);
+  Value& assign_with_comments(Value&&);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value array(Type::Vector);
+  array.push_back(Value(1));
+  Value object(Type::Map);
+  object["key"] = Value(1);
+  // A direct MapProxy constructor call needs the benchmark-local visibility patch.
+  Value withComments(1);
+  withComments.set_comment_before("# note\n");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -3123,13 +10424,143 @@ MapProxy& MapProxy::assign_with_comments(const Value& other) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original MapProxy declaration from hjson.h (access patch applies in benchmark copy only)
+// MapProxy is only used for temporary references to elements in a Map. It is
+// not possible to store a MapProxy in a variable. It only exists to make it
+// possible to check for the existence of a specific key in a Map without
+// creating an empty element in the Map with that key.
+class MapProxy : public Value {
+  private:
+  friend class Value;
+
+
+  std::shared_ptr<ValueImpl> parentPrv;
+  std::string key;
+  Value *pTarget;
+  // True if an explicit assignment has been made to this MapProxy.
+  bool wasAssigned;
+
+  MapProxy(std::shared_ptr<ValueImpl> parent, const std::string& key,
+    Value *pTarget);
+
+  // Make the copy constructor private in order to avoid accidental creation of
+  // MapProxy variables like this:
+  //   auto myVal = val["one"];
+  MapProxy(const MapProxy&) = default;
+  MapProxy(Value&&);
+
+public:
+  ~MapProxy() override;
+  MapProxy& operator =(const MapProxy&);
+  MapProxy& operator =(const Value&);
+  MapProxy& operator =(Value&&);
+  MapProxy& assign_with_comments(const MapProxy&);
+  MapProxy& assign_with_comments(const Value&);
+  MapProxy& assign_with_comments(Value&&);
+};
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value map API declarations
+  // -- Map specific functions
+  // Get key by its zero-based insertion index. Throws
+  // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
+  // of type Undefined or Map. Throws Hjson::type_mismatch if this Value is of
+  // any other type.
+  std::string key(int) const;
+  // Returns a reference to the Value specified by the key parameter. Throws
+  // Hjson::index_out_of_bounds if this Value does not contain the specified
+  // key and this Value is of type Undefined or Map. Throws
+  // Hjson::type_mismatch if this Value is of any other type.
+  const Value& at(const std::string& key) const;
+  Value& at(const std::string& key);
+  const Value& at(const char *key) const;
+  Value& at(const char *key);
+  // Iterations are always done in alphabetical key order. Returns a default
+  // constructed iterator if this Value is of any other type than Map.
+  std::map<std::string, Value>::iterator begin();
+  std::map<std::string, Value>::iterator end();
+  std::map<std::string, Value>::const_iterator begin() const;
+  std::map<std::string, Value>::const_iterator end() const;
+  // Removes the child element specified by the input key if this Value is of
+  // type Map. Returns the number of erased elements (0 or 1). Throws
+  // Hjson::type_mismatch if this Value is of any other type than Map or
+  // Undefined.
+  size_t erase(const std::string&);
+  size_t erase(const char*);
+
+// Relevant Value comment API declarations
+  void set_comment_before(const std::string&);
+  std::string get_comment_before() const;
+  // Sets comment shown between the key and this Value. If this Value is
+  // not an element in a Map, the comment is shown between the "before"
+  // comment and this Value.
+  void set_comment_key(const std::string&);
+  std::string get_comment_key() const;
+  // Sets comment shown right after "[" if this Value is a Vector, or right
+  // after "{" if this Value is a Map. The comment is not shown if this Value
+  // is of any other type than Vector or Map.
+  void set_comment_inside(const std::string&);
+  std::string get_comment_inside() const;
+  // Sets comment shown after this Value.
+  void set_comment_after(const std::string&);
+  std::string get_comment_after() const;
+
+  // Copies all comments from the other Hjson::Value.
+  void set_comments(const Value&);
+  // Removes all comments from this Value.
+  void clear_comments();
+  // A combination of the assignment operator (=) and set_comments(). The
+  // normal assignment operator (=) will not change any comments, unless the
+  // receiving Value is of type Undefined.
+  Value& assign_with_comments(const Value&);
+  Value& assign_with_comments(Value&&);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value array(Type::Vector);
+  array.push_back(Value(1));
+  Value object(Type::Map);
+  object["key"] = Value(1);
+  // A direct MapProxy constructor call needs the benchmark-local visibility patch.
+  Value withComments(1);
+  withComments.set_comment_before("# note\n");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -3154,13 +10585,143 @@ MapProxy& MapProxy::assign_with_comments(Value&& other) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Value::prv->type is the tag; payload: b(bool), d(double), i(int64), s(string*), v(vector<Value>*), m(ValueVecMap*). ValueVecMap stores m(map<string,Value>) and v(insertion-order vector<string>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Original MapProxy declaration from hjson.h (access patch applies in benchmark copy only)
+// MapProxy is only used for temporary references to elements in a Map. It is
+// not possible to store a MapProxy in a variable. It only exists to make it
+// possible to check for the existence of a specific key in a Map without
+// creating an empty element in the Map with that key.
+class MapProxy : public Value {
+  private:
+  friend class Value;
+
+
+  std::shared_ptr<ValueImpl> parentPrv;
+  std::string key;
+  Value *pTarget;
+  // True if an explicit assignment has been made to this MapProxy.
+  bool wasAssigned;
+
+  MapProxy(std::shared_ptr<ValueImpl> parent, const std::string& key,
+    Value *pTarget);
+
+  // Make the copy constructor private in order to avoid accidental creation of
+  // MapProxy variables like this:
+  //   auto myVal = val["one"];
+  MapProxy(const MapProxy&) = default;
+  MapProxy(Value&&);
+
+public:
+  ~MapProxy() override;
+  MapProxy& operator =(const MapProxy&);
+  MapProxy& operator =(const Value&);
+  MapProxy& operator =(Value&&);
+  MapProxy& assign_with_comments(const MapProxy&);
+  MapProxy& assign_with_comments(const Value&);
+  MapProxy& assign_with_comments(Value&&);
+};
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value map API declarations
+  // -- Map specific functions
+  // Get key by its zero-based insertion index. Throws
+  // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
+  // of type Undefined or Map. Throws Hjson::type_mismatch if this Value is of
+  // any other type.
+  std::string key(int) const;
+  // Returns a reference to the Value specified by the key parameter. Throws
+  // Hjson::index_out_of_bounds if this Value does not contain the specified
+  // key and this Value is of type Undefined or Map. Throws
+  // Hjson::type_mismatch if this Value is of any other type.
+  const Value& at(const std::string& key) const;
+  Value& at(const std::string& key);
+  const Value& at(const char *key) const;
+  Value& at(const char *key);
+  // Iterations are always done in alphabetical key order. Returns a default
+  // constructed iterator if this Value is of any other type than Map.
+  std::map<std::string, Value>::iterator begin();
+  std::map<std::string, Value>::iterator end();
+  std::map<std::string, Value>::const_iterator begin() const;
+  std::map<std::string, Value>::const_iterator end() const;
+  // Removes the child element specified by the input key if this Value is of
+  // type Map. Returns the number of erased elements (0 or 1). Throws
+  // Hjson::type_mismatch if this Value is of any other type than Map or
+  // Undefined.
+  size_t erase(const std::string&);
+  size_t erase(const char*);
+
+// Relevant Value comment API declarations
+  void set_comment_before(const std::string&);
+  std::string get_comment_before() const;
+  // Sets comment shown between the key and this Value. If this Value is
+  // not an element in a Map, the comment is shown between the "before"
+  // comment and this Value.
+  void set_comment_key(const std::string&);
+  std::string get_comment_key() const;
+  // Sets comment shown right after "[" if this Value is a Vector, or right
+  // after "{" if this Value is a Map. The comment is not shown if this Value
+  // is of any other type than Vector or Map.
+  void set_comment_inside(const std::string&);
+  std::string get_comment_inside() const;
+  // Sets comment shown after this Value.
+  void set_comment_after(const std::string&);
+  std::string get_comment_after() const;
+
+  // Copies all comments from the other Hjson::Value.
+  void set_comments(const Value&);
+  // Removes all comments from this Value.
+  void clear_comments();
+  // A combination of the assignment operator (=) and set_comments(). The
+  // normal assignment operator (=) will not change any comments, unless the
+  // receiving Value is of type Undefined.
+  Value& assign_with_comments(const Value&);
+  Value& assign_with_comments(Value&&);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value array(Type::Vector);
+  array.push_back(Value(1));
+  Value object(Type::Map);
+  object["key"] = Value(1);
+  // A direct MapProxy constructor call needs the benchmark-local visibility patch.
+  Value withComments(1);
+  withComments.set_comment_before("# note\n");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -3204,11 +10765,121 @@ Value Merge(const Value& base, const Value& ext) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original Value type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Relevant public Value construction API from hjson.h; declarations inside class Value
+  Value();
+  Value(bool);
+  Value(float);
+  Value(double);
+  Value(char);
+  Value(unsigned char);
+  Value(short);
+  Value(unsigned short);
+  Value(int);
+  Value(const char*);
+  Value(const std::string&);
+  Value(Type);
+
+// Relevant Value vector API declarations
+  // -- Vector and Map specific functions
+  // Removes all child elements from this Value if it is of type Vector or Map.
+  // Does nothing if this Value is of any other type.
+  void clear();
+  // Returns the number of child elements contained in this Value if this Value
+  // is of type Vector or Map. Returns 0 if this Value is of any other type.
+  size_t size() const;
+
+  // -- Vector specific function
+  // Increases the size of this Vector by adding a Value at the end. Throws
+  // Hjson::type_mismatch if this Value is of any other type than Vector or
+  // Undefined.
+  void push_back(const Value&);
+
+// Relevant Value map API declarations
+  // -- Map specific functions
+  // Get key by its zero-based insertion index. Throws
+  // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
+  // of type Undefined or Map. Throws Hjson::type_mismatch if this Value is of
+  // any other type.
+  std::string key(int) const;
+  // Returns a reference to the Value specified by the key parameter. Throws
+  // Hjson::index_out_of_bounds if this Value does not contain the specified
+  // key and this Value is of type Undefined or Map. Throws
+  // Hjson::type_mismatch if this Value is of any other type.
+  const Value& at(const std::string& key) const;
+  Value& at(const std::string& key);
+  const Value& at(const char *key) const;
+  Value& at(const char *key);
+  // Iterations are always done in alphabetical key order. Returns a default
+  // constructed iterator if this Value is of any other type than Map.
+  std::map<std::string, Value>::iterator begin();
+  std::map<std::string, Value>::iterator end();
+  std::map<std::string, Value>::const_iterator begin() const;
+  std::map<std::string, Value>::const_iterator end() const;
+  // Removes the child element specified by the input key if this Value is of
+  // type Map. Returns the number of erased elements (0 or 1). Throws
+  // Hjson::type_mismatch if this Value is of any other type than Map or
+  // Undefined.
+  size_t erase(const std::string&);
+  size_t erase(const char*);
+
+// Relevant Value comment API declarations
+  void set_comment_before(const std::string&);
+  std::string get_comment_before() const;
+  // Sets comment shown between the key and this Value. If this Value is
+  // not an element in a Map, the comment is shown between the "before"
+  // comment and this Value.
+  void set_comment_key(const std::string&);
+  std::string get_comment_key() const;
+  // Sets comment shown right after "[" if this Value is a Vector, or right
+  // after "{" if this Value is a Map. The comment is not shown if this Value
+  // is of any other type than Vector or Map.
+  void set_comment_inside(const std::string&);
+  std::string get_comment_inside() const;
+  // Sets comment shown after this Value.
+  void set_comment_after(const std::string&);
+  std::string get_comment_after() const;
+
+  // Copies all comments from the other Hjson::Value.
+  void set_comments(const Value&);
+  // Removes all comments from this Value.
+  void clear_comments();
+  // A combination of the assignment operator (=) and set_comments(). The
+  // normal assignment operator (=) will not change any comments, unless the
+  // receiving Value is of type Undefined.
+  Value& assign_with_comments(const Value&);
+  Value& assign_with_comments(Value&&);
+
+// Example Value inputs for tests, not a full test
+namespace Hjson {
+void example_value_seed() {
+  Value array(Type::Vector);
+  array.push_back(Value(1));
+  Value object(Type::Map);
+  object["key"] = Value(1);
+  Value withComments(1);
+  withComments.set_comment_before("# note\n");
+  // Vary Value types and contents to exercise focal branches.
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
