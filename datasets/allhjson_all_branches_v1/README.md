@@ -12,6 +12,17 @@ Source: [Ming191/thucnghiem](https://github.com/Ming191/thucnghiem), commit `d26
 | `hjson_value.cpp` | 73 |
 | **Total** | **119** |
 
+## Human-readable dataset
+
+The JSONL stores multi-line C++ as escaped `\\n`. For reviewing methods, open one of these rendered Markdown catalogs instead. All code fences contain **real line breaks**.
+
+- [hjson_decode.cpp (26 methods)](readable/hjson_decode.md)
+- [hjson_encode.cpp (16 methods)](readable/hjson_encode.md)
+- [hjson_parsenumber.cpp (4 methods)](readable/hjson_parsenumber.md)
+- [hjson_value.cpp (73 methods)](readable/hjson_value.md)
+
+The JSONL remains the programmatic source of truth. The catalogs show the exact same `focal_method` and `minimal_context` fields.
+
 ## Every JSONL row contains
 
 - `focal_method`: original function definition/body at pinned `source_path`, `source_lines`, `source_url`.
