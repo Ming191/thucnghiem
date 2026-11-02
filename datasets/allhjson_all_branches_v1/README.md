@@ -21,12 +21,12 @@ The JSONL stores multi-line C++ as escaped `\\n`. For reviewing methods, open on
 - [hjson_parsenumber.cpp (4 methods)](readable/hjson_parsenumber.md)
 - [hjson_value.cpp (73 methods)](readable/hjson_value.md)
 
-The JSONL remains the programmatic source of truth. The catalogs show the exact same `focal_method` and `minimal_context` fields.
+The JSONL remains the programmatic source of truth. The catalogs show the exact same `focal_method` and `context` fields.
 
 ## Every JSONL row contains
 
 - `focal_method`: original function definition/body at pinned `source_path`, `source_lines`, `source_url`.
-- `minimal_context`: short relevant type layouts and direct helper signatures, not a pasted whole project.
+- `context`: short relevant type layouts and direct helper signatures, not a pasted whole project.
 - `method_signature`, `linkage`, `benchmark_exposure`, `dependencies`: how to compile/access the original function.
 - `branch_gate`: source-level lexical markers, with the LLVM-measured coverage fields deliberately empty.
 
@@ -56,6 +56,6 @@ To convert this into the measured coverage dataset, instrument Clang C++11 sourc
 
 ## MI experiment use
 
-Prompt = `minimal_context` + `focal_method` + covered branch history. Let the model output only short input construction / invocation code. Keep build glue external. Compare incremental **focal** branch coverage with a fixed compiler/coverage configuration and matched baseline vs MI generation budgets.
+Prompt = `context` + `focal_method` + covered branch history. Let the model output only short input construction / invocation code. Keep build glue external. Compare incremental **focal** branch coverage with a fixed compiler/coverage configuration and matched baseline vs MI generation budgets.
 
 **No claim of LLVM-verified coverage rate, compilation success of every generated fixture, or positive MI intervention is made by this source extraction alone.**
