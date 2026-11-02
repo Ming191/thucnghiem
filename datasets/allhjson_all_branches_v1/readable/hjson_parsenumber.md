@@ -49,11 +49,13 @@ static bool _parseFloat(double *pNumber, const char *pCh, size_t nCh) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Build: test TU includes "hjson_parsenumber.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -93,11 +95,13 @@ static bool _parseInt(std::int64_t *pNumber, const char *pCh, size_t nCh) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Build: test TU includes "hjson_parsenumber.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -129,12 +133,30 @@ static bool _next(NumberParser *p) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-NumberParser: data(const unsigned char*), dataSize(size_t), indexNext(int), ch(unsigned char). _parseFloat/_parseInt support charconv/strtod/stringstream depending on build macros.
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original number-parser state from hjson_parsenumber.cpp
+struct NumberParser {
+  const unsigned char *data;
+  size_t dataSize;
+  int indexNext;
+  unsigned char ch;
+};
+
+// Example NumberParser fixture for same-translation-unit harness
+namespace Hjson {
+void example_number_parser_seed() {
+  const char data[] = "123";
+  NumberParser p = {reinterpret_cast<const unsigned char*>(data), 3, 0, ' '};
+  // Use _next(&p) to advance, then vary data and dataSize per branch.
+}
+} // namespace Hjson
+
+// Build: test TU includes "hjson_parsenumber.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -234,13 +256,54 @@ bool tryParseNumber(Value *pValue, const char *text, size_t textSize, bool stopA
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-NumberParser: data(const unsigned char*), dataSize(size_t), indexNext(int), ch(unsigned char). _parseFloat/_parseInt support charconv/strtod/stringstream depending on build macros.
-Direct local helpers (signatures only): static bool _next(Parser *p); static bool _parseFloat(double *pNumber, const char *pCh, size_t nCh); static bool _parseInt(std::int64_t *pNumber, const char *pCh, size_t nCh).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original number-parser state from hjson_parsenumber.cpp
+struct NumberParser {
+  const unsigned char *data;
+  size_t dataSize;
+  int indexNext;
+  unsigned char ch;
+};
+
+// Direct helpers in the original source (definitions when short, otherwise declarations)
+static bool _next(NumberParser *p) {
+  // get the next character.
+  if (p->indexNext < p->dataSize) {
+    p->ch = p->data[p->indexNext++];
+    return true;
+  }
+
+  if (p->indexNext == p->dataSize) {
+    p->indexNext++;
+  }
+
+  p->ch = 0;
+
+  return false;
+}
+
+static bool _parseInt(std::int64_t *pNumber, const char *pCh, size_t nCh);
+
+static bool _parseFloat(double *pNumber, const char *pCh, size_t nCh);
+
+// External function declaration absent from hjson.h; forward-declare in test if linking hjson_parsenumber.cpp
+namespace Hjson { bool tryParseNumber(Value*, const char*, size_t, bool); }
+
+// Example direct invocation of tryParseNumber (text must be NUL-terminated)
+namespace Hjson {
+void example_number_input() {
+  const char text[] = "12.5";
+  Value result;
+  bool accepted = tryParseNumber(&result, text, sizeof(text) - 1, false);
+  (void)accepted;
+}
+} // namespace Hjson
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
