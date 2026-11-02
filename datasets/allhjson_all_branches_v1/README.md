@@ -21,16 +21,16 @@ The JSONL stores multi-line C++ as escaped `\\n`. For reviewing methods, open on
 - [hjson_parsenumber.cpp (4 methods)](readable/hjson_parsenumber.md)
 - [hjson_value.cpp (73 methods)](readable/hjson_value.md)
 
-The JSONL remains the programmatic source of truth. The catalogs show the exact same `focal_method` and `context` fields.
+The JSONL remains the programmatic source of truth. The catalogs show the exact same `focal_method` and `context` fields, with real newlines and C++ highlighting.
 
 ## Every JSONL row contains
 
 - `focal_method`: original function definition/body at pinned `source_path`, `source_lines`, `source_url`.
-- `context`: short relevant type layouts and direct helper signatures, not a pasted whole project.
+- `context`: source-faithful C++ declarations and local helper code/signatures relevant to this focal method, with example input/state setup where needed. Declarations in context are excerpts already defined in the original project, not code to redeclare in a test TU.
 - `method_signature`, `linkage`, `benchmark_exposure`, `dependencies`: how to compile/access the original function.
 - `branch_gate`: source-level lexical markers, with the LLVM-measured coverage fields deliberately empty.
 
-Context length is 97–880 characters, while focal bodies are retained in full.
+Context length is 203–6613 characters (median 2462). Focal bodies are retained in full.
 
 ## Private and static access
 
@@ -56,6 +56,6 @@ To convert this into the measured coverage dataset, instrument Clang C++11 sourc
 
 ## MI experiment use
 
-Prompt = `context` + `focal_method` + covered branch history. Let the model output only short input construction / invocation code. Keep build glue external. Compare incremental **focal** branch coverage with a fixed compiler/coverage configuration and matched baseline vs MI generation budgets.
+Prompt = `context` + `focal_method` + covered branch history. These source excerpts and setup examples help generate tests, but are not a separately compiled harness for each record. Let the model output only short input construction / invocation code. Keep build glue external. Compare incremental **focal** branch coverage with a fixed compiler/coverage configuration and matched baseline vs MI generation budgets.
 
 **No claim of LLVM-verified coverage rate, compilation success of every generated fixture, or positive MI intervention is made by this source extraction alone.**
