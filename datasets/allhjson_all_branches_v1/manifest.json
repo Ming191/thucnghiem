@@ -26,5 +26,19 @@
   "eligible_predicate": "active default preprocessor code contains if,for,while,switch,&&,||,or ternary; includes constructor initializers",
   "dynamic_llvm_coverage_status": "unmeasured",
   "visibility_policy": "separate test copy only",
-  "source_fidelity_check": "119/119 string-exact slices against pinned GitHub code, LF-normalized"
+  "source_fidelity_check": "119/119 string-exact slices against pinned GitHub code, LF-normalized",
+  "focal_span_corrections": [
+    {
+      "old_id": "allhjson_hjson_value_L1223",
+      "new_id": "allhjson_hjson_value_L1239",
+      "reason": "exclude nine branch-free macro generated conversion operators from the focal method"
+    }
+  ],
+  "default_preprocessor_backend": {
+    "HJSON_USE_CHARCONV": 0,
+    "HJSON_USE_STRTOD": 0,
+    "active_path": "stringstream",
+    "language_standard": "c++11"
+  },
+  "context_review_status": "Source-verified; representative C++11 fixture syntax and runtime smokes, not per-focal executable coverage validation"
 }
