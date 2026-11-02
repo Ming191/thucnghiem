@@ -71,11 +71,13 @@ static const char *_meta(char c) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Build: test TU includes "hjson_encode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -101,12 +103,89 @@ static void _writeIndent(Encoder *e, int indent) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Encoder: opt(EncoderOptions), os(ostream*), loc(locale), indent(int), regex fields needsEscape/needsQuotes/needsEscapeML/startsWithKeyword/needsEscapeName/lineBreak, vState(vector<EncodeState>), vParent(vector<EncodeParent>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original encoder state declarations from hjson_encode.cpp
+
+enum class EncodeState {
+  ValueBegin,
+  ValueEnd,
+  VectorElemBegin,
+  MapElemBegin,
+};
+
+
+class EncodeParent {
+public:
+  EncodeParent(const Value *_pVal) : pVal(_pVal), index(0), isEmpty(true) {}
+  const Value *pVal;
+  int index;
+  bool isEmpty;
+  std::string commentAfter;
+  std::map<std::string, Value>::const_iterator it;
+};
+
+
+struct Encoder {
+  EncoderOptions opt;
+  std::ostream *os;
+  std::locale loc;
+  int indent;
+  std::regex needsEscape, needsQuotes, needsEscapeML, startsWithKeyword,
+    needsEscapeName, lineBreak;
+  std::vector<EncodeState> vState;
+  std::vector<EncodeParent> vParent;
+};
+
+// Encoder options from hjson.h
+// EncoderOptions defines options for encoding to Hjson.
+struct EncoderOptions {
+  // End of line, should be either \n or \r\n
+  std::string eol = "\n";
+  // Place braces on the same line
+  bool bracesSameLine = true;
+  // Always place string values in double quotation marks ("), and escape
+  // any special chars inside the string value
+  bool quoteAlways = false;
+  // Always place keys in quotes
+  bool quoteKeys = false;
+  // Indent string
+  std::string indentBy = "  ";
+  // Allow the -0 value (unlike ES6)
+  bool allowMinusZero = false;
+  // Encode unknown values as 'null'
+  bool unknownAsNull = false;
+  // Output a comma separator between elements. If true, always place strings
+  // in quotes (overriding the "quoteAlways" setting).
+  bool separator = false;
+  // Only affects the order of elements in objects. If true, the key/value
+  // pairs for all objects will be placed in the same order as they were added.
+  // If false, the key/value pairs are placed in alphabetical key order.
+  bool preserveInsertionOrder = true;
+  // If true, omits root braces.
+  bool omitRootBraces = false;
+  // Write comments, if any are found in the Hjson::Value objects.
+  bool comments = true;
+};
+
+// Example Encoder fixture for same-translation-unit harness, not a full test
+#include <sstream>
+namespace Hjson {
+void example_encoder_seed() {
+  std::ostringstream output;
+  Encoder e{};
+  e.os = &output;
+  e.opt = EncoderOptions();
+  e.indent = 0;
+  // Adjust root type, option flags and state stack for the target branch.
+}
+} // namespace Hjson
+
+// Build: test TU includes "hjson_encode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -165,11 +244,13 @@ static int _fromUtf8(const unsigned char **ppC, size_t *pnS) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Build: test TU includes "hjson_encode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -226,13 +307,116 @@ static void _quoteReplace(Encoder *e, const std::string& text) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Encoder: opt(EncoderOptions), os(ostream*), loc(locale), indent(int), regex fields needsEscape/needsQuotes/needsEscapeML/startsWithKeyword/needsEscapeName/lineBreak, vState(vector<EncodeState>), vParent(vector<EncodeParent>).
-Direct local helpers (signatures only): static const char *_meta(char c); static int _fromUtf8(const unsigned char **ppC, size_t *pnS).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original encoder state declarations from hjson_encode.cpp
+
+enum class EncodeState {
+  ValueBegin,
+  ValueEnd,
+  VectorElemBegin,
+  MapElemBegin,
+};
+
+
+class EncodeParent {
+public:
+  EncodeParent(const Value *_pVal) : pVal(_pVal), index(0), isEmpty(true) {}
+  const Value *pVal;
+  int index;
+  bool isEmpty;
+  std::string commentAfter;
+  std::map<std::string, Value>::const_iterator it;
+};
+
+
+struct Encoder {
+  EncoderOptions opt;
+  std::ostream *os;
+  std::locale loc;
+  int indent;
+  std::regex needsEscape, needsQuotes, needsEscapeML, startsWithKeyword,
+    needsEscapeName, lineBreak;
+  std::vector<EncodeState> vState;
+  std::vector<EncodeParent> vParent;
+};
+
+// Direct helpers in the original source (definitions when short, otherwise declarations)
+// table of character substitutions
+static const char *_meta(char c) {
+  if ((c == '\b')) {
+
+    return "\\b";
+  
+  } else if ((c == '\t')) {
+
+    return "\\t";
+  
+  } else if ((c == '\n')) {
+
+    return "\\n";
+  
+  } else if ((c == '\f')) {
+
+    return "\\f";
+  
+  } else if ((c == '\r')) {
+
+    return "\\r";
+  
+  } else if ((c == '"')) {
+
+    return "\\\"";
+  
+  } else if ((c == '\\')) {
+
+    return "\\\\";
+  
+  }
+
+  return 0;
+}
+
+static int _fromUtf8(const unsigned char **ppC, size_t *pnS);
+
+// Example Encoder fixture for same-translation-unit harness, not a full test
+#include <sstream>
+namespace Hjson {
+void example_encoder_seed() {
+  std::ostringstream output;
+  Encoder e{};
+  e.os = &output;
+  e.opt = EncoderOptions();
+  e.indent = 0;
+  // Regex initialization from _marshalStream, required by quoting helpers:
+    // Regex should not be UTF8 aware, just treat the chars as values.
+    e.loc = std::locale::classic();
+  
+    std::string commonRange = R"(]|\xc2\xad|\xd8[\x80-\x84]|\xdc\x8f|\xe1\x9e[\xb4\xb5]|\xe2\x80[\x8c\x8f]|\xe2\x80[\xa8-\xaf]|\xe2\x81[\xa0-\xaf]|\xef\xbb\xbf|\xef\xbf[\xb0-\xbf])";
+    // needsEscape tests if the string can be written without escapes
+    e.needsEscape.imbue(e.loc);
+    e.needsEscape.assign(R"([\\\"\x00-\x1f)" + commonRange);
+    // needsQuotes tests if the string can be written as a quoteless string (includes needsEscape but without \\ and \")
+    e.needsQuotes.imbue(e.loc);
+    e.needsQuotes.assign(R"(^\s|^"|^'|^#|^/\*|^//|^\{|^\}|^\[|^\]|^:|^,|\s$|[\x00-\x1f)" + commonRange);
+    // needsEscapeML tests if the string can be written as a multiline string (like needsEscape but without \n, \r, \\, \", \t)
+    e.needsEscapeML.imbue(e.loc);
+    e.needsEscapeML.assign(R"('''|^[\s]+$|[\x00-\x08\x0b\x0c\x0e-\x1f)" + commonRange);
+    // starts with a keyword and optionally is followed by a comment
+    e.startsWithKeyword.imbue(e.loc);
+    e.startsWithKeyword.assign(R"(^(true|false|null)\s*((,|\]|\}|#|//|/\*).*)?$)");
+    e.needsEscapeName.imbue(e.loc);
+    e.needsEscapeName.assign(R"([,\{\[\}\]\s:#"']|//|/\*)");
+    e.lineBreak.assign(R"(\r|\n|\r\n)");
+  // Adjust root type, option flags and state stack for the target branch.
+}
+} // namespace Hjson
+
+// Build: test TU includes "hjson_encode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -298,14 +482,123 @@ static void _mlString(Encoder *e, const std::string& value) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Encoder: opt(EncoderOptions), os(ostream*), loc(locale), indent(int), regex fields needsEscape/needsQuotes/needsEscapeML/startsWithKeyword/needsEscapeName/lineBreak, vState(vector<EncodeState>), vParent(vector<EncodeParent>).
-EncodeParent: pVal(const Value*), index(int), isEmpty(bool), commentAfter(string), it(map<string,Value>::const_iterator). EncodeState: ValueBegin, ValueEnd, VectorElemBegin, MapElemBegin.
-Direct local helpers (signatures only): static void _writeIndent(Encoder *e, int indent).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original encoder state declarations from hjson_encode.cpp
+
+enum class EncodeState {
+  ValueBegin,
+  ValueEnd,
+  VectorElemBegin,
+  MapElemBegin,
+};
+
+
+class EncodeParent {
+public:
+  EncodeParent(const Value *_pVal) : pVal(_pVal), index(0), isEmpty(true) {}
+  const Value *pVal;
+  int index;
+  bool isEmpty;
+  std::string commentAfter;
+  std::map<std::string, Value>::const_iterator it;
+};
+
+
+struct Encoder {
+  EncoderOptions opt;
+  std::ostream *os;
+  std::locale loc;
+  int indent;
+  std::regex needsEscape, needsQuotes, needsEscapeML, startsWithKeyword,
+    needsEscapeName, lineBreak;
+  std::vector<EncodeState> vState;
+  std::vector<EncodeParent> vParent;
+};
+
+// Encoder options from hjson.h
+// EncoderOptions defines options for encoding to Hjson.
+struct EncoderOptions {
+  // End of line, should be either \n or \r\n
+  std::string eol = "\n";
+  // Place braces on the same line
+  bool bracesSameLine = true;
+  // Always place string values in double quotation marks ("), and escape
+  // any special chars inside the string value
+  bool quoteAlways = false;
+  // Always place keys in quotes
+  bool quoteKeys = false;
+  // Indent string
+  std::string indentBy = "  ";
+  // Allow the -0 value (unlike ES6)
+  bool allowMinusZero = false;
+  // Encode unknown values as 'null'
+  bool unknownAsNull = false;
+  // Output a comma separator between elements. If true, always place strings
+  // in quotes (overriding the "quoteAlways" setting).
+  bool separator = false;
+  // Only affects the order of elements in objects. If true, the key/value
+  // pairs for all objects will be placed in the same order as they were added.
+  // If false, the key/value pairs are placed in alphabetical key order.
+  bool preserveInsertionOrder = true;
+  // If true, omits root braces.
+  bool omitRootBraces = false;
+  // Write comments, if any are found in the Hjson::Value objects.
+  bool comments = true;
+};
+
+// Direct helpers in the original source (definitions when short, otherwise declarations)
+static void _writeIndent(Encoder *e, int indent) {
+  *e->os << e->opt.eol;
+
+  if (!e->opt.indentBy.empty()) {
+    for (int i = 0; i < indent; i++) {
+      *e->os << e->opt.indentBy;
+    }
+  }
+}
+
+// Example Encoder fixture for same-translation-unit harness, not a full test
+#include <sstream>
+namespace Hjson {
+void example_encoder_seed() {
+  std::ostringstream output;
+  Encoder e{};
+  e.os = &output;
+  e.opt = EncoderOptions();
+  e.indent = 0;
+  Value root(Type::Map);
+  e.vParent.push_back(EncodeParent(&root));
+  e.vState.push_back(EncodeState::ValueBegin);
+  // Regex initialization from _marshalStream, required by quoting helpers:
+    // Regex should not be UTF8 aware, just treat the chars as values.
+    e.loc = std::locale::classic();
+  
+    std::string commonRange = R"(]|\xc2\xad|\xd8[\x80-\x84]|\xdc\x8f|\xe1\x9e[\xb4\xb5]|\xe2\x80[\x8c\x8f]|\xe2\x80[\xa8-\xaf]|\xe2\x81[\xa0-\xaf]|\xef\xbb\xbf|\xef\xbf[\xb0-\xbf])";
+    // needsEscape tests if the string can be written without escapes
+    e.needsEscape.imbue(e.loc);
+    e.needsEscape.assign(R"([\\\"\x00-\x1f)" + commonRange);
+    // needsQuotes tests if the string can be written as a quoteless string (includes needsEscape but without \\ and \")
+    e.needsQuotes.imbue(e.loc);
+    e.needsQuotes.assign(R"(^\s|^"|^'|^#|^/\*|^//|^\{|^\}|^\[|^\]|^:|^,|\s$|[\x00-\x1f)" + commonRange);
+    // needsEscapeML tests if the string can be written as a multiline string (like needsEscape but without \n, \r, \\, \", \t)
+    e.needsEscapeML.imbue(e.loc);
+    e.needsEscapeML.assign(R"('''|^[\s]+$|[\x00-\x08\x0b\x0c\x0e-\x1f)" + commonRange);
+    // starts with a keyword and optionally is followed by a comment
+    e.startsWithKeyword.imbue(e.loc);
+    e.startsWithKeyword.assign(R"(^(true|false|null)\s*((,|\]|\}|#|//|/\*).*)?$)");
+    e.needsEscapeName.imbue(e.loc);
+    e.needsEscapeName.assign(R"([,\{\[\}\]\s:#"']|//|/\*)");
+    e.lineBreak.assign(R"(\r|\n|\r\n)");
+  // Adjust root type, option flags and state stack for the target branch.
+}
+} // namespace Hjson
+
+// Build: test TU includes "hjson_encode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -377,14 +670,119 @@ static void _quote(Encoder *e, const std::string& value,
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Encoder: opt(EncoderOptions), os(ostream*), loc(locale), indent(int), regex fields needsEscape/needsQuotes/needsEscapeML/startsWithKeyword/needsEscapeName/lineBreak, vState(vector<EncodeState>), vParent(vector<EncodeParent>).
-EncodeParent: pVal(const Value*), index(int), isEmpty(bool), commentAfter(string), it(map<string,Value>::const_iterator). EncodeState: ValueBegin, ValueEnd, VectorElemBegin, MapElemBegin.
-Direct local helpers (signatures only): static void _quoteReplace(Encoder *e, const std::string& text); static void _mlString(Encoder *e, const std::string& value).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original encoder state declarations from hjson_encode.cpp
+
+enum class EncodeState {
+  ValueBegin,
+  ValueEnd,
+  VectorElemBegin,
+  MapElemBegin,
+};
+
+
+class EncodeParent {
+public:
+  EncodeParent(const Value *_pVal) : pVal(_pVal), index(0), isEmpty(true) {}
+  const Value *pVal;
+  int index;
+  bool isEmpty;
+  std::string commentAfter;
+  std::map<std::string, Value>::const_iterator it;
+};
+
+
+struct Encoder {
+  EncoderOptions opt;
+  std::ostream *os;
+  std::locale loc;
+  int indent;
+  std::regex needsEscape, needsQuotes, needsEscapeML, startsWithKeyword,
+    needsEscapeName, lineBreak;
+  std::vector<EncodeState> vState;
+  std::vector<EncodeParent> vParent;
+};
+
+// Encoder options from hjson.h
+// EncoderOptions defines options for encoding to Hjson.
+struct EncoderOptions {
+  // End of line, should be either \n or \r\n
+  std::string eol = "\n";
+  // Place braces on the same line
+  bool bracesSameLine = true;
+  // Always place string values in double quotation marks ("), and escape
+  // any special chars inside the string value
+  bool quoteAlways = false;
+  // Always place keys in quotes
+  bool quoteKeys = false;
+  // Indent string
+  std::string indentBy = "  ";
+  // Allow the -0 value (unlike ES6)
+  bool allowMinusZero = false;
+  // Encode unknown values as 'null'
+  bool unknownAsNull = false;
+  // Output a comma separator between elements. If true, always place strings
+  // in quotes (overriding the "quoteAlways" setting).
+  bool separator = false;
+  // Only affects the order of elements in objects. If true, the key/value
+  // pairs for all objects will be placed in the same order as they were added.
+  // If false, the key/value pairs are placed in alphabetical key order.
+  bool preserveInsertionOrder = true;
+  // If true, omits root braces.
+  bool omitRootBraces = false;
+  // Write comments, if any are found in the Hjson::Value objects.
+  bool comments = true;
+};
+
+// Direct helpers in the original source (definitions when short, otherwise declarations)
+bool startsWithNumber(const char *text, size_t textSize);
+
+static void _mlString(Encoder *e, const std::string& value);
+
+static void _quoteReplace(Encoder *e, const std::string& text);
+
+// Example Encoder fixture for same-translation-unit harness, not a full test
+#include <sstream>
+namespace Hjson {
+void example_encoder_seed() {
+  std::ostringstream output;
+  Encoder e{};
+  e.os = &output;
+  e.opt = EncoderOptions();
+  e.indent = 0;
+  Value root(Type::Map);
+  e.vParent.push_back(EncodeParent(&root));
+  e.vState.push_back(EncodeState::ValueBegin);
+  // Regex initialization from _marshalStream, required by quoting helpers:
+    // Regex should not be UTF8 aware, just treat the chars as values.
+    e.loc = std::locale::classic();
+  
+    std::string commonRange = R"(]|\xc2\xad|\xd8[\x80-\x84]|\xdc\x8f|\xe1\x9e[\xb4\xb5]|\xe2\x80[\x8c\x8f]|\xe2\x80[\xa8-\xaf]|\xe2\x81[\xa0-\xaf]|\xef\xbb\xbf|\xef\xbf[\xb0-\xbf])";
+    // needsEscape tests if the string can be written without escapes
+    e.needsEscape.imbue(e.loc);
+    e.needsEscape.assign(R"([\\\"\x00-\x1f)" + commonRange);
+    // needsQuotes tests if the string can be written as a quoteless string (includes needsEscape but without \\ and \")
+    e.needsQuotes.imbue(e.loc);
+    e.needsQuotes.assign(R"(^\s|^"|^'|^#|^/\*|^//|^\{|^\}|^\[|^\]|^:|^,|\s$|[\x00-\x1f)" + commonRange);
+    // needsEscapeML tests if the string can be written as a multiline string (like needsEscape but without \n, \r, \\, \", \t)
+    e.needsEscapeML.imbue(e.loc);
+    e.needsEscapeML.assign(R"('''|^[\s]+$|[\x00-\x08\x0b\x0c\x0e-\x1f)" + commonRange);
+    // starts with a keyword and optionally is followed by a comment
+    e.startsWithKeyword.imbue(e.loc);
+    e.startsWithKeyword.assign(R"(^(true|false|null)\s*((,|\]|\}|#|//|/\*).*)?$)");
+    e.needsEscapeName.imbue(e.loc);
+    e.needsEscapeName.assign(R"([,\{\[\}\]\s:#"']|//|/\*)");
+    e.lineBreak.assign(R"(\r|\n|\r\n)");
+  // Adjust root type, option flags and state stack for the target branch.
+}
+} // namespace Hjson
+
+// Build: test TU includes "hjson_encode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -415,13 +813,112 @@ static void _quoteName(Encoder *e, const std::string& name) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Encoder: opt(EncoderOptions), os(ostream*), loc(locale), indent(int), regex fields needsEscape/needsQuotes/needsEscapeML/startsWithKeyword/needsEscapeName/lineBreak, vState(vector<EncodeState>), vParent(vector<EncodeParent>).
-Direct local helpers (signatures only): static void _quoteReplace(Encoder *e, const std::string& text).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original encoder state declarations from hjson_encode.cpp
+
+enum class EncodeState {
+  ValueBegin,
+  ValueEnd,
+  VectorElemBegin,
+  MapElemBegin,
+};
+
+
+class EncodeParent {
+public:
+  EncodeParent(const Value *_pVal) : pVal(_pVal), index(0), isEmpty(true) {}
+  const Value *pVal;
+  int index;
+  bool isEmpty;
+  std::string commentAfter;
+  std::map<std::string, Value>::const_iterator it;
+};
+
+
+struct Encoder {
+  EncoderOptions opt;
+  std::ostream *os;
+  std::locale loc;
+  int indent;
+  std::regex needsEscape, needsQuotes, needsEscapeML, startsWithKeyword,
+    needsEscapeName, lineBreak;
+  std::vector<EncodeState> vState;
+  std::vector<EncodeParent> vParent;
+};
+
+// Encoder options from hjson.h
+// EncoderOptions defines options for encoding to Hjson.
+struct EncoderOptions {
+  // End of line, should be either \n or \r\n
+  std::string eol = "\n";
+  // Place braces on the same line
+  bool bracesSameLine = true;
+  // Always place string values in double quotation marks ("), and escape
+  // any special chars inside the string value
+  bool quoteAlways = false;
+  // Always place keys in quotes
+  bool quoteKeys = false;
+  // Indent string
+  std::string indentBy = "  ";
+  // Allow the -0 value (unlike ES6)
+  bool allowMinusZero = false;
+  // Encode unknown values as 'null'
+  bool unknownAsNull = false;
+  // Output a comma separator between elements. If true, always place strings
+  // in quotes (overriding the "quoteAlways" setting).
+  bool separator = false;
+  // Only affects the order of elements in objects. If true, the key/value
+  // pairs for all objects will be placed in the same order as they were added.
+  // If false, the key/value pairs are placed in alphabetical key order.
+  bool preserveInsertionOrder = true;
+  // If true, omits root braces.
+  bool omitRootBraces = false;
+  // Write comments, if any are found in the Hjson::Value objects.
+  bool comments = true;
+};
+
+// Direct helpers in the original source (definitions when short, otherwise declarations)
+static void _quoteReplace(Encoder *e, const std::string& text);
+
+// Example Encoder fixture for same-translation-unit harness, not a full test
+#include <sstream>
+namespace Hjson {
+void example_encoder_seed() {
+  std::ostringstream output;
+  Encoder e{};
+  e.os = &output;
+  e.opt = EncoderOptions();
+  e.indent = 0;
+  // Regex initialization from _marshalStream, required by quoting helpers:
+    // Regex should not be UTF8 aware, just treat the chars as values.
+    e.loc = std::locale::classic();
+  
+    std::string commonRange = R"(]|\xc2\xad|\xd8[\x80-\x84]|\xdc\x8f|\xe1\x9e[\xb4\xb5]|\xe2\x80[\x8c\x8f]|\xe2\x80[\xa8-\xaf]|\xe2\x81[\xa0-\xaf]|\xef\xbb\xbf|\xef\xbf[\xb0-\xbf])";
+    // needsEscape tests if the string can be written without escapes
+    e.needsEscape.imbue(e.loc);
+    e.needsEscape.assign(R"([\\\"\x00-\x1f)" + commonRange);
+    // needsQuotes tests if the string can be written as a quoteless string (includes needsEscape but without \\ and \")
+    e.needsQuotes.imbue(e.loc);
+    e.needsQuotes.assign(R"(^\s|^"|^'|^#|^/\*|^//|^\{|^\}|^\[|^\]|^:|^,|\s$|[\x00-\x1f)" + commonRange);
+    // needsEscapeML tests if the string can be written as a multiline string (like needsEscape but without \n, \r, \\, \", \t)
+    e.needsEscapeML.imbue(e.loc);
+    e.needsEscapeML.assign(R"('''|^[\s]+$|[\x00-\x08\x0b\x0c\x0e-\x1f)" + commonRange);
+    // starts with a keyword and optionally is followed by a comment
+    e.startsWithKeyword.imbue(e.loc);
+    e.startsWithKeyword.assign(R"(^(true|false|null)\s*((,|\]|\}|#|//|/\*).*)?$)");
+    e.needsEscapeName.imbue(e.loc);
+    e.needsEscapeName.assign(R"([,\{\[\}\]\s:#"']|//|/\*)");
+    e.lineBreak.assign(R"(\r|\n|\r\n)");
+  // Adjust root type, option flags and state stack for the target branch.
+}
+} // namespace Hjson
+
+// Build: test TU includes "hjson_encode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -457,12 +954,109 @@ static bool _quoteForComment(Encoder *e, const std::string& comment) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Encoder: opt(EncoderOptions), os(ostream*), loc(locale), indent(int), regex fields needsEscape/needsQuotes/needsEscapeML/startsWithKeyword/needsEscapeName/lineBreak, vState(vector<EncodeState>), vParent(vector<EncodeParent>).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original encoder state declarations from hjson_encode.cpp
+
+enum class EncodeState {
+  ValueBegin,
+  ValueEnd,
+  VectorElemBegin,
+  MapElemBegin,
+};
+
+
+class EncodeParent {
+public:
+  EncodeParent(const Value *_pVal) : pVal(_pVal), index(0), isEmpty(true) {}
+  const Value *pVal;
+  int index;
+  bool isEmpty;
+  std::string commentAfter;
+  std::map<std::string, Value>::const_iterator it;
+};
+
+
+struct Encoder {
+  EncoderOptions opt;
+  std::ostream *os;
+  std::locale loc;
+  int indent;
+  std::regex needsEscape, needsQuotes, needsEscapeML, startsWithKeyword,
+    needsEscapeName, lineBreak;
+  std::vector<EncodeState> vState;
+  std::vector<EncodeParent> vParent;
+};
+
+// Encoder options from hjson.h
+// EncoderOptions defines options for encoding to Hjson.
+struct EncoderOptions {
+  // End of line, should be either \n or \r\n
+  std::string eol = "\n";
+  // Place braces on the same line
+  bool bracesSameLine = true;
+  // Always place string values in double quotation marks ("), and escape
+  // any special chars inside the string value
+  bool quoteAlways = false;
+  // Always place keys in quotes
+  bool quoteKeys = false;
+  // Indent string
+  std::string indentBy = "  ";
+  // Allow the -0 value (unlike ES6)
+  bool allowMinusZero = false;
+  // Encode unknown values as 'null'
+  bool unknownAsNull = false;
+  // Output a comma separator between elements. If true, always place strings
+  // in quotes (overriding the "quoteAlways" setting).
+  bool separator = false;
+  // Only affects the order of elements in objects. If true, the key/value
+  // pairs for all objects will be placed in the same order as they were added.
+  // If false, the key/value pairs are placed in alphabetical key order.
+  bool preserveInsertionOrder = true;
+  // If true, omits root braces.
+  bool omitRootBraces = false;
+  // Write comments, if any are found in the Hjson::Value objects.
+  bool comments = true;
+};
+
+// Example Encoder fixture for same-translation-unit harness, not a full test
+#include <sstream>
+namespace Hjson {
+void example_encoder_seed() {
+  std::ostringstream output;
+  Encoder e{};
+  e.os = &output;
+  e.opt = EncoderOptions();
+  e.indent = 0;
+  // Regex initialization from _marshalStream, required by quoting helpers:
+    // Regex should not be UTF8 aware, just treat the chars as values.
+    e.loc = std::locale::classic();
+  
+    std::string commonRange = R"(]|\xc2\xad|\xd8[\x80-\x84]|\xdc\x8f|\xe1\x9e[\xb4\xb5]|\xe2\x80[\x8c\x8f]|\xe2\x80[\xa8-\xaf]|\xe2\x81[\xa0-\xaf]|\xef\xbb\xbf|\xef\xbf[\xb0-\xbf])";
+    // needsEscape tests if the string can be written without escapes
+    e.needsEscape.imbue(e.loc);
+    e.needsEscape.assign(R"([\\\"\x00-\x1f)" + commonRange);
+    // needsQuotes tests if the string can be written as a quoteless string (includes needsEscape but without \\ and \")
+    e.needsQuotes.imbue(e.loc);
+    e.needsQuotes.assign(R"(^\s|^"|^'|^#|^/\*|^//|^\{|^\}|^\[|^\]|^:|^,|\s$|[\x00-\x1f)" + commonRange);
+    // needsEscapeML tests if the string can be written as a multiline string (like needsEscape but without \n, \r, \\, \", \t)
+    e.needsEscapeML.imbue(e.loc);
+    e.needsEscapeML.assign(R"('''|^[\s]+$|[\x00-\x08\x0b\x0c\x0e-\x1f)" + commonRange);
+    // starts with a keyword and optionally is followed by a comment
+    e.startsWithKeyword.imbue(e.loc);
+    e.startsWithKeyword.assign(R"(^(true|false|null)\s*((,|\]|\}|#|//|/\*).*)?$)");
+    e.needsEscapeName.imbue(e.loc);
+    e.needsEscapeName.assign(R"([,\{\[\}\]\s:#"']|//|/\*)");
+    e.lineBreak.assign(R"(\r|\n|\r\n)");
+  // Adjust root type, option flags and state stack for the target branch.
+}
+} // namespace Hjson
+
+// Build: test TU includes "hjson_encode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -511,11 +1105,13 @@ static bool _isInComment(const std::string& comment) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Build: test TU includes "hjson_encode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -587,15 +1183,147 @@ static void _writeValueBegin(Encoder *e) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Encoder: opt(EncoderOptions), os(ostream*), loc(locale), indent(int), regex fields needsEscape/needsQuotes/needsEscapeML/startsWithKeyword/needsEscapeName/lineBreak, vState(vector<EncodeState>), vParent(vector<EncodeParent>).
-EncodeParent: pVal(const Value*), index(int), isEmpty(bool), commentAfter(string), it(map<string,Value>::const_iterator). EncodeState: ValueBegin, ValueEnd, VectorElemBegin, MapElemBegin.
-Direct local helpers (signatures only): static void _quote(Encoder *e, const std::string& value, bool hasCommentAfter); static bool _quoteForComment(Encoder *e, const std::string& comment).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original encoder state declarations from hjson_encode.cpp
+
+enum class EncodeState {
+  ValueBegin,
+  ValueEnd,
+  VectorElemBegin,
+  MapElemBegin,
+};
+
+
+class EncodeParent {
+public:
+  EncodeParent(const Value *_pVal) : pVal(_pVal), index(0), isEmpty(true) {}
+  const Value *pVal;
+  int index;
+  bool isEmpty;
+  std::string commentAfter;
+  std::map<std::string, Value>::const_iterator it;
+};
+
+
+struct Encoder {
+  EncoderOptions opt;
+  std::ostream *os;
+  std::locale loc;
+  int indent;
+  std::regex needsEscape, needsQuotes, needsEscapeML, startsWithKeyword,
+    needsEscapeName, lineBreak;
+  std::vector<EncodeState> vState;
+  std::vector<EncodeParent> vParent;
+};
+
+// Encoder options from hjson.h
+// EncoderOptions defines options for encoding to Hjson.
+struct EncoderOptions {
+  // End of line, should be either \n or \r\n
+  std::string eol = "\n";
+  // Place braces on the same line
+  bool bracesSameLine = true;
+  // Always place string values in double quotation marks ("), and escape
+  // any special chars inside the string value
+  bool quoteAlways = false;
+  // Always place keys in quotes
+  bool quoteKeys = false;
+  // Indent string
+  std::string indentBy = "  ";
+  // Allow the -0 value (unlike ES6)
+  bool allowMinusZero = false;
+  // Encode unknown values as 'null'
+  bool unknownAsNull = false;
+  // Output a comma separator between elements. If true, always place strings
+  // in quotes (overriding the "quoteAlways" setting).
+  bool separator = false;
+  // Only affects the order of elements in objects. If true, the key/value
+  // pairs for all objects will be placed in the same order as they were added.
+  // If false, the key/value pairs are placed in alphabetical key order.
+  bool preserveInsertionOrder = true;
+  // If true, omits root braces.
+  bool omitRootBraces = false;
+  // Write comments, if any are found in the Hjson::Value objects.
+  bool comments = true;
+};
+
+// Hjson::Type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Direct helpers in the original source (definitions when short, otherwise declarations)
+static void _quote(Encoder *e, const std::string& value, bool hasCommentAfter);
+
+static bool _quoteForComment(Encoder *e, const std::string& comment) {
+  if (!e->opt.comments) {
+    return false;
+  }
+
+  for (char ch : comment) {
+    if ((ch == '\r') || (ch == '\n')) {
+
+      return false;
+    
+    } else if ((ch == '/') || (ch == '#')) {
+
+      return true;
+    
+    }
+  }
+
+  return false;
+}
+
+// Example Encoder fixture for same-translation-unit harness, not a full test
+#include <sstream>
+namespace Hjson {
+void example_encoder_seed() {
+  std::ostringstream output;
+  Encoder e{};
+  e.os = &output;
+  e.opt = EncoderOptions();
+  e.indent = 0;
+  Value root(Type::Map);
+  e.vParent.push_back(EncodeParent(&root));
+  e.vState.push_back(EncodeState::ValueBegin);
+  // Regex initialization from _marshalStream, required by quoting helpers:
+    // Regex should not be UTF8 aware, just treat the chars as values.
+    e.loc = std::locale::classic();
+  
+    std::string commonRange = R"(]|\xc2\xad|\xd8[\x80-\x84]|\xdc\x8f|\xe1\x9e[\xb4\xb5]|\xe2\x80[\x8c\x8f]|\xe2\x80[\xa8-\xaf]|\xe2\x81[\xa0-\xaf]|\xef\xbb\xbf|\xef\xbf[\xb0-\xbf])";
+    // needsEscape tests if the string can be written without escapes
+    e.needsEscape.imbue(e.loc);
+    e.needsEscape.assign(R"([\\\"\x00-\x1f)" + commonRange);
+    // needsQuotes tests if the string can be written as a quoteless string (includes needsEscape but without \\ and \")
+    e.needsQuotes.imbue(e.loc);
+    e.needsQuotes.assign(R"(^\s|^"|^'|^#|^/\*|^//|^\{|^\}|^\[|^\]|^:|^,|\s$|[\x00-\x1f)" + commonRange);
+    // needsEscapeML tests if the string can be written as a multiline string (like needsEscape but without \n, \r, \\, \", \t)
+    e.needsEscapeML.imbue(e.loc);
+    e.needsEscapeML.assign(R"('''|^[\s]+$|[\x00-\x08\x0b\x0c\x0e-\x1f)" + commonRange);
+    // starts with a keyword and optionally is followed by a comment
+    e.startsWithKeyword.imbue(e.loc);
+    e.startsWithKeyword.assign(R"(^(true|false|null)\s*((,|\]|\}|#|//|/\*).*)?$)");
+    e.needsEscapeName.imbue(e.loc);
+    e.needsEscapeName.assign(R"([,\{\[\}\]\s:#"']|//|/\*)");
+    e.lineBreak.assign(R"(\r|\n|\r\n)");
+  // Adjust root type, option flags and state stack for the target branch.
+}
+} // namespace Hjson
+
+// Build: test TU includes "hjson_encode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -674,15 +1402,103 @@ static void _writeVectorElemBegin(Encoder *e) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Encoder: opt(EncoderOptions), os(ostream*), loc(locale), indent(int), regex fields needsEscape/needsQuotes/needsEscapeML/startsWithKeyword/needsEscapeName/lineBreak, vState(vector<EncodeState>), vParent(vector<EncodeParent>).
-EncodeParent: pVal(const Value*), index(int), isEmpty(bool), commentAfter(string), it(map<string,Value>::const_iterator). EncodeState: ValueBegin, ValueEnd, VectorElemBegin, MapElemBegin.
-Direct local helpers (signatures only): static void _writeIndent(Encoder *e, int indent).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original encoder state declarations from hjson_encode.cpp
+
+enum class EncodeState {
+  ValueBegin,
+  ValueEnd,
+  VectorElemBegin,
+  MapElemBegin,
+};
+
+
+class EncodeParent {
+public:
+  EncodeParent(const Value *_pVal) : pVal(_pVal), index(0), isEmpty(true) {}
+  const Value *pVal;
+  int index;
+  bool isEmpty;
+  std::string commentAfter;
+  std::map<std::string, Value>::const_iterator it;
+};
+
+
+struct Encoder {
+  EncoderOptions opt;
+  std::ostream *os;
+  std::locale loc;
+  int indent;
+  std::regex needsEscape, needsQuotes, needsEscapeML, startsWithKeyword,
+    needsEscapeName, lineBreak;
+  std::vector<EncodeState> vState;
+  std::vector<EncodeParent> vParent;
+};
+
+// Encoder options from hjson.h
+// EncoderOptions defines options for encoding to Hjson.
+struct EncoderOptions {
+  // End of line, should be either \n or \r\n
+  std::string eol = "\n";
+  // Place braces on the same line
+  bool bracesSameLine = true;
+  // Always place string values in double quotation marks ("), and escape
+  // any special chars inside the string value
+  bool quoteAlways = false;
+  // Always place keys in quotes
+  bool quoteKeys = false;
+  // Indent string
+  std::string indentBy = "  ";
+  // Allow the -0 value (unlike ES6)
+  bool allowMinusZero = false;
+  // Encode unknown values as 'null'
+  bool unknownAsNull = false;
+  // Output a comma separator between elements. If true, always place strings
+  // in quotes (overriding the "quoteAlways" setting).
+  bool separator = false;
+  // Only affects the order of elements in objects. If true, the key/value
+  // pairs for all objects will be placed in the same order as they were added.
+  // If false, the key/value pairs are placed in alphabetical key order.
+  bool preserveInsertionOrder = true;
+  // If true, omits root braces.
+  bool omitRootBraces = false;
+  // Write comments, if any are found in the Hjson::Value objects.
+  bool comments = true;
+};
+
+// Direct helpers in the original source (definitions when short, otherwise declarations)
+static void _writeIndent(Encoder *e, int indent) {
+  *e->os << e->opt.eol;
+
+  if (!e->opt.indentBy.empty()) {
+    for (int i = 0; i < indent; i++) {
+      *e->os << e->opt.indentBy;
+    }
+  }
+}
+
+// Example Encoder fixture for same-translation-unit harness, not a full test
+#include <sstream>
+namespace Hjson {
+void example_encoder_seed() {
+  std::ostringstream output;
+  Encoder e{};
+  e.os = &output;
+  e.opt = EncoderOptions();
+  e.indent = 0;
+  Value root(Type::Map);
+  e.vParent.push_back(EncodeParent(&root));
+  e.vState.push_back(EncodeState::ValueBegin);
+  // Adjust root type, option flags and state stack for the target branch.
+}
+} // namespace Hjson
+
+// Build: test TU includes "hjson_encode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -763,15 +1579,150 @@ static void _objElem(Encoder *e, const std::string& key, const Value& value, boo
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Encoder: opt(EncoderOptions), os(ostream*), loc(locale), indent(int), regex fields needsEscape/needsQuotes/needsEscapeML/startsWithKeyword/needsEscapeName/lineBreak, vState(vector<EncodeState>), vParent(vector<EncodeParent>).
-EncodeParent: pVal(const Value*), index(int), isEmpty(bool), commentAfter(string), it(map<string,Value>::const_iterator). EncodeState: ValueBegin, ValueEnd, VectorElemBegin, MapElemBegin.
-Direct local helpers (signatures only): static void _writeIndent(Encoder *e, int indent); static void _quoteName(Encoder *e, const std::string& name).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original encoder state declarations from hjson_encode.cpp
+
+enum class EncodeState {
+  ValueBegin,
+  ValueEnd,
+  VectorElemBegin,
+  MapElemBegin,
+};
+
+
+class EncodeParent {
+public:
+  EncodeParent(const Value *_pVal) : pVal(_pVal), index(0), isEmpty(true) {}
+  const Value *pVal;
+  int index;
+  bool isEmpty;
+  std::string commentAfter;
+  std::map<std::string, Value>::const_iterator it;
+};
+
+
+struct Encoder {
+  EncoderOptions opt;
+  std::ostream *os;
+  std::locale loc;
+  int indent;
+  std::regex needsEscape, needsQuotes, needsEscapeML, startsWithKeyword,
+    needsEscapeName, lineBreak;
+  std::vector<EncodeState> vState;
+  std::vector<EncodeParent> vParent;
+};
+
+// Encoder options from hjson.h
+// EncoderOptions defines options for encoding to Hjson.
+struct EncoderOptions {
+  // End of line, should be either \n or \r\n
+  std::string eol = "\n";
+  // Place braces on the same line
+  bool bracesSameLine = true;
+  // Always place string values in double quotation marks ("), and escape
+  // any special chars inside the string value
+  bool quoteAlways = false;
+  // Always place keys in quotes
+  bool quoteKeys = false;
+  // Indent string
+  std::string indentBy = "  ";
+  // Allow the -0 value (unlike ES6)
+  bool allowMinusZero = false;
+  // Encode unknown values as 'null'
+  bool unknownAsNull = false;
+  // Output a comma separator between elements. If true, always place strings
+  // in quotes (overriding the "quoteAlways" setting).
+  bool separator = false;
+  // Only affects the order of elements in objects. If true, the key/value
+  // pairs for all objects will be placed in the same order as they were added.
+  // If false, the key/value pairs are placed in alphabetical key order.
+  bool preserveInsertionOrder = true;
+  // If true, omits root braces.
+  bool omitRootBraces = false;
+  // Write comments, if any are found in the Hjson::Value objects.
+  bool comments = true;
+};
+
+// Hjson::Type enum from hjson.h
+enum class Type {
+  Undefined,
+  Null,
+  Bool,
+  Double,
+  Int64,
+  String,
+  Vector,
+  Map
+};
+
+// Direct helpers in the original source (definitions when short, otherwise declarations)
+static void _writeIndent(Encoder *e, int indent) {
+  *e->os << e->opt.eol;
+
+  if (!e->opt.indentBy.empty()) {
+    for (int i = 0; i < indent; i++) {
+      *e->os << e->opt.indentBy;
+    }
+  }
+}
+
+static void _quoteName(Encoder *e, const std::string& name) {
+  if (name.empty()) {
+    *e->os << "\"\"";
+  } else if (e->opt.quoteKeys || std::regex_search(name, e->needsEscapeName) ||
+    std::regex_search(name, e->needsEscape))
+  {
+    *e->os << '"';
+    _quoteReplace(e, name);
+    *e->os << '"';
+  } else {
+    // without quotes
+    *e->os << name;
+  }
+}
+
+// Example Encoder fixture for same-translation-unit harness, not a full test
+#include <sstream>
+namespace Hjson {
+void example_encoder_seed() {
+  std::ostringstream output;
+  Encoder e{};
+  e.os = &output;
+  e.opt = EncoderOptions();
+  e.indent = 0;
+  Value root(Type::Map);
+  e.vParent.push_back(EncodeParent(&root));
+  e.vState.push_back(EncodeState::ValueBegin);
+  // Regex initialization from _marshalStream, required by quoting helpers:
+    // Regex should not be UTF8 aware, just treat the chars as values.
+    e.loc = std::locale::classic();
+  
+    std::string commonRange = R"(]|\xc2\xad|\xd8[\x80-\x84]|\xdc\x8f|\xe1\x9e[\xb4\xb5]|\xe2\x80[\x8c\x8f]|\xe2\x80[\xa8-\xaf]|\xe2\x81[\xa0-\xaf]|\xef\xbb\xbf|\xef\xbf[\xb0-\xbf])";
+    // needsEscape tests if the string can be written without escapes
+    e.needsEscape.imbue(e.loc);
+    e.needsEscape.assign(R"([\\\"\x00-\x1f)" + commonRange);
+    // needsQuotes tests if the string can be written as a quoteless string (includes needsEscape but without \\ and \")
+    e.needsQuotes.imbue(e.loc);
+    e.needsQuotes.assign(R"(^\s|^"|^'|^#|^/\*|^//|^\{|^\}|^\[|^\]|^:|^,|\s$|[\x00-\x1f)" + commonRange);
+    // needsEscapeML tests if the string can be written as a multiline string (like needsEscape but without \n, \r, \\, \", \t)
+    e.needsEscapeML.imbue(e.loc);
+    e.needsEscapeML.assign(R"('''|^[\s]+$|[\x00-\x08\x0b\x0c\x0e-\x1f)" + commonRange);
+    // starts with a keyword and optionally is followed by a comment
+    e.startsWithKeyword.imbue(e.loc);
+    e.startsWithKeyword.assign(R"(^(true|false|null)\s*((,|\]|\}|#|//|/\*).*)?$)");
+    e.needsEscapeName.imbue(e.loc);
+    e.needsEscapeName.assign(R"([,\{\[\}\]\s:#"']|//|/\*)");
+    e.lineBreak.assign(R"(\r|\n|\r\n)");
+  // Adjust root type, option flags and state stack for the target branch.
+}
+} // namespace Hjson
+
+// Build: test TU includes "hjson_encode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -844,15 +1795,107 @@ static void _writeMapElemBegin(Encoder *e) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Encoder: opt(EncoderOptions), os(ostream*), loc(locale), indent(int), regex fields needsEscape/needsQuotes/needsEscapeML/startsWithKeyword/needsEscapeName/lineBreak, vState(vector<EncodeState>), vParent(vector<EncodeParent>).
-EncodeParent: pVal(const Value*), index(int), isEmpty(bool), commentAfter(string), it(map<string,Value>::const_iterator). EncodeState: ValueBegin, ValueEnd, VectorElemBegin, MapElemBegin.
-Direct local helpers (signatures only): static void _writeIndent(Encoder *e, int indent); static bool _isInComment(const std::string& comment); static void _objElem(Encoder *e, const std::string& key, const Value& value, bool *pIsFirst, const std::string& commentAfterPrevObj).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original encoder state declarations from hjson_encode.cpp
+
+enum class EncodeState {
+  ValueBegin,
+  ValueEnd,
+  VectorElemBegin,
+  MapElemBegin,
+};
+
+
+class EncodeParent {
+public:
+  EncodeParent(const Value *_pVal) : pVal(_pVal), index(0), isEmpty(true) {}
+  const Value *pVal;
+  int index;
+  bool isEmpty;
+  std::string commentAfter;
+  std::map<std::string, Value>::const_iterator it;
+};
+
+
+struct Encoder {
+  EncoderOptions opt;
+  std::ostream *os;
+  std::locale loc;
+  int indent;
+  std::regex needsEscape, needsQuotes, needsEscapeML, startsWithKeyword,
+    needsEscapeName, lineBreak;
+  std::vector<EncodeState> vState;
+  std::vector<EncodeParent> vParent;
+};
+
+// Encoder options from hjson.h
+// EncoderOptions defines options for encoding to Hjson.
+struct EncoderOptions {
+  // End of line, should be either \n or \r\n
+  std::string eol = "\n";
+  // Place braces on the same line
+  bool bracesSameLine = true;
+  // Always place string values in double quotation marks ("), and escape
+  // any special chars inside the string value
+  bool quoteAlways = false;
+  // Always place keys in quotes
+  bool quoteKeys = false;
+  // Indent string
+  std::string indentBy = "  ";
+  // Allow the -0 value (unlike ES6)
+  bool allowMinusZero = false;
+  // Encode unknown values as 'null'
+  bool unknownAsNull = false;
+  // Output a comma separator between elements. If true, always place strings
+  // in quotes (overriding the "quoteAlways" setting).
+  bool separator = false;
+  // Only affects the order of elements in objects. If true, the key/value
+  // pairs for all objects will be placed in the same order as they were added.
+  // If false, the key/value pairs are placed in alphabetical key order.
+  bool preserveInsertionOrder = true;
+  // If true, omits root braces.
+  bool omitRootBraces = false;
+  // Write comments, if any are found in the Hjson::Value objects.
+  bool comments = true;
+};
+
+// Direct helpers in the original source (definitions when short, otherwise declarations)
+static void _objElem(Encoder *e, const std::string& key, const Value& value, bool *pIsFirst, const std::string& commentAfterPrevObj);
+
+static void _writeIndent(Encoder *e, int indent) {
+  *e->os << e->opt.eol;
+
+  if (!e->opt.indentBy.empty()) {
+    for (int i = 0; i < indent; i++) {
+      *e->os << e->opt.indentBy;
+    }
+  }
+}
+
+static bool _isInComment(const std::string& comment);
+
+// Example Encoder fixture for same-translation-unit harness, not a full test
+#include <sstream>
+namespace Hjson {
+void example_encoder_seed() {
+  std::ostringstream output;
+  Encoder e{};
+  e.os = &output;
+  e.opt = EncoderOptions();
+  e.indent = 0;
+  Value root(Type::Map);
+  e.vParent.push_back(EncodeParent(&root));
+  e.vState.push_back(EncodeState::ValueBegin);
+  // Adjust root type, option flags and state stack for the target branch.
+}
+} // namespace Hjson
+
+// Build: test TU includes "hjson_encode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -894,15 +1937,70 @@ static void _marshalLoop(Encoder *e, const Value &v) {
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Encoder: opt(EncoderOptions), os(ostream*), loc(locale), indent(int), regex fields needsEscape/needsQuotes/needsEscapeML/startsWithKeyword/needsEscapeName/lineBreak, vState(vector<EncodeState>), vParent(vector<EncodeParent>).
-EncodeParent: pVal(const Value*), index(int), isEmpty(bool), commentAfter(string), it(map<string,Value>::const_iterator). EncodeState: ValueBegin, ValueEnd, VectorElemBegin, MapElemBegin.
-Direct local helpers (signatures only): static void _writeValueBegin(Encoder *e); static void _writeValueEnd(Encoder *e); static void _writeVectorElemBegin(Encoder *e); static void _writeMapElemBegin(Encoder *e).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original encoder state declarations from hjson_encode.cpp
+
+enum class EncodeState {
+  ValueBegin,
+  ValueEnd,
+  VectorElemBegin,
+  MapElemBegin,
+};
+
+
+class EncodeParent {
+public:
+  EncodeParent(const Value *_pVal) : pVal(_pVal), index(0), isEmpty(true) {}
+  const Value *pVal;
+  int index;
+  bool isEmpty;
+  std::string commentAfter;
+  std::map<std::string, Value>::const_iterator it;
+};
+
+
+struct Encoder {
+  EncoderOptions opt;
+  std::ostream *os;
+  std::locale loc;
+  int indent;
+  std::regex needsEscape, needsQuotes, needsEscapeML, startsWithKeyword,
+    needsEscapeName, lineBreak;
+  std::vector<EncodeState> vState;
+  std::vector<EncodeParent> vParent;
+};
+
+// Direct helpers in the original source (definitions when short, otherwise declarations)
+static void _writeValueBegin(Encoder *e);
+
+static void _writeValueEnd(Encoder *e);
+
+static void _writeVectorElemBegin(Encoder *e);
+
+static void _writeMapElemBegin(Encoder *e);
+
+// Example Encoder fixture for same-translation-unit harness, not a full test
+#include <sstream>
+namespace Hjson {
+void example_encoder_seed() {
+  std::ostringstream output;
+  Encoder e{};
+  e.os = &output;
+  e.opt = EncoderOptions();
+  e.indent = 0;
+  Value root(Type::Map);
+  e.vParent.push_back(EncodeParent(&root));
+  e.vState.push_back(EncodeState::ValueBegin);
+  // Adjust root type, option flags and state stack for the target branch.
+}
+} // namespace Hjson
+
+// Build: test TU includes "hjson_encode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -961,15 +2059,119 @@ static void _marshalStream(const Value& v, const EncoderOptions& options,
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Encoder: opt(EncoderOptions), os(ostream*), loc(locale), indent(int), regex fields needsEscape/needsQuotes/needsEscapeML/startsWithKeyword/needsEscapeName/lineBreak, vState(vector<EncodeState>), vParent(vector<EncodeParent>).
-EncodeParent: pVal(const Value*), index(int), isEmpty(bool), commentAfter(string), it(map<string,Value>::const_iterator). EncodeState: ValueBegin, ValueEnd, VectorElemBegin, MapElemBegin.
-Direct local helpers (signatures only): static void _marshalLoop(Encoder *e, const Value &v).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Original encoder state declarations from hjson_encode.cpp
+
+enum class EncodeState {
+  ValueBegin,
+  ValueEnd,
+  VectorElemBegin,
+  MapElemBegin,
+};
+
+
+class EncodeParent {
+public:
+  EncodeParent(const Value *_pVal) : pVal(_pVal), index(0), isEmpty(true) {}
+  const Value *pVal;
+  int index;
+  bool isEmpty;
+  std::string commentAfter;
+  std::map<std::string, Value>::const_iterator it;
+};
+
+
+struct Encoder {
+  EncoderOptions opt;
+  std::ostream *os;
+  std::locale loc;
+  int indent;
+  std::regex needsEscape, needsQuotes, needsEscapeML, startsWithKeyword,
+    needsEscapeName, lineBreak;
+  std::vector<EncodeState> vState;
+  std::vector<EncodeParent> vParent;
+};
+
+// Encoder options from hjson.h
+// EncoderOptions defines options for encoding to Hjson.
+struct EncoderOptions {
+  // End of line, should be either \n or \r\n
+  std::string eol = "\n";
+  // Place braces on the same line
+  bool bracesSameLine = true;
+  // Always place string values in double quotation marks ("), and escape
+  // any special chars inside the string value
+  bool quoteAlways = false;
+  // Always place keys in quotes
+  bool quoteKeys = false;
+  // Indent string
+  std::string indentBy = "  ";
+  // Allow the -0 value (unlike ES6)
+  bool allowMinusZero = false;
+  // Encode unknown values as 'null'
+  bool unknownAsNull = false;
+  // Output a comma separator between elements. If true, always place strings
+  // in quotes (overriding the "quoteAlways" setting).
+  bool separator = false;
+  // Only affects the order of elements in objects. If true, the key/value
+  // pairs for all objects will be placed in the same order as they were added.
+  // If false, the key/value pairs are placed in alphabetical key order.
+  bool preserveInsertionOrder = true;
+  // If true, omits root braces.
+  bool omitRootBraces = false;
+  // Write comments, if any are found in the Hjson::Value objects.
+  bool comments = true;
+};
+
+// Direct helpers in the original source (definitions when short, otherwise declarations)
+static void _marshalLoop(Encoder *e, const Value &v) {
+  while (!e->vState.empty()) {
+    if ((e->vState.back() == EncodeState::ValueBegin)) {
+
+      _writeValueBegin(e);
+      
+    
+    } else if ((e->vState.back() == EncodeState::ValueEnd)) {
+
+      _writeValueEnd(e);
+      
+    
+    } else if ((e->vState.back() == EncodeState::VectorElemBegin)) {
+
+      _writeVectorElemBegin(e);
+      
+    
+    } else if ((e->vState.back() == EncodeState::MapElemBegin)) {
+
+      _writeMapElemBegin(e);
+      
+    
+    }
+  }
+}
+
+// Example Encoder fixture for same-translation-unit harness, not a full test
+#include <sstream>
+namespace Hjson {
+void example_encoder_seed() {
+  std::ostringstream output;
+  Encoder e{};
+  e.os = &output;
+  e.opt = EncoderOptions();
+  e.indent = 0;
+  Value root(Type::Map);
+  e.vParent.push_back(EncodeParent(&root));
+  e.vState.push_back(EncodeState::ValueBegin);
+  // Adjust root type, option flags and state stack for the target branch.
+}
+} // namespace Hjson
+
+// Build: test TU includes "hjson_encode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -995,12 +2197,15 @@ void MarshalToFile(const Value& v, const std::string &path, const EncoderOptions
 }
 ```
 
-### Minimal context
+### Context
 
-```text
+```cpp
 #include "hjson.h"
-namespace Hjson (original source; do not re-declare these types in the build).
-Hjson::Type: Undefined, Null, Bool, Double, Int64, String, Vector, Map.
-Direct local helpers (signatures only): static void _marshalStream(const Value& v, const EncoderOptions& options, std::ostream *pStream).
+// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Direct helpers in the original source (definitions when short, otherwise declarations)
+static void _marshalStream(const Value& v, const EncoderOptions& options, std::ostream *pStream);
+
+// Build: include hjson.h and link all four original .cpp files.
 ```
 
