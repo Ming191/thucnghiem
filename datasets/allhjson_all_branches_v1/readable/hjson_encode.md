@@ -180,6 +180,7 @@ void example_encoder_seed() {
   Encoder e{};
   e.os = &output;
   e.opt = EncoderOptions();
+  if (e.opt.separator) e.opt.quoteAlways = true; // _marshalStream invariant
   e.indent = 0;
   // Adjust root type, option flags and state stack for the target branch.
 }
@@ -391,6 +392,7 @@ void example_encoder_seed() {
   Encoder e{};
   e.os = &output;
   e.opt = EncoderOptions();
+  if (e.opt.separator) e.opt.quoteAlways = true; // _marshalStream invariant
   e.indent = 0;
   // Regex initialization from _marshalStream, required by quoting helpers:
     // Regex should not be UTF8 aware, just treat the chars as values.
@@ -570,6 +572,7 @@ void example_encoder_seed() {
   Encoder e{};
   e.os = &output;
   e.opt = EncoderOptions();
+  if (e.opt.separator) e.opt.quoteAlways = true; // _marshalStream invariant
   e.indent = 0;
   Value root(Type::Map);
   e.vParent.push_back(EncodeParent(&root));
@@ -597,6 +600,8 @@ void example_encoder_seed() {
   // Adjust root type, option flags and state stack for the target branch.
 }
 } // namespace Hjson
+
+// Nested comment/separator branches require two initialized parent frames (container and child); a one-frame seed is only an entry example.
 
 // Build: test TU includes "hjson_encode.cpp"; link other three .cpp files once.
 ```
@@ -754,6 +759,7 @@ void example_encoder_seed() {
   Encoder e{};
   e.os = &output;
   e.opt = EncoderOptions();
+  if (e.opt.separator) e.opt.quoteAlways = true; // _marshalStream invariant
   e.indent = 0;
   Value root(Type::Map);
   e.vParent.push_back(EncodeParent(&root));
@@ -781,6 +787,8 @@ void example_encoder_seed() {
   // Adjust root type, option flags and state stack for the target branch.
 }
 } // namespace Hjson
+
+// Nested comment/separator branches require two initialized parent frames. separator=true requires quoteAlways=true, as enforced in _marshalStream.
 
 // Build: test TU includes "hjson_encode.cpp"; link other three .cpp files once.
 ```
@@ -893,6 +901,7 @@ void example_encoder_seed() {
   Encoder e{};
   e.os = &output;
   e.opt = EncoderOptions();
+  if (e.opt.separator) e.opt.quoteAlways = true; // _marshalStream invariant
   e.indent = 0;
   // Regex initialization from _marshalStream, required by quoting helpers:
     // Regex should not be UTF8 aware, just treat the chars as values.
@@ -1031,6 +1040,7 @@ void example_encoder_seed() {
   Encoder e{};
   e.os = &output;
   e.opt = EncoderOptions();
+  if (e.opt.separator) e.opt.quoteAlways = true; // _marshalStream invariant
   e.indent = 0;
   // Regex initialization from _marshalStream, required by quoting helpers:
     // Regex should not be UTF8 aware, just treat the chars as values.
@@ -1295,6 +1305,7 @@ void example_encoder_seed() {
   Encoder e{};
   e.os = &output;
   e.opt = EncoderOptions();
+  if (e.opt.separator) e.opt.quoteAlways = true; // _marshalStream invariant
   e.indent = 0;
   Value root(Type::Map);
   e.vParent.push_back(EncodeParent(&root));
@@ -1490,10 +1501,34 @@ void example_encoder_seed() {
   Encoder e{};
   e.os = &output;
   e.opt = EncoderOptions();
+  if (e.opt.separator) e.opt.quoteAlways = true; // _marshalStream invariant
   e.indent = 0;
-  Value root(Type::Map);
+  Value root(Type::Vector);
+  root.push_back(Value("true"));
   e.vParent.push_back(EncodeParent(&root));
-  e.vState.push_back(EncodeState::ValueBegin);
+  e.vState.push_back(EncodeState::VectorElemBegin);
+  e.indent = 1;
+  output << "[";
+  // Regex initialization from _marshalStream, required by reachable child quotation paths:
+    // Regex should not be UTF8 aware, just treat the chars as values.
+    e.loc = std::locale::classic();
+  
+    std::string commonRange = R"(]|\xc2\xad|\xd8[\x80-\x84]|\xdc\x8f|\xe1\x9e[\xb4\xb5]|\xe2\x80[\x8c\x8f]|\xe2\x80[\xa8-\xaf]|\xe2\x81[\xa0-\xaf]|\xef\xbb\xbf|\xef\xbf[\xb0-\xbf])";
+    // needsEscape tests if the string can be written without escapes
+    e.needsEscape.imbue(e.loc);
+    e.needsEscape.assign(R"([\\\"\x00-\x1f)" + commonRange);
+    // needsQuotes tests if the string can be written as a quoteless string (includes needsEscape but without \\ and \")
+    e.needsQuotes.imbue(e.loc);
+    e.needsQuotes.assign(R"(^\s|^"|^'|^#|^/\*|^//|^\{|^\}|^\[|^\]|^:|^,|\s$|[\x00-\x1f)" + commonRange);
+    // needsEscapeML tests if the string can be written as a multiline string (like needsEscape but without \n, \r, \\, \", \t)
+    e.needsEscapeML.imbue(e.loc);
+    e.needsEscapeML.assign(R"('''|^[\s]+$|[\x00-\x08\x0b\x0c\x0e-\x1f)" + commonRange);
+    // starts with a keyword and optionally is followed by a comment
+    e.startsWithKeyword.imbue(e.loc);
+    e.startsWithKeyword.assign(R"(^(true|false|null)\s*((,|\]|\}|#|//|/\*).*)?$)");
+    e.needsEscapeName.imbue(e.loc);
+    e.needsEscapeName.assign(R"([,\{\[\}\]\s:#"']|//|/\*)");
+    e.lineBreak.assign(R"(\r|\n|\r\n)");
   // Adjust root type, option flags and state stack for the target branch.
 }
 } // namespace Hjson
@@ -1694,10 +1729,15 @@ void example_encoder_seed() {
   Encoder e{};
   e.os = &output;
   e.opt = EncoderOptions();
+  if (e.opt.separator) e.opt.quoteAlways = true; // _marshalStream invariant
   e.indent = 0;
   Value root(Type::Map);
+  root["key"] = Value(1);
   e.vParent.push_back(EncodeParent(&root));
-  e.vState.push_back(EncodeState::ValueBegin);
+  e.vState.push_back(EncodeState::MapElemBegin);
+  e.vParent.back().it = root.begin();
+  e.indent = 1;
+  output << "{";
   // Regex initialization from _marshalStream, required by quoting helpers:
     // Regex should not be UTF8 aware, just treat the chars as values.
     e.loc = std::locale::classic();
@@ -1887,10 +1927,35 @@ void example_encoder_seed() {
   Encoder e{};
   e.os = &output;
   e.opt = EncoderOptions();
+  if (e.opt.separator) e.opt.quoteAlways = true; // _marshalStream invariant
   e.indent = 0;
   Value root(Type::Map);
+  root["a b"] = Value("true");
   e.vParent.push_back(EncodeParent(&root));
-  e.vState.push_back(EncodeState::ValueBegin);
+  e.vState.push_back(EncodeState::MapElemBegin);
+  e.vParent.back().it = root.begin();
+  e.indent = 1;
+  output << "{";
+  // Regex initialization from _marshalStream, required by reachable child quotation paths:
+    // Regex should not be UTF8 aware, just treat the chars as values.
+    e.loc = std::locale::classic();
+  
+    std::string commonRange = R"(]|\xc2\xad|\xd8[\x80-\x84]|\xdc\x8f|\xe1\x9e[\xb4\xb5]|\xe2\x80[\x8c\x8f]|\xe2\x80[\xa8-\xaf]|\xe2\x81[\xa0-\xaf]|\xef\xbb\xbf|\xef\xbf[\xb0-\xbf])";
+    // needsEscape tests if the string can be written without escapes
+    e.needsEscape.imbue(e.loc);
+    e.needsEscape.assign(R"([\\\"\x00-\x1f)" + commonRange);
+    // needsQuotes tests if the string can be written as a quoteless string (includes needsEscape but without \\ and \")
+    e.needsQuotes.imbue(e.loc);
+    e.needsQuotes.assign(R"(^\s|^"|^'|^#|^/\*|^//|^\{|^\}|^\[|^\]|^:|^,|\s$|[\x00-\x1f)" + commonRange);
+    // needsEscapeML tests if the string can be written as a multiline string (like needsEscape but without \n, \r, \\, \", \t)
+    e.needsEscapeML.imbue(e.loc);
+    e.needsEscapeML.assign(R"('''|^[\s]+$|[\x00-\x08\x0b\x0c\x0e-\x1f)" + commonRange);
+    // starts with a keyword and optionally is followed by a comment
+    e.startsWithKeyword.imbue(e.loc);
+    e.startsWithKeyword.assign(R"(^(true|false|null)\s*((,|\]|\}|#|//|/\*).*)?$)");
+    e.needsEscapeName.imbue(e.loc);
+    e.needsEscapeName.assign(R"([,\{\[\}\]\s:#"']|//|/\*)");
+    e.lineBreak.assign(R"(\r|\n|\r\n)");
   // Adjust root type, option flags and state stack for the target branch.
 }
 } // namespace Hjson
@@ -1992,10 +2057,31 @@ void example_encoder_seed() {
   Encoder e{};
   e.os = &output;
   e.opt = EncoderOptions();
+  if (e.opt.separator) e.opt.quoteAlways = true; // _marshalStream invariant
   e.indent = 0;
   Value root(Type::Map);
   e.vParent.push_back(EncodeParent(&root));
   e.vState.push_back(EncodeState::ValueBegin);
+  // Regex initialization from _marshalStream, required by reachable child quotation paths:
+    // Regex should not be UTF8 aware, just treat the chars as values.
+    e.loc = std::locale::classic();
+  
+    std::string commonRange = R"(]|\xc2\xad|\xd8[\x80-\x84]|\xdc\x8f|\xe1\x9e[\xb4\xb5]|\xe2\x80[\x8c\x8f]|\xe2\x80[\xa8-\xaf]|\xe2\x81[\xa0-\xaf]|\xef\xbb\xbf|\xef\xbf[\xb0-\xbf])";
+    // needsEscape tests if the string can be written without escapes
+    e.needsEscape.imbue(e.loc);
+    e.needsEscape.assign(R"([\\\"\x00-\x1f)" + commonRange);
+    // needsQuotes tests if the string can be written as a quoteless string (includes needsEscape but without \\ and \")
+    e.needsQuotes.imbue(e.loc);
+    e.needsQuotes.assign(R"(^\s|^"|^'|^#|^/\*|^//|^\{|^\}|^\[|^\]|^:|^,|\s$|[\x00-\x1f)" + commonRange);
+    // needsEscapeML tests if the string can be written as a multiline string (like needsEscape but without \n, \r, \\, \", \t)
+    e.needsEscapeML.imbue(e.loc);
+    e.needsEscapeML.assign(R"('''|^[\s]+$|[\x00-\x08\x0b\x0c\x0e-\x1f)" + commonRange);
+    // starts with a keyword and optionally is followed by a comment
+    e.startsWithKeyword.imbue(e.loc);
+    e.startsWithKeyword.assign(R"(^(true|false|null)\s*((,|\]|\}|#|//|/\*).*)?$)");
+    e.needsEscapeName.imbue(e.loc);
+    e.needsEscapeName.assign(R"([,\{\[\}\]\s:#"']|//|/\*)");
+    e.lineBreak.assign(R"(\r|\n|\r\n)");
   // Adjust root type, option flags and state stack for the target branch.
 }
 } // namespace Hjson
@@ -2163,6 +2249,7 @@ void example_encoder_seed() {
   Encoder e{};
   e.os = &output;
   e.opt = EncoderOptions();
+  if (e.opt.separator) e.opt.quoteAlways = true; // _marshalStream invariant
   e.indent = 0;
   Value root(Type::Map);
   e.vParent.push_back(EncodeParent(&root));
