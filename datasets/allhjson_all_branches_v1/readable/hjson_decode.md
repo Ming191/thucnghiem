@@ -359,6 +359,8 @@ void example_parser_seed() {
 }
 } // namespace Hjson
 
+// Direct invocation only: _prev has no decoder caller; to read back safely, use 2 <= indexNext <= dataSize + 1. Avoid repeated _next EOF past the buffer.
+
 // Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
 
@@ -784,6 +786,8 @@ void example_parser_seed() {
 }
 } // namespace Hjson
 
+// Entry cursor for _readMLString: immediately after the opening three apostrophes. The generic '{x: 1}' input is not a valid direct-call seed for this focal.
+
 // Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
 
@@ -825,6 +829,8 @@ static void _toUtf8(std::vector<char> &res, uint32_t uIn) {
 ```cpp
 #include "hjson.h"
 // Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
+
+// Directly call _toUtf8 with 0x10000 for its four-byte path and 0x110000 for the rejection path. The public \uXXXX parser cannot reach these code points.
 
 // Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
@@ -1005,6 +1011,8 @@ void example_parser_seed() {
 }
 } // namespace Hjson
 
+// Entry cursor for _readString: p.ch must be the opening single/double quote, and indexNext points just after it. Example input: "\"x\"".
+
 // Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
 
@@ -1136,6 +1144,8 @@ void example_parser_seed() {
   // Adjust input, cursor and parse state to reach the desired branch.
 }
 } // namespace Hjson
+
+// Entry cursor for _readKeyname: first key character rather than '{'. Example input: "key:1".
 
 // Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
@@ -1629,6 +1639,8 @@ void example_parser_seed() {
 }
 } // namespace Hjson
 
+// Safe direct-call input for initial-whitespace path: use "  alpha\n", not whitespace-only text; valEnd can remain 0 and unsigned valEnd-valStart underflows on all-whitespace direct inputs.
+
 // Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
 
@@ -1772,6 +1784,8 @@ void example_parser_seed() {
 }
 } // namespace Hjson
 
+// Entry cursor for _readArrayBegin: p.ch=='['; parent Vector target and VectorBegin state must be valid.
+
 // Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
 
@@ -1907,14 +1921,18 @@ static std::string _errAt(Parser *p, const std::string& message);
 #include <string>
 namespace Hjson {
 void example_parser_seed() {
-  std::string input = "{x: 1}";  // Keep this buffer alive while Parser::data points into it.
+  std::string input = "[1]";
   Parser p = {reinterpret_cast<const unsigned char*>(input.c_str()),
               input.size(), 0, ' ', false, DecoderOptions()};
   p.ch = input.empty() ? 0 : static_cast<unsigned char>(input[0]);
   p.indexNext = input.empty() ? 0 : 1;
-  p.vParent.push_back(DecodeParent());
-  p.vState.push_back(ParseState::ValueBegin);
-  // Adjust input, cursor and parse state to reach the desired branch.
+  p.ch = ']'; p.indexNext = input.size();
+  DecodeParent outer; outer.val = Value(Type::Vector);
+  DecodeParent child; child.val = Value(1);
+  p.vParent.push_back(outer);
+  p.vParent.push_back(child);
+  p.vState.push_back(ParseState::VectorElemEnd);
+  _readArrayElemEnd(&p);
 }
 } // namespace Hjson
 
@@ -2061,6 +2079,8 @@ void example_parser_seed() {
   // Adjust input, cursor and parse state to reach the desired branch.
 }
 } // namespace Hjson
+
+// Reachability: _readObjectBegin dereferences vParent.back() before checking vParent.empty(). The empty-parent && withoutBraces true outcome is infeasible for valid state; never force it via an empty stack.
 
 // Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
@@ -2223,6 +2243,8 @@ void example_parser_seed() {
 }
 } // namespace Hjson
 
+// Entry state for _readObjectElemBegin: p.vParent.back().val is an existing Map, key cursor at first key character (or closing brace), and vState.back()==MapElemBegin.
+
 // Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
 
@@ -2361,14 +2383,18 @@ static bool _next(Parser *p) {
 #include <string>
 namespace Hjson {
 void example_parser_seed() {
-  std::string input = "{x: 1}";  // Keep this buffer alive while Parser::data points into it.
+  std::string input = "{x:1}";
   Parser p = {reinterpret_cast<const unsigned char*>(input.c_str()),
               input.size(), 0, ' ', false, DecoderOptions()};
   p.ch = input.empty() ? 0 : static_cast<unsigned char>(input[0]);
   p.indexNext = input.empty() ? 0 : 1;
-  p.vParent.push_back(DecodeParent());
-  p.vState.push_back(ParseState::ValueBegin);
-  // Adjust input, cursor and parse state to reach the desired branch.
+  p.ch = '}'; p.indexNext = input.size();
+  DecodeParent outer; outer.val = Value(Type::Map); outer.key = "x";
+  DecodeParent child; child.val = Value(1);
+  p.vParent.push_back(outer);
+  p.vParent.push_back(child);
+  p.vState.push_back(ParseState::MapElemEnd);
+  _readObjectElemEnd(&p);
 }
 } // namespace Hjson
 
@@ -2759,13 +2785,14 @@ inline void _setComment(Value& val, void (Value::*fp)(const std::string&),
 #include <string>
 namespace Hjson {
 void example_parser_seed() {
-  std::string input = "{x: 1}";  // Keep this buffer alive while Parser::data points into it.
+  std::string input = "a: 1";
   Parser p = {reinterpret_cast<const unsigned char*>(input.c_str()),
               input.size(), 0, ' ', false, DecoderOptions()};
   p.ch = input.empty() ? 0 : static_cast<unsigned char>(input[0]);
   p.indexNext = input.empty() ? 0 : 1;
-  p.vParent.push_back(DecodeParent());
-  // Adjust input, cursor and parse state to reach the desired branch.
+  // No vParent/vState seed: _rootValue creates its own root frame.
+  _resetAt(&p);
+  (void)_rootValue(&p);
 }
 } // namespace Hjson
 
