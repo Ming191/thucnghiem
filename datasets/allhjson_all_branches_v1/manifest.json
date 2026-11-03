@@ -40,11 +40,11 @@
     "active_path": "stringstream",
     "language_standard": "c++11"
   },
-  "context_review_status": "Prompt-only context cleanup structurally verified; dependency audit predates fixture removal; no per-focal generated-test or dynamic-coverage verification.",
-  "context_policy": "Only focal-relevant source declarations, helper code/signatures and branch-entry state preconditions; build in dependencies, no fixture examples.",
+  "context_review_status": "Source comment provenance verified: removed 602 non-source comment occurrences from 110 records; zero synthetic comments remain. Dynamic coverage unmeasured.",
+  "context_policy": "Selected source declarations/helper excerpts, preserving only source-authentic comments; no generated branch hints, fixture examples, or build instructions in prompt context.",
   "context_chars": {
     "min": 0,
-    "median": 1945,
-    "max": 6027
+    "median": 1472,
+    "max": 5488
   }
 }
