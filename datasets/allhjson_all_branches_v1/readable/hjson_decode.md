@@ -57,7 +57,6 @@ inline void _setComment(Value& val, void (Value::*fp)(const std::string&),
 ### Context
 
 ```cpp
-// Original parser state declarations from hjson.h
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -122,7 +121,6 @@ inline void _setComment(Value& val, void (Value::*fp)(const std::string&),
 ### Context
 
 ```cpp
-// Original parser state declarations from hjson.h
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -186,7 +184,6 @@ static bool _next(Parser *p) {
 ### Context
 
 ```cpp
-// Original parser state declarations from hjson.h
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -247,7 +244,6 @@ static bool _prev(Parser *p) {
 ### Context
 
 ```cpp
-// Original parser state declarations from hjson.h
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -280,8 +276,6 @@ struct Parser {
   std::vector<ParseState> vState;
   std::vector<DecodeParent> vParent;
 };
-
-// Direct invocation only: _prev has no decoder caller; to read back safely, use 2 <= indexNext <= dataSize + 1. Avoid repeated _next EOF past the buffer.
 ```
 
 ---
@@ -348,7 +342,6 @@ static std::string _errAt(Parser *p, const std::string& message) {
 ### Context
 
 ```cpp
-// Original parser state declarations from hjson.h
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -409,7 +402,6 @@ static unsigned char _peek(Parser *p, int offs) {
 ### Context
 
 ```cpp
-// Original parser state declarations from hjson.h
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -582,7 +574,6 @@ static std::string _readMLString(Parser *p) {
 ### Context
 
 ```cpp
-// Original parser state declarations from hjson.h
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -616,7 +607,6 @@ struct Parser {
   std::vector<DecodeParent> vParent;
 };
 
-// Direct helpers in the original source (definitions when short, otherwise declarations)
 static unsigned char _peek(Parser *p, int offs) {
   int pos = p->indexNext + offs;
 
@@ -641,8 +631,6 @@ static bool _next(Parser *p) {
 }
 
 static std::string _errAt(Parser *p, const std::string& message);
-
-// _readMLString requires the cursor immediately after the opening three apostrophes.
 ```
 
 ---
@@ -681,7 +669,7 @@ static void _toUtf8(std::vector<char> &res, uint32_t uIn) {
 ### Context
 
 ```cpp
-// Directly call _toUtf8 with 0x10000 for its four-byte path and 0x110000 for the rejection path. The public \uXXXX parser cannot reach these code points.
+
 ```
 
 ---
@@ -758,7 +746,6 @@ static std::string _readString(Parser *p, bool allowML) {
 ### Context
 
 ```cpp
-// Original parser state declarations from hjson.h
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -792,7 +779,6 @@ struct Parser {
   std::vector<DecodeParent> vParent;
 };
 
-// Direct helpers in the original source (definitions when short, otherwise declarations)
 static bool _next(Parser *p) {
   // get the next character.
   if (p->indexNext < p->dataSize) {
@@ -841,8 +827,6 @@ static unsigned char _escapee(unsigned char c) {
 
   return 0;
 }
-
-// Entry cursor for _readString: p.ch must be the opening single/double quote, and indexNext points just after it. Example input: "\"x\"".
 ```
 
 ---
@@ -900,7 +884,6 @@ static std::string _readKeyname(Parser *p) {
 ### Context
 
 ```cpp
-// Original parser state declarations from hjson.h
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -934,7 +917,6 @@ struct Parser {
   std::vector<DecodeParent> vParent;
 };
 
-// Direct helpers in the original source (definitions when short, otherwise declarations)
 static std::string _readString(Parser *p, bool allowML);
 
 static std::string _errAt(Parser *p, const std::string& message);
@@ -955,8 +937,6 @@ static bool _next(Parser *p) {
 
   return false;
 }
-
-// _readKeyname requires the cursor at the first key character, not at '{'.
 ```
 
 ---
@@ -1019,7 +999,6 @@ static CommentInfo _white(Parser *p) {
 ### Context
 
 ```cpp
-// Original parser state declarations from hjson.h
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -1053,7 +1032,6 @@ struct Parser {
   std::vector<DecodeParent> vParent;
 };
 
-// Decoder options from hjson.h
 struct DecoderOptions {
   // Keep all comments from the Hjson input, store them in
   // the Hjson::Value objects.
@@ -1067,7 +1045,6 @@ struct DecoderOptions {
   bool duplicateKeyException = false;
 };
 
-// Direct helpers in the original source (definitions when short, otherwise declarations)
 static bool _next(Parser *p) {
   // get the next character.
   if (p->indexNext < p->dataSize) {
@@ -1150,7 +1127,6 @@ static CommentInfo _getCommentAfter(Parser *p) {
 ### Context
 
 ```cpp
-// Original parser state declarations from hjson.h
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -1184,7 +1160,6 @@ struct Parser {
   std::vector<DecodeParent> vParent;
 };
 
-// Decoder options from hjson.h
 struct DecoderOptions {
   // Keep all comments from the Hjson input, store them in
   // the Hjson::Value objects.
@@ -1198,7 +1173,6 @@ struct DecoderOptions {
   bool duplicateKeyException = false;
 };
 
-// Direct helpers in the original source (definitions when short, otherwise declarations)
 static bool _next(Parser *p) {
   // get the next character.
   if (p->indexNext < p->dataSize) {
@@ -1312,7 +1286,6 @@ static Value _readTfnns2(Parser *p, size_t &valEnd) {
 ### Context
 
 ```cpp
-// Original parser state declarations from hjson.h
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -1346,7 +1319,6 @@ struct Parser {
   std::vector<DecodeParent> vParent;
 };
 
-// Hjson::Type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -1358,7 +1330,6 @@ enum class Type {
   Map
 };
 
-// Direct helpers in the original source (definitions when short, otherwise declarations)
 static bool _isPunctuatorChar(char c) {
   return c == '{' || c == '}' || c == '[' || c == ']' || c == ',' || c == ':';
 }
@@ -1389,8 +1360,6 @@ static unsigned char _peek(Parser *p, int offs) {
 }
 
 bool tryParseNumber(Value *pNumber, const char *text, size_t textSize, bool stopAtNext);
-
-// Safe direct-call input for initial-whitespace path: use "  alpha\n", not whitespace-only text; valEnd can remain 0 and unsigned valEnd-valStart underflows on all-whitespace direct inputs.
 ```
 
 ---
@@ -1429,7 +1398,6 @@ static void _readArrayBegin(Parser* p) {
 ### Context
 
 ```cpp
-// Original parser state declarations from hjson.h
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -1463,7 +1431,6 @@ struct Parser {
   std::vector<DecodeParent> vParent;
 };
 
-// Hjson::Type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -1475,7 +1442,6 @@ enum class Type {
   Map
 };
 
-// Direct helpers in the original source (definitions when short, otherwise declarations)
 static bool _next(Parser *p) {
   // get the next character.
   if (p->indexNext < p->dataSize) {
@@ -1512,8 +1478,6 @@ inline void _setComment(Value& val, void (Value::*fp)(const std::string&),
     _setComment(val, fp, p, ciB);
   }
 }
-
-// _readArrayBegin requires p.ch=='[', a nonempty parent stack, and VectorBegin state.
 ```
 
 ---
@@ -1565,7 +1529,6 @@ static void _readArrayElemEnd(Parser* p) {
 ### Context
 
 ```cpp
-// Original parser state declarations from hjson.h
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -1599,7 +1562,6 @@ struct Parser {
   std::vector<DecodeParent> vParent;
 };
 
-// Direct helpers in the original source (definitions when short, otherwise declarations)
 inline void _setComment(Value& val, void (Value::*fp)(const std::string&),
   Parser *p, const CommentInfo& ci)
 {
@@ -1677,7 +1639,6 @@ static void _readObjectBegin(Parser *p) {
 ### Context
 
 ```cpp
-// Original parser state declarations from hjson.h
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -1711,7 +1672,6 @@ struct Parser {
   std::vector<DecodeParent> vParent;
 };
 
-// Hjson::Type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -1723,7 +1683,6 @@ enum class Type {
   Map
 };
 
-// Direct helpers in the original source (definitions when short, otherwise declarations)
 static bool _next(Parser *p) {
   // get the next character.
   if (p->indexNext < p->dataSize) {
@@ -1760,8 +1719,6 @@ inline void _setComment(Value& val, void (Value::*fp)(const std::string&),
     _setComment(val, fp, p, ciB);
   }
 }
-
-// Reachability: _readObjectBegin dereferences vParent.back() before checking vParent.empty(). The empty-parent && withoutBraces true outcome is infeasible for valid state; never force it via an empty stack.
 ```
 
 ---
@@ -1812,7 +1769,6 @@ static void _readObjectElemBegin(Parser* p) {
 ### Context
 
 ```cpp
-// Original parser state declarations from hjson.h
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -1846,7 +1802,6 @@ struct Parser {
   std::vector<DecodeParent> vParent;
 };
 
-// Decoder options from hjson.h
 struct DecoderOptions {
   // Keep all comments from the Hjson input, store them in
   // the Hjson::Value objects.
@@ -1860,7 +1815,6 @@ struct DecoderOptions {
   bool duplicateKeyException = false;
 };
 
-// Direct helpers in the original source (definitions when short, otherwise declarations)
 inline void _setComment(Value& val, void (Value::*fp)(const std::string&),
   Parser *p, const CommentInfo& ci)
 {
@@ -1901,8 +1855,6 @@ static bool _next(Parser *p) {
 
   return false;
 }
-
-// Entry state for _readObjectElemBegin: p.vParent.back().val is an existing Map, key cursor at first key character (or closing brace), and vState.back()==MapElemBegin.
 ```
 
 ---
@@ -1959,7 +1911,6 @@ static void _readObjectElemEnd(Parser *p) {
 ### Context
 
 ```cpp
-// Original parser state declarations from hjson.h
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -1993,7 +1944,6 @@ struct Parser {
   std::vector<DecodeParent> vParent;
 };
 
-// Direct helpers in the original source (definitions when short, otherwise declarations)
 inline void _setComment(Value& val, void (Value::*fp)(const std::string&),
   Parser *p, const CommentInfo& ci)
 {
@@ -2078,7 +2028,6 @@ static void _readValueBegin(Parser *p) {
 ### Context
 
 ```cpp
-// Original parser state declarations from hjson.h
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -2112,7 +2061,6 @@ struct Parser {
   std::vector<DecodeParent> vParent;
 };
 
-// Direct helpers in the original source (definitions when short, otherwise declarations)
 static CommentInfo _white(Parser *p);
 
 static std::string _readString(Parser *p, bool allowML);
@@ -2177,7 +2125,6 @@ static void _parseLoop(Parser* p) {
 ### Context
 
 ```cpp
-// Original parser state declarations from hjson.h
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -2211,7 +2158,6 @@ struct Parser {
   std::vector<DecodeParent> vParent;
 };
 
-// Direct helpers in the original source (definitions when short, otherwise declarations)
 static void _readValueBegin(Parser *p);
 
 static void _readValueEnd(Parser *p);
@@ -2297,7 +2243,6 @@ static Value _rootValue(Parser *p) {
 ### Context
 
 ```cpp
-// Original parser state declarations from hjson.h
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -2331,7 +2276,6 @@ struct Parser {
   std::vector<DecodeParent> vParent;
 };
 
-// Direct helpers in the original source (definitions when short, otherwise declarations)
 static CommentInfo _white(Parser *p);
 
 static void _parseLoop(Parser* p);
@@ -2403,7 +2347,6 @@ Value Unmarshal(const char *data, size_t dataSize, const DecoderOptions& options
 ### Context
 
 ```cpp
-// Original parser state declarations from hjson.h
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -2437,7 +2380,6 @@ struct Parser {
   std::vector<DecodeParent> vParent;
 };
 
-// Decoder options from hjson.h
 struct DecoderOptions {
   // Keep all comments from the Hjson input, store them in
   // the Hjson::Value objects.
@@ -2451,7 +2393,6 @@ struct DecoderOptions {
   bool duplicateKeyException = false;
 };
 
-// Direct helpers in the original source (definitions when short, otherwise declarations)
 static void _resetAt(Parser *p);
 
 static Value _rootValue(Parser *p);
