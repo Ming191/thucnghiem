@@ -26,11 +26,11 @@ The JSONL remains the programmatic source of truth. The catalogs show the exact 
 ## Every JSONL row contains
 
 - `focal_method`: original function definition/body at pinned `source_path`, `source_lines`, `source_url`.
-- `context`: source-faithful C++ declarations and local helper code/signatures relevant to this focal method, with focal-specific state preconditions where needed. Build instructions and example fixtures are excluded; self-contained methods may have an empty context. Declarations are source excerpts already defined in the project, not code to redeclare in a test TU.
+- `context`: source-faithful C++ declarations and local helper code/signatures relevant to this focal method, with source-authentic C++ comments only. Model-written explanations, branch hints, build instructions and fixture examples are excluded; self-contained methods may have an empty context. Helper signatures are taken from original function declarations/definitions, and excerpts should not be redeclared in a test TU.
 - `method_signature`, `linkage`, `benchmark_exposure`, `dependencies`: how to compile/access the original function.
 - `branch_gate`: source-level lexical markers, with the LLVM-measured coverage fields deliberately empty.
 
-Context length is 0–6027 characters (median 1945). Focal bodies are retained in full.
+Context length is 0–5488 characters (median 1472). Focal bodies are retained in full.
 
 ## Private and static access
 
@@ -58,6 +58,6 @@ To convert this into the measured coverage dataset, instrument Clang C++11 sourc
 
 ## MI experiment use
 
-Prompt = `context` + `focal_method` + covered branch history. Context contains only source dependencies and branch-relevant state constraints; build and harness details stay in metadata. Let the model output only short input construction / invocation code. Keep build glue external. Compare incremental **focal** branch coverage with a fixed compiler/coverage configuration and matched baseline vs MI generation budgets.
+Prompt = `context` + `focal_method` + covered branch history. Context contains relevant source declarations/definitions and original source comments; build and harness details stay in metadata. Synthetic explanatory notes are excluded to avoid guiding branch choice. Let the model output only short input construction / invocation code. Keep build glue external. Compare incremental **focal** branch coverage with a fixed compiler/coverage configuration and matched baseline vs MI generation budgets.
 
 **No claim of LLVM-verified coverage rate, compilation success of generated tests, or positive MI intervention is made by this source extraction alone.**
