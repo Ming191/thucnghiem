@@ -40,5 +40,11 @@
     "active_path": "stringstream",
     "language_standard": "c++11"
   },
-  "context_review_status": "Source-verified; representative C++11 fixture syntax and runtime smokes, not per-focal executable coverage validation"
+  "context_review_status": "Prompt-only context cleanup structurally verified; dependency audit predates fixture removal; no per-focal generated-test or dynamic-coverage verification.",
+  "context_policy": "Only focal-relevant source declarations, helper code/signatures and branch-entry state preconditions; build in dependencies, no fixture examples.",
+  "context_chars": {
+    "min": 0,
+    "median": 1945,
+    "max": 6027
+  }
 }
