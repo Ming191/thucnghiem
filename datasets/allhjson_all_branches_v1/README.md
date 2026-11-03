@@ -26,11 +26,11 @@ The JSONL remains the programmatic source of truth. The catalogs show the exact 
 ## Every JSONL row contains
 
 - `focal_method`: original function definition/body at pinned `source_path`, `source_lines`, `source_url`.
-- `context`: source-faithful C++ declarations and local helper code/signatures relevant to this focal method, with example input/state setup where needed. Declarations in context are excerpts already defined in the original project, not code to redeclare in a test TU.
+- `context`: source-faithful C++ declarations and local helper code/signatures relevant to this focal method, with focal-specific state preconditions where needed. Build instructions and example fixtures are excluded; self-contained methods may have an empty context. Declarations are source excerpts already defined in the project, not code to redeclare in a test TU.
 - `method_signature`, `linkage`, `benchmark_exposure`, `dependencies`: how to compile/access the original function.
 - `branch_gate`: source-level lexical markers, with the LLVM-measured coverage fields deliberately empty.
 
-Context length is 203–7401 characters (median 2872). Focal bodies are retained in full.
+Context length is 0–6027 characters (median 1945). Focal bodies are retained in full.
 
 ## Private and static access
 
@@ -52,12 +52,12 @@ The extractor kept every function definition containing at least one of the foll
 
 The count `lexical_branch_markers` is an **extraction heuristic**, not the official `llvm-cov` number of branch outcomes. Some expressions may compile into a different number of branch records. No method in this v1 dataset is claimed as *dynamically covered*.
 
-Known source limitations: `hjson_decode.cpp:_readObjectBegin` checks `vParent.empty()` after dereferencing `back()`, so its true path is infeasible for valid state; `Value::operator[](int)` contains a redundant nested type condition; and `_readMLString` contains a nested lambda whose branch records must not be attributed to the outer function without an explicit policy. The default C++11 target uses stringstream conversion (`HJSON_USE_CHARCONV` and `HJSON_USE_STRTOD` undefined); alternate backends require separate builds. Generic examples are not automatically valid inputs for every focal method.
+Known source limitations: `hjson_decode.cpp:_readObjectBegin` checks `vParent.empty()` after dereferencing `back()`, so its true path is infeasible for valid state; `Value::operator[](int)` contains a redundant nested type condition; and `_readMLString` contains a nested lambda whose branch records must not be attributed to the outer function without an explicit policy. The default C++11 target uses stringstream conversion (`HJSON_USE_CHARCONV` and `HJSON_USE_STRTOD` undefined); alternate backends require separate builds. 
 
 To convert this into the measured coverage dataset, instrument Clang C++11 sources with `-fprofile-instr-generate -fcoverage-mapping -O0`, run the harness with per-test `LLVM_PROFILE_FILE`, merge with `llvm-profdata`, then obtain actual per-function branch outcomes via `llvm-cov export`. Keep the original function bodies unchanged in the benchmark copy. Record compiler/backend macros, test validity, and exact measured outcomes. Do not count branches in callees as focal-method branches.
 
 ## MI experiment use
 
-Prompt = `context` + `focal_method` + covered branch history. These source excerpts and setup examples help generate tests, but are not a separately compiled harness for each record. Let the model output only short input construction / invocation code. Keep build glue external. Compare incremental **focal** branch coverage with a fixed compiler/coverage configuration and matched baseline vs MI generation budgets.
+Prompt = `context` + `focal_method` + covered branch history. Context contains only source dependencies and branch-relevant state constraints; build and harness details stay in metadata. Let the model output only short input construction / invocation code. Keep build glue external. Compare incremental **focal** branch coverage with a fixed compiler/coverage configuration and matched baseline vs MI generation budgets.
 
-**No claim of LLVM-verified coverage rate, compilation success of every generated fixture, or positive MI intervention is made by this source extraction alone.**
+**No claim of LLVM-verified coverage rate, compilation success of generated tests, or positive MI intervention is made by this source extraction alone.**
