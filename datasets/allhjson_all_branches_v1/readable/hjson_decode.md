@@ -57,11 +57,7 @@ inline void _setComment(Value& val, void (Value::*fp)(const std::string&),
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original parser state declarations from hjson.h
-// Internal structures and helper functions for testing
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -71,7 +67,6 @@ enum class ParseState {
   MapElemBegin,
   MapElemEnd,
 };
-
 
 struct CommentInfo {
   CommentInfo() : hasComment(false), cmStart(0), cmEnd(0) {}
@@ -95,21 +90,6 @@ struct Parser {
   std::vector<ParseState> vState;
   std::vector<DecodeParent> vParent;
 };
-
-// Example Parser fixture for same-translation-unit harness, not a full test
-#include <string>
-namespace Hjson {
-void example_parser_seed() {
-  std::string input = "{x: 1}";  // Keep this buffer alive while Parser::data points into it.
-  Parser p = {reinterpret_cast<const unsigned char*>(input.c_str()),
-              input.size(), 0, ' ', false, DecoderOptions()};
-  p.ch = input.empty() ? 0 : static_cast<unsigned char>(input[0]);
-  p.indexNext = input.empty() ? 0 : 1;
-  // Adjust input, cursor and parse state to reach the desired branch.
-}
-} // namespace Hjson
-
-// Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -142,11 +122,7 @@ inline void _setComment(Value& val, void (Value::*fp)(const std::string&),
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original parser state declarations from hjson.h
-// Internal structures and helper functions for testing
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -156,7 +132,6 @@ enum class ParseState {
   MapElemBegin,
   MapElemEnd,
 };
-
 
 struct CommentInfo {
   CommentInfo() : hasComment(false), cmStart(0), cmEnd(0) {}
@@ -180,21 +155,6 @@ struct Parser {
   std::vector<ParseState> vState;
   std::vector<DecodeParent> vParent;
 };
-
-// Example Parser fixture for same-translation-unit harness, not a full test
-#include <string>
-namespace Hjson {
-void example_parser_seed() {
-  std::string input = "{x: 1}";  // Keep this buffer alive while Parser::data points into it.
-  Parser p = {reinterpret_cast<const unsigned char*>(input.c_str()),
-              input.size(), 0, ' ', false, DecoderOptions()};
-  p.ch = input.empty() ? 0 : static_cast<unsigned char>(input[0]);
-  p.indexNext = input.empty() ? 0 : 1;
-  // Adjust input, cursor and parse state to reach the desired branch.
-}
-} // namespace Hjson
-
-// Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -226,11 +186,7 @@ static bool _next(Parser *p) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original parser state declarations from hjson.h
-// Internal structures and helper functions for testing
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -240,7 +196,6 @@ enum class ParseState {
   MapElemBegin,
   MapElemEnd,
 };
-
 
 struct CommentInfo {
   CommentInfo() : hasComment(false), cmStart(0), cmEnd(0) {}
@@ -264,21 +219,6 @@ struct Parser {
   std::vector<ParseState> vState;
   std::vector<DecodeParent> vParent;
 };
-
-// Example Parser fixture for same-translation-unit harness, not a full test
-#include <string>
-namespace Hjson {
-void example_parser_seed() {
-  std::string input = "{x: 1}";  // Keep this buffer alive while Parser::data points into it.
-  Parser p = {reinterpret_cast<const unsigned char*>(input.c_str()),
-              input.size(), 0, ' ', false, DecoderOptions()};
-  p.ch = input.empty() ? 0 : static_cast<unsigned char>(input[0]);
-  p.indexNext = input.empty() ? 0 : 1;
-  // Adjust input, cursor and parse state to reach the desired branch.
-}
-} // namespace Hjson
-
-// Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -307,11 +247,7 @@ static bool _prev(Parser *p) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original parser state declarations from hjson.h
-// Internal structures and helper functions for testing
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -321,7 +257,6 @@ enum class ParseState {
   MapElemBegin,
   MapElemEnd,
 };
-
 
 struct CommentInfo {
   CommentInfo() : hasComment(false), cmStart(0), cmEnd(0) {}
@@ -346,22 +281,7 @@ struct Parser {
   std::vector<DecodeParent> vParent;
 };
 
-// Example Parser fixture for same-translation-unit harness, not a full test
-#include <string>
-namespace Hjson {
-void example_parser_seed() {
-  std::string input = "{x: 1}";  // Keep this buffer alive while Parser::data points into it.
-  Parser p = {reinterpret_cast<const unsigned char*>(input.c_str()),
-              input.size(), 0, ' ', false, DecoderOptions()};
-  p.ch = input.empty() ? 0 : static_cast<unsigned char>(input[0]);
-  p.indexNext = input.empty() ? 0 : 1;
-  // Adjust input, cursor and parse state to reach the desired branch.
-}
-} // namespace Hjson
-
 // Direct invocation only: _prev has no decoder caller; to read back safely, use 2 <= indexNext <= dataSize + 1. Avoid repeated _next EOF past the buffer.
-
-// Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -384,10 +304,7 @@ static bool _isPunctuatorChar(char c) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
 
-// Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -431,11 +348,7 @@ static std::string _errAt(Parser *p, const std::string& message) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original parser state declarations from hjson.h
-// Internal structures and helper functions for testing
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -445,7 +358,6 @@ enum class ParseState {
   MapElemBegin,
   MapElemEnd,
 };
-
 
 struct CommentInfo {
   CommentInfo() : hasComment(false), cmStart(0), cmEnd(0) {}
@@ -469,21 +381,6 @@ struct Parser {
   std::vector<ParseState> vState;
   std::vector<DecodeParent> vParent;
 };
-
-// Example Parser fixture for same-translation-unit harness, not a full test
-#include <string>
-namespace Hjson {
-void example_parser_seed() {
-  std::string input = "{x: 1}";  // Keep this buffer alive while Parser::data points into it.
-  Parser p = {reinterpret_cast<const unsigned char*>(input.c_str()),
-              input.size(), 0, ' ', false, DecoderOptions()};
-  p.ch = input.empty() ? 0 : static_cast<unsigned char>(input[0]);
-  p.indexNext = input.empty() ? 0 : 1;
-  // Adjust input, cursor and parse state to reach the desired branch.
-}
-} // namespace Hjson
-
-// Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -512,11 +409,7 @@ static unsigned char _peek(Parser *p, int offs) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original parser state declarations from hjson.h
-// Internal structures and helper functions for testing
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -526,7 +419,6 @@ enum class ParseState {
   MapElemBegin,
   MapElemEnd,
 };
-
 
 struct CommentInfo {
   CommentInfo() : hasComment(false), cmStart(0), cmEnd(0) {}
@@ -550,21 +442,6 @@ struct Parser {
   std::vector<ParseState> vState;
   std::vector<DecodeParent> vParent;
 };
-
-// Example Parser fixture for same-translation-unit harness, not a full test
-#include <string>
-namespace Hjson {
-void example_parser_seed() {
-  std::string input = "{x: 1}";  // Keep this buffer alive while Parser::data points into it.
-  Parser p = {reinterpret_cast<const unsigned char*>(input.c_str()),
-              input.size(), 0, ' ', false, DecoderOptions()};
-  p.ch = input.empty() ? 0 : static_cast<unsigned char>(input[0]);
-  p.indexNext = input.empty() ? 0 : 1;
-  // Adjust input, cursor and parse state to reach the desired branch.
-}
-} // namespace Hjson
-
-// Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -613,10 +490,7 @@ static unsigned char _escapee(unsigned char c) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
 
-// Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -708,11 +582,7 @@ static std::string _readMLString(Parser *p) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original parser state declarations from hjson.h
-// Internal structures and helper functions for testing
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -722,7 +592,6 @@ enum class ParseState {
   MapElemBegin,
   MapElemEnd,
 };
-
 
 struct CommentInfo {
   CommentInfo() : hasComment(false), cmStart(0), cmEnd(0) {}
@@ -773,22 +642,7 @@ static bool _next(Parser *p) {
 
 static std::string _errAt(Parser *p, const std::string& message);
 
-// Example Parser fixture for same-translation-unit harness, not a full test
-#include <string>
-namespace Hjson {
-void example_parser_seed() {
-  std::string input = "{x: 1}";  // Keep this buffer alive while Parser::data points into it.
-  Parser p = {reinterpret_cast<const unsigned char*>(input.c_str()),
-              input.size(), 0, ' ', false, DecoderOptions()};
-  p.ch = input.empty() ? 0 : static_cast<unsigned char>(input[0]);
-  p.indexNext = input.empty() ? 0 : 1;
-  // Adjust input, cursor and parse state to reach the desired branch.
-}
-} // namespace Hjson
-
-// Entry cursor for _readMLString: immediately after the opening three apostrophes. The generic '{x: 1}' input is not a valid direct-call seed for this focal.
-
-// Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
+// _readMLString requires the cursor immediately after the opening three apostrophes.
 ```
 
 ---
@@ -827,12 +681,7 @@ static void _toUtf8(std::vector<char> &res, uint32_t uIn) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Directly call _toUtf8 with 0x10000 for its four-byte path and 0x110000 for the rejection path. The public \uXXXX parser cannot reach these code points.
-
-// Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -909,11 +758,7 @@ static std::string _readString(Parser *p, bool allowML) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original parser state declarations from hjson.h
-// Internal structures and helper functions for testing
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -923,7 +768,6 @@ enum class ParseState {
   MapElemBegin,
   MapElemEnd,
 };
-
 
 struct CommentInfo {
   CommentInfo() : hasComment(false), cmStart(0), cmEnd(0) {}
@@ -998,22 +842,7 @@ static unsigned char _escapee(unsigned char c) {
   return 0;
 }
 
-// Example Parser fixture for same-translation-unit harness, not a full test
-#include <string>
-namespace Hjson {
-void example_parser_seed() {
-  std::string input = "{x: 1}";  // Keep this buffer alive while Parser::data points into it.
-  Parser p = {reinterpret_cast<const unsigned char*>(input.c_str()),
-              input.size(), 0, ' ', false, DecoderOptions()};
-  p.ch = input.empty() ? 0 : static_cast<unsigned char>(input[0]);
-  p.indexNext = input.empty() ? 0 : 1;
-  // Adjust input, cursor and parse state to reach the desired branch.
-}
-} // namespace Hjson
-
 // Entry cursor for _readString: p.ch must be the opening single/double quote, and indexNext points just after it. Example input: "\"x\"".
-
-// Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -1071,11 +900,7 @@ static std::string _readKeyname(Parser *p) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original parser state declarations from hjson.h
-// Internal structures and helper functions for testing
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -1085,7 +910,6 @@ enum class ParseState {
   MapElemBegin,
   MapElemEnd,
 };
-
 
 struct CommentInfo {
   CommentInfo() : hasComment(false), cmStart(0), cmEnd(0) {}
@@ -1132,22 +956,7 @@ static bool _next(Parser *p) {
   return false;
 }
 
-// Example Parser fixture for same-translation-unit harness, not a full test
-#include <string>
-namespace Hjson {
-void example_parser_seed() {
-  std::string input = "{x: 1}";  // Keep this buffer alive while Parser::data points into it.
-  Parser p = {reinterpret_cast<const unsigned char*>(input.c_str()),
-              input.size(), 0, ' ', false, DecoderOptions()};
-  p.ch = input.empty() ? 0 : static_cast<unsigned char>(input[0]);
-  p.indexNext = input.empty() ? 0 : 1;
-  // Adjust input, cursor and parse state to reach the desired branch.
-}
-} // namespace Hjson
-
-// Entry cursor for _readKeyname: first key character rather than '{'. Example input: "key:1".
-
-// Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
+// _readKeyname requires the cursor at the first key character, not at '{'.
 ```
 
 ---
@@ -1210,11 +1019,7 @@ static CommentInfo _white(Parser *p) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original parser state declarations from hjson.h
-// Internal structures and helper functions for testing
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -1224,7 +1029,6 @@ enum class ParseState {
   MapElemBegin,
   MapElemEnd,
 };
-
 
 struct CommentInfo {
   CommentInfo() : hasComment(false), cmStart(0), cmEnd(0) {}
@@ -1286,21 +1090,6 @@ static unsigned char _peek(Parser *p, int offs) {
 
   return 0;
 }
-
-// Example Parser fixture for same-translation-unit harness, not a full test
-#include <string>
-namespace Hjson {
-void example_parser_seed() {
-  std::string input = "{x: 1}";  // Keep this buffer alive while Parser::data points into it.
-  Parser p = {reinterpret_cast<const unsigned char*>(input.c_str()),
-              input.size(), 0, ' ', false, DecoderOptions()};
-  p.ch = input.empty() ? 0 : static_cast<unsigned char>(input[0]);
-  p.indexNext = input.empty() ? 0 : 1;
-  // Adjust input, cursor and parse state to reach the desired branch.
-}
-} // namespace Hjson
-
-// Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -1361,11 +1150,7 @@ static CommentInfo _getCommentAfter(Parser *p) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original parser state declarations from hjson.h
-// Internal structures and helper functions for testing
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -1375,7 +1160,6 @@ enum class ParseState {
   MapElemBegin,
   MapElemEnd,
 };
-
 
 struct CommentInfo {
   CommentInfo() : hasComment(false), cmStart(0), cmEnd(0) {}
@@ -1437,21 +1221,6 @@ static unsigned char _peek(Parser *p, int offs) {
 
   return 0;
 }
-
-// Example Parser fixture for same-translation-unit harness, not a full test
-#include <string>
-namespace Hjson {
-void example_parser_seed() {
-  std::string input = "{x: 1}";  // Keep this buffer alive while Parser::data points into it.
-  Parser p = {reinterpret_cast<const unsigned char*>(input.c_str()),
-              input.size(), 0, ' ', false, DecoderOptions()};
-  p.ch = input.empty() ? 0 : static_cast<unsigned char>(input[0]);
-  p.indexNext = input.empty() ? 0 : 1;
-  // Adjust input, cursor and parse state to reach the desired branch.
-}
-} // namespace Hjson
-
-// Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -1543,11 +1312,7 @@ static Value _readTfnns2(Parser *p, size_t &valEnd) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original parser state declarations from hjson.h
-// Internal structures and helper functions for testing
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -1557,7 +1322,6 @@ enum class ParseState {
   MapElemBegin,
   MapElemEnd,
 };
-
 
 struct CommentInfo {
   CommentInfo() : hasComment(false), cmStart(0), cmEnd(0) {}
@@ -1626,22 +1390,7 @@ static unsigned char _peek(Parser *p, int offs) {
 
 bool tryParseNumber(Value *pNumber, const char *text, size_t textSize, bool stopAtNext);
 
-// Example Parser fixture for same-translation-unit harness, not a full test
-#include <string>
-namespace Hjson {
-void example_parser_seed() {
-  std::string input = "{x: 1}";  // Keep this buffer alive while Parser::data points into it.
-  Parser p = {reinterpret_cast<const unsigned char*>(input.c_str()),
-              input.size(), 0, ' ', false, DecoderOptions()};
-  p.ch = input.empty() ? 0 : static_cast<unsigned char>(input[0]);
-  p.indexNext = input.empty() ? 0 : 1;
-  // Adjust input, cursor and parse state to reach the desired branch.
-}
-} // namespace Hjson
-
 // Safe direct-call input for initial-whitespace path: use "  alpha\n", not whitespace-only text; valEnd can remain 0 and unsigned valEnd-valStart underflows on all-whitespace direct inputs.
-
-// Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -1680,11 +1429,7 @@ static void _readArrayBegin(Parser* p) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original parser state declarations from hjson.h
-// Internal structures and helper functions for testing
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -1694,7 +1439,6 @@ enum class ParseState {
   MapElemBegin,
   MapElemEnd,
 };
-
 
 struct CommentInfo {
   CommentInfo() : hasComment(false), cmStart(0), cmEnd(0) {}
@@ -1769,24 +1513,7 @@ inline void _setComment(Value& val, void (Value::*fp)(const std::string&),
   }
 }
 
-// Example Parser fixture for same-translation-unit harness, not a full test
-#include <string>
-namespace Hjson {
-void example_parser_seed() {
-  std::string input = "{x: 1}";  // Keep this buffer alive while Parser::data points into it.
-  Parser p = {reinterpret_cast<const unsigned char*>(input.c_str()),
-              input.size(), 0, ' ', false, DecoderOptions()};
-  p.ch = input.empty() ? 0 : static_cast<unsigned char>(input[0]);
-  p.indexNext = input.empty() ? 0 : 1;
-  p.vParent.push_back(DecodeParent());
-  p.vState.push_back(ParseState::ValueBegin);
-  // Adjust input, cursor and parse state to reach the desired branch.
-}
-} // namespace Hjson
-
-// Entry cursor for _readArrayBegin: p.ch=='['; parent Vector target and VectorBegin state must be valid.
-
-// Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
+// _readArrayBegin requires p.ch=='[', a nonempty parent stack, and VectorBegin state.
 ```
 
 ---
@@ -1838,11 +1565,7 @@ static void _readArrayElemEnd(Parser* p) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original parser state declarations from hjson.h
-// Internal structures and helper functions for testing
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -1852,7 +1575,6 @@ enum class ParseState {
   MapElemBegin,
   MapElemEnd,
 };
-
 
 struct CommentInfo {
   CommentInfo() : hasComment(false), cmStart(0), cmEnd(0) {}
@@ -1916,27 +1638,6 @@ static bool _next(Parser *p) {
 }
 
 static std::string _errAt(Parser *p, const std::string& message);
-
-// Example Parser fixture for same-translation-unit harness, not a full test
-#include <string>
-namespace Hjson {
-void example_parser_seed() {
-  std::string input = "[1]";
-  Parser p = {reinterpret_cast<const unsigned char*>(input.c_str()),
-              input.size(), 0, ' ', false, DecoderOptions()};
-  p.ch = input.empty() ? 0 : static_cast<unsigned char>(input[0]);
-  p.indexNext = input.empty() ? 0 : 1;
-  p.ch = ']'; p.indexNext = input.size();
-  DecodeParent outer; outer.val = Value(Type::Vector);
-  DecodeParent child; child.val = Value(1);
-  p.vParent.push_back(outer);
-  p.vParent.push_back(child);
-  p.vState.push_back(ParseState::VectorElemEnd);
-  _readArrayElemEnd(&p);
-}
-} // namespace Hjson
-
-// Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -1976,11 +1677,7 @@ static void _readObjectBegin(Parser *p) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original parser state declarations from hjson.h
-// Internal structures and helper functions for testing
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -1990,7 +1687,6 @@ enum class ParseState {
   MapElemBegin,
   MapElemEnd,
 };
-
 
 struct CommentInfo {
   CommentInfo() : hasComment(false), cmStart(0), cmEnd(0) {}
@@ -2065,24 +1761,7 @@ inline void _setComment(Value& val, void (Value::*fp)(const std::string&),
   }
 }
 
-// Example Parser fixture for same-translation-unit harness, not a full test
-#include <string>
-namespace Hjson {
-void example_parser_seed() {
-  std::string input = "{x: 1}";  // Keep this buffer alive while Parser::data points into it.
-  Parser p = {reinterpret_cast<const unsigned char*>(input.c_str()),
-              input.size(), 0, ' ', false, DecoderOptions()};
-  p.ch = input.empty() ? 0 : static_cast<unsigned char>(input[0]);
-  p.indexNext = input.empty() ? 0 : 1;
-  p.vParent.push_back(DecodeParent());
-  p.vState.push_back(ParseState::ValueBegin);
-  // Adjust input, cursor and parse state to reach the desired branch.
-}
-} // namespace Hjson
-
 // Reachability: _readObjectBegin dereferences vParent.back() before checking vParent.empty(). The empty-parent && withoutBraces true outcome is infeasible for valid state; never force it via an empty stack.
-
-// Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -2133,11 +1812,7 @@ static void _readObjectElemBegin(Parser* p) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original parser state declarations from hjson.h
-// Internal structures and helper functions for testing
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -2147,7 +1822,6 @@ enum class ParseState {
   MapElemBegin,
   MapElemEnd,
 };
-
 
 struct CommentInfo {
   CommentInfo() : hasComment(false), cmStart(0), cmEnd(0) {}
@@ -2228,24 +1902,7 @@ static bool _next(Parser *p) {
   return false;
 }
 
-// Example Parser fixture for same-translation-unit harness, not a full test
-#include <string>
-namespace Hjson {
-void example_parser_seed() {
-  std::string input = "{x: 1}";  // Keep this buffer alive while Parser::data points into it.
-  Parser p = {reinterpret_cast<const unsigned char*>(input.c_str()),
-              input.size(), 0, ' ', false, DecoderOptions()};
-  p.ch = input.empty() ? 0 : static_cast<unsigned char>(input[0]);
-  p.indexNext = input.empty() ? 0 : 1;
-  p.vParent.push_back(DecodeParent());
-  p.vState.push_back(ParseState::ValueBegin);
-  // Adjust input, cursor and parse state to reach the desired branch.
-}
-} // namespace Hjson
-
 // Entry state for _readObjectElemBegin: p.vParent.back().val is an existing Map, key cursor at first key character (or closing brace), and vState.back()==MapElemBegin.
-
-// Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -2302,11 +1959,7 @@ static void _readObjectElemEnd(Parser *p) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original parser state declarations from hjson.h
-// Internal structures and helper functions for testing
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -2316,7 +1969,6 @@ enum class ParseState {
   MapElemBegin,
   MapElemEnd,
 };
-
 
 struct CommentInfo {
   CommentInfo() : hasComment(false), cmStart(0), cmEnd(0) {}
@@ -2378,27 +2030,6 @@ static bool _next(Parser *p) {
 
   return false;
 }
-
-// Example Parser fixture for same-translation-unit harness, not a full test
-#include <string>
-namespace Hjson {
-void example_parser_seed() {
-  std::string input = "{x:1}";
-  Parser p = {reinterpret_cast<const unsigned char*>(input.c_str()),
-              input.size(), 0, ' ', false, DecoderOptions()};
-  p.ch = input.empty() ? 0 : static_cast<unsigned char>(input[0]);
-  p.indexNext = input.empty() ? 0 : 1;
-  p.ch = '}'; p.indexNext = input.size();
-  DecodeParent outer; outer.val = Value(Type::Map); outer.key = "x";
-  DecodeParent child; child.val = Value(1);
-  p.vParent.push_back(outer);
-  p.vParent.push_back(child);
-  p.vState.push_back(ParseState::MapElemEnd);
-  _readObjectElemEnd(&p);
-}
-} // namespace Hjson
-
-// Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -2447,11 +2078,7 @@ static void _readValueBegin(Parser *p) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original parser state declarations from hjson.h
-// Internal structures and helper functions for testing
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -2461,7 +2088,6 @@ enum class ParseState {
   MapElemBegin,
   MapElemEnd,
 };
-
 
 struct CommentInfo {
   CommentInfo() : hasComment(false), cmStart(0), cmEnd(0) {}
@@ -2492,23 +2118,6 @@ static CommentInfo _white(Parser *p);
 static std::string _readString(Parser *p, bool allowML);
 
 static Value _readTfnns(Parser *p);
-
-// Example Parser fixture for same-translation-unit harness, not a full test
-#include <string>
-namespace Hjson {
-void example_parser_seed() {
-  std::string input = "{x: 1}";  // Keep this buffer alive while Parser::data points into it.
-  Parser p = {reinterpret_cast<const unsigned char*>(input.c_str()),
-              input.size(), 0, ' ', false, DecoderOptions()};
-  p.ch = input.empty() ? 0 : static_cast<unsigned char>(input[0]);
-  p.indexNext = input.empty() ? 0 : 1;
-  p.vParent.push_back(DecodeParent());
-  p.vState.push_back(ParseState::ValueBegin);
-  // Adjust input, cursor and parse state to reach the desired branch.
-}
-} // namespace Hjson
-
-// Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -2568,11 +2177,7 @@ static void _parseLoop(Parser* p) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original parser state declarations from hjson.h
-// Internal structures and helper functions for testing
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -2582,7 +2187,6 @@ enum class ParseState {
   MapElemBegin,
   MapElemEnd,
 };
-
 
 struct CommentInfo {
   CommentInfo() : hasComment(false), cmStart(0), cmEnd(0) {}
@@ -2621,22 +2225,6 @@ static void _readObjectElemEnd(Parser *p);
 static void _readArrayBegin(Parser* p);
 
 static void _readArrayElemEnd(Parser* p);
-
-// Example Parser fixture for same-translation-unit harness, not a full test
-#include <string>
-namespace Hjson {
-void example_parser_seed() {
-  std::string input = "{x: 1}";  // Keep this buffer alive while Parser::data points into it.
-  Parser p = {reinterpret_cast<const unsigned char*>(input.c_str()),
-              input.size(), 0, ' ', false, DecoderOptions()};
-  p.ch = input.empty() ? 0 : static_cast<unsigned char>(input[0]);
-  p.indexNext = input.empty() ? 0 : 1;
-  p.vState.push_back(ParseState::ValueBegin);
-  // Adjust input, cursor and parse state to reach the desired branch.
-}
-} // namespace Hjson
-
-// Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -2709,11 +2297,7 @@ static Value _rootValue(Parser *p) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original parser state declarations from hjson.h
-// Internal structures and helper functions for testing
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -2723,7 +2307,6 @@ enum class ParseState {
   MapElemBegin,
   MapElemEnd,
 };
-
 
 struct CommentInfo {
   CommentInfo() : hasComment(false), cmStart(0), cmEnd(0) {}
@@ -2780,23 +2363,6 @@ inline void _setComment(Value& val, void (Value::*fp)(const std::string&),
     _setComment(val, fp, p, ciB);
   }
 }
-
-// Example Parser fixture for same-translation-unit harness, not a full test
-#include <string>
-namespace Hjson {
-void example_parser_seed() {
-  std::string input = "a: 1";
-  Parser p = {reinterpret_cast<const unsigned char*>(input.c_str()),
-              input.size(), 0, ' ', false, DecoderOptions()};
-  p.ch = input.empty() ? 0 : static_cast<unsigned char>(input[0]);
-  p.indexNext = input.empty() ? 0 : 1;
-  // No vParent/vState seed: _rootValue creates its own root frame.
-  _resetAt(&p);
-  (void)_rootValue(&p);
-}
-} // namespace Hjson
-
-// Build: test TU includes "hjson_decode.cpp"; link other three .cpp files once.
 ```
 
 ---
@@ -2837,11 +2403,7 @@ Value Unmarshal(const char *data, size_t dataSize, const DecoderOptions& options
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original parser state declarations from hjson.h
-// Internal structures and helper functions for testing
 enum class ParseState {
   ValueBegin,
   ValueEnd,
@@ -2851,7 +2413,6 @@ enum class ParseState {
   MapElemBegin,
   MapElemEnd,
 };
-
 
 struct CommentInfo {
   CommentInfo() : hasComment(false), cmStart(0), cmEnd(0) {}
@@ -2894,21 +2455,6 @@ struct DecoderOptions {
 static void _resetAt(Parser *p);
 
 static Value _rootValue(Parser *p);
-
-// Example Parser fixture for same-translation-unit harness, not a full test
-#include <string>
-namespace Hjson {
-void example_parser_seed() {
-  std::string input = "{x: 1}";  // Keep this buffer alive while Parser::data points into it.
-  Parser p = {reinterpret_cast<const unsigned char*>(input.c_str()),
-              input.size(), 0, ' ', false, DecoderOptions()};
-  p.ch = input.empty() ? 0 : static_cast<unsigned char>(input[0]);
-  p.indexNext = input.empty() ? 0 : 1;
-  // Adjust input, cursor and parse state to reach the desired branch.
-}
-} // namespace Hjson
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2935,10 +2481,7 @@ Value Unmarshal(const char *data, const DecoderOptions& options) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
 
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2983,9 +2526,6 @@ Value UnmarshalFromFile(const std::string &path, const DecoderOptions& options) 
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
 
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
