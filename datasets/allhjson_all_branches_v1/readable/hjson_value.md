@@ -7367,8 +7367,6 @@ public:
 // ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Default allhjson C++11 build leaves HJSON_USE_CHARCONV and HJSON_USE_STRTOD undefined, so the stringstream #else code is active. STRTOD and CHARCONV alternatives need separately pinned builds; CHARCONV requires C++17; do not treat inactive #if code as runtime branches.
 ```
 
 ---
@@ -7523,8 +7521,6 @@ public:
 // ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Default allhjson C++11 build leaves HJSON_USE_CHARCONV and HJSON_USE_STRTOD undefined, so the stringstream #else code is active. STRTOD and CHARCONV alternatives need separately pinned builds; CHARCONV requires C++17; do not treat inactive #if code as runtime branches.
 ```
 
 ---
@@ -7747,8 +7743,6 @@ public:
 // ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Default allhjson C++11 build leaves HJSON_USE_CHARCONV and HJSON_USE_STRTOD undefined, so the stringstream #else code is active. STRTOD and CHARCONV alternatives need separately pinned builds; CHARCONV requires C++17; do not treat inactive #if code as runtime branches.
 ```
 
 ---
