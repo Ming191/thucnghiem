@@ -103,8 +103,6 @@ static void _writeIndent(Encoder *e, int indent) {
 ### Context
 
 ```cpp
-// Original encoder state declarations from hjson_encode.cpp
-
 enum class EncodeState {
   ValueBegin,
   ValueEnd,
@@ -133,7 +131,6 @@ struct Encoder {
   std::vector<EncodeParent> vParent;
 };
 
-// Encoder options from hjson.h
 // EncoderOptions defines options for encoding to Hjson.
 struct EncoderOptions {
   // End of line, should be either \n or \r\n
@@ -164,7 +161,6 @@ struct EncoderOptions {
   bool comments = true;
 };
 
-// Public entry point that initializes Encoder state
 std::string Marshal(const Value& v, const EncoderOptions& options);
 ```
 
@@ -287,8 +283,6 @@ static void _quoteReplace(Encoder *e, const std::string& text) {
 ### Context
 
 ```cpp
-// Original encoder state declarations from hjson_encode.cpp
-
 enum class EncodeState {
   ValueBegin,
   ValueEnd,
@@ -317,7 +311,6 @@ struct Encoder {
   std::vector<EncodeParent> vParent;
 };
 
-// Direct helpers in the original source (definitions when short, otherwise declarations)
 // table of character substitutions
 static const char *_meta(char c) {
   if ((c == '\b')) {
@@ -355,14 +348,11 @@ static const char *_meta(char c) {
 
 static int _fromUtf8(const unsigned char **ppC, size_t *pnS);
 
-// Relevant _marshalStream regex initialization (source excerpt)
-// After declaring Encoder e:
   e.loc = std::locale::classic();
   std::string commonRange = R"(]|\xc2\xad|\xd8[\x80-\x84]|\xdc\x8f|\xe1\x9e[\xb4\xb5]|\xe2\x80[\x8c\x8f]|\xe2\x80[\xa8-\xaf]|\xe2\x81[\xa0-\xaf]|\xef\xbb\xbf|\xef\xbf[\xb0-\xbf])";
   e.needsEscape.imbue(e.loc);
   e.needsEscape.assign(R"([\\\"\x00-\x1f)" + commonRange);
 
-// Public entry point that initializes Encoder state
 std::string Marshal(const Value& v, const EncoderOptions& options);
 ```
 
@@ -432,8 +422,6 @@ static void _mlString(Encoder *e, const std::string& value) {
 ### Context
 
 ```cpp
-// Original encoder state declarations from hjson_encode.cpp
-
 enum class EncodeState {
   ValueBegin,
   ValueEnd,
@@ -462,7 +450,6 @@ struct Encoder {
   std::vector<EncodeParent> vParent;
 };
 
-// Encoder options from hjson.h
 // EncoderOptions defines options for encoding to Hjson.
 struct EncoderOptions {
   // End of line, should be either \n or \r\n
@@ -493,7 +480,6 @@ struct EncoderOptions {
   bool comments = true;
 };
 
-// Direct helpers in the original source (definitions when short, otherwise declarations)
 static void _writeIndent(Encoder *e, int indent) {
   *e->os << e->opt.eol;
 
@@ -504,14 +490,9 @@ static void _writeIndent(Encoder *e, int indent) {
   }
 }
 
-// Nested comment/separator branches require two initialized parent frames (container and child).
-
-// Relevant _marshalStream regex initialization (source excerpt)
-// After declaring Encoder e:
   e.loc = std::locale::classic();
   e.lineBreak.assign(R"(\r|\n|\r\n)");
 
-// Public entry point that initializes Encoder state
 std::string Marshal(const Value& v, const EncoderOptions& options);
 ```
 
@@ -587,8 +568,6 @@ static void _quote(Encoder *e, const std::string& value,
 ### Context
 
 ```cpp
-// Original encoder state declarations from hjson_encode.cpp
-
 enum class EncodeState {
   ValueBegin,
   ValueEnd,
@@ -617,7 +596,6 @@ struct Encoder {
   std::vector<EncodeParent> vParent;
 };
 
-// Encoder options from hjson.h
 // EncoderOptions defines options for encoding to Hjson.
 struct EncoderOptions {
   // End of line, should be either \n or \r\n
@@ -648,17 +626,12 @@ struct EncoderOptions {
   bool comments = true;
 };
 
-// Direct helpers in the original source (definitions when short, otherwise declarations)
 bool startsWithNumber(const char *text, size_t textSize);
 
 static void _mlString(Encoder *e, const std::string& value);
 
 static void _quoteReplace(Encoder *e, const std::string& text);
 
-// Nested comment/separator branches require two initialized parent frames. separator=true requires quoteAlways=true, as enforced in _marshalStream.
-
-// Relevant _marshalStream regex initialization (source excerpt)
-// After declaring Encoder e:
   e.loc = std::locale::classic();
   std::string commonRange = R"(]|\xc2\xad|\xd8[\x80-\x84]|\xdc\x8f|\xe1\x9e[\xb4\xb5]|\xe2\x80[\x8c\x8f]|\xe2\x80[\xa8-\xaf]|\xe2\x81[\xa0-\xaf]|\xef\xbb\xbf|\xef\xbf[\xb0-\xbf])";
   e.needsEscape.imbue(e.loc);
@@ -670,7 +643,6 @@ static void _quoteReplace(Encoder *e, const std::string& text);
   e.startsWithKeyword.imbue(e.loc);
   e.startsWithKeyword.assign(R"(^(true|false|null)\s*((,|\]|\}|#|//|/\*).*)?$)");
 
-// Public entry point that initializes Encoder state
 std::string Marshal(const Value& v, const EncoderOptions& options);
 ```
 
@@ -705,8 +677,6 @@ static void _quoteName(Encoder *e, const std::string& name) {
 ### Context
 
 ```cpp
-// Original encoder state declarations from hjson_encode.cpp
-
 enum class EncodeState {
   ValueBegin,
   ValueEnd,
@@ -735,7 +705,6 @@ struct Encoder {
   std::vector<EncodeParent> vParent;
 };
 
-// Encoder options from hjson.h
 // EncoderOptions defines options for encoding to Hjson.
 struct EncoderOptions {
   // End of line, should be either \n or \r\n
@@ -766,11 +735,8 @@ struct EncoderOptions {
   bool comments = true;
 };
 
-// Direct helpers in the original source (definitions when short, otherwise declarations)
 static void _quoteReplace(Encoder *e, const std::string& text);
 
-// Relevant _marshalStream regex initialization (source excerpt)
-// After declaring Encoder e:
   e.loc = std::locale::classic();
   std::string commonRange = R"(]|\xc2\xad|\xd8[\x80-\x84]|\xdc\x8f|\xe1\x9e[\xb4\xb5]|\xe2\x80[\x8c\x8f]|\xe2\x80[\xa8-\xaf]|\xe2\x81[\xa0-\xaf]|\xef\xbb\xbf|\xef\xbf[\xb0-\xbf])";
   e.needsEscape.imbue(e.loc);
@@ -778,7 +744,6 @@ static void _quoteReplace(Encoder *e, const std::string& text);
   e.needsEscapeName.imbue(e.loc);
   e.needsEscapeName.assign(R"([,\{\[\}\]\s:#"']|//|/\*)");
 
-// Public entry point that initializes Encoder state
 std::string Marshal(const Value& v, const EncoderOptions& options);
 ```
 
@@ -818,8 +783,6 @@ static bool _quoteForComment(Encoder *e, const std::string& comment) {
 ### Context
 
 ```cpp
-// Original encoder state declarations from hjson_encode.cpp
-
 enum class EncodeState {
   ValueBegin,
   ValueEnd,
@@ -848,7 +811,6 @@ struct Encoder {
   std::vector<EncodeParent> vParent;
 };
 
-// Encoder options from hjson.h
 // EncoderOptions defines options for encoding to Hjson.
 struct EncoderOptions {
   // End of line, should be either \n or \r\n
@@ -879,7 +841,6 @@ struct EncoderOptions {
   bool comments = true;
 };
 
-// Public entry point that initializes Encoder state
 std::string Marshal(const Value& v, const EncoderOptions& options);
 ```
 
@@ -1007,8 +968,6 @@ static void _writeValueBegin(Encoder *e) {
 ### Context
 
 ```cpp
-// Original encoder state declarations from hjson_encode.cpp
-
 enum class EncodeState {
   ValueBegin,
   ValueEnd,
@@ -1037,7 +996,6 @@ struct Encoder {
   std::vector<EncodeParent> vParent;
 };
 
-// Encoder options from hjson.h
 // EncoderOptions defines options for encoding to Hjson.
 struct EncoderOptions {
   // End of line, should be either \n or \r\n
@@ -1068,7 +1026,6 @@ struct EncoderOptions {
   bool comments = true;
 };
 
-// Hjson::Type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -1080,7 +1037,6 @@ enum class Type {
   Map
 };
 
-// Direct helpers in the original source (definitions when short, otherwise declarations)
 static void _quote(Encoder *e, const std::string& value, bool hasCommentAfter);
 
 static bool _quoteForComment(Encoder *e, const std::string& comment) {
@@ -1103,7 +1059,6 @@ static bool _quoteForComment(Encoder *e, const std::string& comment) {
   return false;
 }
 
-// Public entry point that initializes Encoder state
 std::string Marshal(const Value& v, const EncoderOptions& options);
 ```
 
@@ -1186,8 +1141,6 @@ static void _writeVectorElemBegin(Encoder *e) {
 ### Context
 
 ```cpp
-// Original encoder state declarations from hjson_encode.cpp
-
 enum class EncodeState {
   ValueBegin,
   ValueEnd,
@@ -1216,7 +1169,6 @@ struct Encoder {
   std::vector<EncodeParent> vParent;
 };
 
-// Encoder options from hjson.h
 // EncoderOptions defines options for encoding to Hjson.
 struct EncoderOptions {
   // End of line, should be either \n or \r\n
@@ -1247,7 +1199,6 @@ struct EncoderOptions {
   bool comments = true;
 };
 
-// Direct helpers in the original source (definitions when short, otherwise declarations)
 static void _writeIndent(Encoder *e, int indent) {
   *e->os << e->opt.eol;
 
@@ -1258,7 +1209,6 @@ static void _writeIndent(Encoder *e, int indent) {
   }
 }
 
-// Public entry point that initializes Encoder state
 std::string Marshal(const Value& v, const EncoderOptions& options);
 ```
 
@@ -1343,8 +1293,6 @@ static void _objElem(Encoder *e, const std::string& key, const Value& value, boo
 ### Context
 
 ```cpp
-// Original encoder state declarations from hjson_encode.cpp
-
 enum class EncodeState {
   ValueBegin,
   ValueEnd,
@@ -1373,7 +1321,6 @@ struct Encoder {
   std::vector<EncodeParent> vParent;
 };
 
-// Encoder options from hjson.h
 // EncoderOptions defines options for encoding to Hjson.
 struct EncoderOptions {
   // End of line, should be either \n or \r\n
@@ -1404,7 +1351,6 @@ struct EncoderOptions {
   bool comments = true;
 };
 
-// Hjson::Type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -1416,7 +1362,6 @@ enum class Type {
   Map
 };
 
-// Direct helpers in the original source (definitions when short, otherwise declarations)
 static void _writeIndent(Encoder *e, int indent) {
   *e->os << e->opt.eol;
 
@@ -1442,7 +1387,6 @@ static void _quoteName(Encoder *e, const std::string& name) {
   }
 }
 
-// Public entry point that initializes Encoder state
 std::string Marshal(const Value& v, const EncoderOptions& options);
 ```
 
@@ -1519,8 +1463,6 @@ static void _writeMapElemBegin(Encoder *e) {
 ### Context
 
 ```cpp
-// Original encoder state declarations from hjson_encode.cpp
-
 enum class EncodeState {
   ValueBegin,
   ValueEnd,
@@ -1549,7 +1491,6 @@ struct Encoder {
   std::vector<EncodeParent> vParent;
 };
 
-// Encoder options from hjson.h
 // EncoderOptions defines options for encoding to Hjson.
 struct EncoderOptions {
   // End of line, should be either \n or \r\n
@@ -1580,7 +1521,6 @@ struct EncoderOptions {
   bool comments = true;
 };
 
-// Direct helpers in the original source (definitions when short, otherwise declarations)
 static void _objElem(Encoder *e, const std::string& key, const Value& value, bool *pIsFirst, const std::string& commentAfterPrevObj);
 
 static void _writeIndent(Encoder *e, int indent) {
@@ -1595,7 +1535,6 @@ static void _writeIndent(Encoder *e, int indent) {
 
 static bool _isInComment(const std::string& comment);
 
-// Public entry point that initializes Encoder state
 std::string Marshal(const Value& v, const EncoderOptions& options);
 ```
 
@@ -1641,8 +1580,6 @@ static void _marshalLoop(Encoder *e, const Value &v) {
 ### Context
 
 ```cpp
-// Original encoder state declarations from hjson_encode.cpp
-
 enum class EncodeState {
   ValueBegin,
   ValueEnd,
@@ -1671,7 +1608,6 @@ struct Encoder {
   std::vector<EncodeParent> vParent;
 };
 
-// Direct helpers in the original source (definitions when short, otherwise declarations)
 static void _writeValueBegin(Encoder *e);
 
 static void _writeValueEnd(Encoder *e);
@@ -1680,7 +1616,6 @@ static void _writeVectorElemBegin(Encoder *e);
 
 static void _writeMapElemBegin(Encoder *e);
 
-// Public entry point that initializes Encoder state
 std::string Marshal(const Value& v, const EncoderOptions& options);
 ```
 
@@ -1743,8 +1678,6 @@ static void _marshalStream(const Value& v, const EncoderOptions& options,
 ### Context
 
 ```cpp
-// Original encoder state declarations from hjson_encode.cpp
-
 enum class EncodeState {
   ValueBegin,
   ValueEnd,
@@ -1773,7 +1706,6 @@ struct Encoder {
   std::vector<EncodeParent> vParent;
 };
 
-// Encoder options from hjson.h
 // EncoderOptions defines options for encoding to Hjson.
 struct EncoderOptions {
   // End of line, should be either \n or \r\n
@@ -1804,29 +1736,24 @@ struct EncoderOptions {
   bool comments = true;
 };
 
-// Direct helpers in the original source (definitions when short, otherwise declarations)
 static void _marshalLoop(Encoder *e, const Value &v) {
   while (!e->vState.empty()) {
     if ((e->vState.back() == EncodeState::ValueBegin)) {
 
       _writeValueBegin(e);
-      
-    
+
     } else if ((e->vState.back() == EncodeState::ValueEnd)) {
 
       _writeValueEnd(e);
-      
-    
+
     } else if ((e->vState.back() == EncodeState::VectorElemBegin)) {
 
       _writeVectorElemBegin(e);
-      
-    
+
     } else if ((e->vState.back() == EncodeState::MapElemBegin)) {
 
       _writeMapElemBegin(e);
-      
-    
+
     }
   }
 }
@@ -1858,7 +1785,6 @@ void MarshalToFile(const Value& v, const std::string &path, const EncoderOptions
 ### Context
 
 ```cpp
-// Direct helpers in the original source (definitions when short, otherwise declarations)
 static void _marshalStream(const Value& v, const EncoderOptions& options, std::ostream *pStream);
 ```
 
