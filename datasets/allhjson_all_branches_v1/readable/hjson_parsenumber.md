@@ -130,7 +130,6 @@ static bool _next(NumberParser *p) {
 ### Context
 
 ```cpp
-// Original number-parser state from hjson_parsenumber.cpp
 namespace Hjson {
 struct NumberParser {
   const unsigned char *data;
@@ -138,9 +137,7 @@ struct NumberParser {
   int indexNext;
   unsigned char ch;
 };
-} // namespace Hjson
-
-// _next cursor outcomes: indexNext<dataSize reads a byte; indexNext==dataSize increments once and sets NUL; indexNext>dataSize stays unchanged and returns false.
+}
 ```
 
 ---
@@ -243,7 +240,6 @@ bool tryParseNumber(Value *pValue, const char *text, size_t textSize, bool stopA
 ### Context
 
 ```cpp
-// Original number-parser state from hjson_parsenumber.cpp
 namespace Hjson {
 struct NumberParser {
   const unsigned char *data;
@@ -251,9 +247,8 @@ struct NumberParser {
   int indexNext;
   unsigned char ch;
 };
-} // namespace Hjson
+}
 
-// Direct helpers in the original source (definitions when short, otherwise declarations)
 namespace Hjson {
 static bool _next(NumberParser *p) {
   // get the next character.
@@ -274,9 +269,8 @@ static bool _next(NumberParser *p) {
 static bool _parseInt(std::int64_t *pNumber, const char *pCh, size_t nCh);
 
 static bool _parseFloat(double *pNumber, const char *pCh, size_t nCh);
-} // namespace Hjson
+}
 
-// Cross-translation-unit function signature
 namespace Hjson { bool tryParseNumber(Value*, const char*, size_t, bool); }
 ```
 
