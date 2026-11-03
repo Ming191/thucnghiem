@@ -117,7 +117,6 @@ Value::ValueImpl::ValueImpl(Type _type)
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -129,7 +128,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -167,7 +165,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -177,7 +174,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -191,7 +187,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value vector API declarations
   // -- Vector and Map specific functions
   // Removes all child elements from this Value if it is of type Vector or Map.
   // Does nothing if this Value is of any other type.
@@ -206,7 +201,6 @@ public:
   // Undefined.
   void push_back(const Value&);
 
-// Relevant Value map API declarations
   // -- Map specific functions
   // Get key by its zero-based insertion index. Throws
   // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
@@ -233,8 +227,6 @@ public:
   // Undefined.
   size_t erase(const std::string&);
   size_t erase(const char*);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 ```
 
 ---
@@ -277,7 +269,6 @@ void Value::ValueImpl::DeepClear(Value &val) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -289,7 +280,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -327,7 +317,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -337,7 +326,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -351,7 +339,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value vector API declarations
   // -- Vector and Map specific functions
   // Removes all child elements from this Value if it is of type Vector or Map.
   // Does nothing if this Value is of any other type.
@@ -365,8 +352,6 @@ public:
   // Hjson::type_mismatch if this Value is of any other type than Vector or
   // Undefined.
   void push_back(const Value&);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 ```
 
 ---
@@ -410,7 +395,6 @@ Value::ValueImpl::~ValueImpl() {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -422,7 +406,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -460,7 +443,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -470,7 +452,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -484,7 +465,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value vector API declarations
   // -- Vector and Map specific functions
   // Removes all child elements from this Value if it is of type Vector or Map.
   // Does nothing if this Value is of any other type.
@@ -499,7 +479,6 @@ public:
   // Undefined.
   void push_back(const Value&);
 
-// Relevant Value map API declarations
   // -- Map specific functions
   // Get key by its zero-based insertion index. Throws
   // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
@@ -526,8 +505,6 @@ public:
   // Undefined.
   size_t erase(const std::string&);
   size_t erase(const char*);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 ```
 
 ---
@@ -556,7 +533,6 @@ Value::Value(const Value& other)
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -568,7 +544,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -606,7 +581,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -616,7 +590,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -630,7 +603,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value comment API declarations
   void set_comment_before(const std::string&);
   std::string get_comment_before() const;
   // Sets comment shown between the key and this Value. If this Value is
@@ -656,10 +628,6 @@ public:
   // receiving Value is of type Undefined.
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Copy/assignment semantics: `prv` is shared; copy construction clones Comments, not the payload. Assignment to a defined destination preserves its old comments; assignment to Undefined adopts source comments. A move assignment copies shared pointers and does not guarantee that the source becomes empty.
 ```
 
 ---
@@ -690,8 +658,7 @@ Value& Value::operator=(const Value& other) {
 ### Context
 
 ```cpp
-// Relevant public Value construction API from hjson.h; declarations inside class Value
-  Value();
+Value();
   Value(bool);
   Value(float);
   Value(double);
@@ -704,7 +671,6 @@ Value& Value::operator=(const Value& other) {
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value comment API declarations
   void set_comment_before(const std::string&);
   std::string get_comment_before() const;
   // Sets comment shown between the key and this Value. If this Value is
@@ -730,10 +696,6 @@ Value& Value::operator=(const Value& other) {
   // receiving Value is of type Undefined.
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Copy/assignment semantics: `prv` is shared; copy construction clones Comments, not the payload. Assignment to a defined destination preserves its old comments; assignment to Undefined adopts source comments. A move assignment copies shared pointers and does not guarantee that the source becomes empty.
 ```
 
 ---
@@ -764,8 +726,7 @@ Value& Value::operator=(Value&& other) {
 ### Context
 
 ```cpp
-// Relevant public Value construction API from hjson.h; declarations inside class Value
-  Value();
+Value();
   Value(bool);
   Value(float);
   Value(double);
@@ -777,10 +738,6 @@ Value& Value::operator=(Value&& other) {
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Copy/assignment semantics: `prv` is shared; copy construction clones Comments, not the payload. Assignment to a defined destination preserves its old comments; assignment to Undefined adopts source comments. A move assignment copies shared pointers and does not guarantee that the source becomes empty.
 ```
 
 ---
@@ -818,7 +775,6 @@ const Value& Value::at(const std::string& name) const {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -830,7 +786,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -868,7 +823,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -878,7 +832,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -892,7 +845,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value map API declarations
   // -- Map specific functions
   // Get key by its zero-based insertion index. Throws
   // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
@@ -919,10 +871,6 @@ public:
   // Undefined.
   size_t erase(const std::string&);
   size_t erase(const char*);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -960,7 +908,6 @@ Value& Value::at(const std::string& name) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -972,7 +919,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -1010,7 +956,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -1020,7 +965,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -1034,7 +978,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value map API declarations
   // -- Map specific functions
   // Get key by its zero-based insertion index. Throws
   // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
@@ -1061,10 +1004,6 @@ public:
   // Undefined.
   size_t erase(const std::string&);
   size_t erase(const char*);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -1097,7 +1036,6 @@ const Value Value::operator[](const std::string& name) const {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -1109,7 +1047,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -1147,7 +1084,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -1157,7 +1093,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -1171,7 +1106,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value map API declarations
   // -- Map specific functions
   // Get key by its zero-based insertion index. Throws
   // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
@@ -1198,10 +1132,6 @@ public:
   // Undefined.
   size_t erase(const std::string&);
   size_t erase(const char*);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -1236,7 +1166,6 @@ MapProxy Value::operator[](const std::string& name) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -1248,7 +1177,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -1286,7 +1214,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Original MapProxy declaration from hjson.h
 // MapProxy is only used for temporary references to elements in a Map. It is
 // not possible to store a MapProxy in a variable. It only exists to make it
 // possible to check for the existence of a specific key in a Map without
@@ -1320,7 +1247,6 @@ public:
   MapProxy& assign_with_comments(Value&&);
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -1330,7 +1256,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -1344,7 +1269,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value map API declarations
   // -- Map specific functions
   // Get key by its zero-based insertion index. Throws
   // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
@@ -1371,12 +1295,6 @@ public:
   // Undefined.
   size_t erase(const std::string&);
   size_t erase(const char*);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// MapProxy lifecycle: a temporary missing-key read is not inserted unless explicitly assigned or made nonempty; normal obj["key"] = Value(...) commits at proxy destruction. A nonconst [] on Undefined converts the parent to Map. Do not store/copy a proxy to postpone destructor effects.
 ```
 
 ---
@@ -1427,7 +1345,6 @@ const Value& Value::operator[](int index) const {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -1439,7 +1356,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -1477,7 +1393,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -1487,7 +1402,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -1501,7 +1415,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value vector API declarations
   // -- Vector and Map specific functions
   // Removes all child elements from this Value if it is of type Vector or Map.
   // Does nothing if this Value is of any other type.
@@ -1516,7 +1429,6 @@ public:
   // Undefined.
   void push_back(const Value&);
 
-// Relevant Value map API declarations
   // -- Map specific functions
   // Get key by its zero-based insertion index. Throws
   // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
@@ -1543,12 +1455,6 @@ public:
   // Undefined.
   size_t erase(const std::string&);
   size_t erase(const char*);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Reachability: inside Vector||Map, the later else-if Map false outcome is impossible after Vector has already been excluded. Never force an invalid type discriminator to cover it.
 ```
 
 ---
@@ -1599,7 +1505,6 @@ Value& Value::operator[](int index) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -1611,7 +1516,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -1649,7 +1553,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -1659,7 +1562,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -1673,7 +1575,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value vector API declarations
   // -- Vector and Map specific functions
   // Removes all child elements from this Value if it is of type Vector or Map.
   // Does nothing if this Value is of any other type.
@@ -1688,7 +1589,6 @@ public:
   // Undefined.
   void push_back(const Value&);
 
-// Relevant Value map API declarations
   // -- Map specific functions
   // Get key by its zero-based insertion index. Throws
   // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
@@ -1715,12 +1615,6 @@ public:
   // Undefined.
   size_t erase(const std::string&);
   size_t erase(const char*);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Reachability: after the outer Vector||Map and the first Vector branch, the Map comparison cannot be false in a valid execution.
 ```
 
 ---
@@ -1767,7 +1661,6 @@ Value operator+(const Value& a, const Value& b) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -1779,7 +1672,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -1817,7 +1709,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -1827,7 +1718,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -1840,10 +1730,6 @@ public:
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -1890,7 +1776,6 @@ bool operator<(const Value& a, const Value& b) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -1902,7 +1787,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -1940,7 +1824,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -1950,7 +1833,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -1963,10 +1845,6 @@ public:
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -2013,7 +1891,6 @@ bool operator>(const Value& a, const Value& b) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -2025,7 +1902,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -2063,7 +1939,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -2073,7 +1948,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -2086,10 +1960,6 @@ public:
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -2136,7 +2006,6 @@ bool operator<=(const Value& a, const Value& b) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -2148,7 +2017,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -2186,7 +2054,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -2196,7 +2063,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -2209,10 +2075,6 @@ public:
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -2259,7 +2121,6 @@ bool operator>=(const Value& a, const Value& b) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -2271,7 +2132,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -2309,7 +2169,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -2319,7 +2178,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -2332,10 +2190,6 @@ public:
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -2400,7 +2254,6 @@ bool operator==(const Value& a, const Value& b) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -2412,7 +2265,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -2450,7 +2302,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -2460,7 +2311,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -2474,7 +2324,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value vector API declarations
   // -- Vector and Map specific functions
   // Removes all child elements from this Value if it is of type Vector or Map.
   // Does nothing if this Value is of any other type.
@@ -2489,7 +2338,6 @@ public:
   // Undefined.
   void push_back(const Value&);
 
-// Relevant Value map API declarations
   // -- Map specific functions
   // Get key by its zero-based insertion index. Throws
   // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
@@ -2516,12 +2364,6 @@ public:
   // Undefined.
   size_t erase(const std::string&);
   size_t erase(const char*);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Value-Value == compares Vector/Map backing pointer identity, not structural content; deep_equal is separate. Use Value operands on both sides to select this focal overload, not Value==bool. The unknown Type assertion is not reachable with valid Type tags.
 ```
 
 ---
@@ -2564,7 +2406,6 @@ Value operator-(const Value& a, const Value& b) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -2576,7 +2417,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -2614,7 +2454,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -2624,7 +2463,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -2637,12 +2475,6 @@ public:
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Avoid signed int64 overflow and negating INT64_MIN in generated tests; these are undefined behavior rather than valid coverage targets.
 ```
 
 ---
@@ -2685,7 +2517,6 @@ Value operator*(const Value& a, const Value& b) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -2697,7 +2528,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -2735,7 +2565,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -2745,7 +2574,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -2758,10 +2586,6 @@ public:
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -2804,7 +2628,6 @@ Value operator/(const Value& a, const Value& b) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -2816,7 +2639,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -2854,7 +2676,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -2864,7 +2685,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -2877,12 +2697,6 @@ public:
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Use a nonzero integer divisor; division/remainder by zero is undefined behavior, not an expected Hjson type_mismatch outcome.
 ```
 
 ---
@@ -2909,7 +2723,6 @@ Value operator%(const Value& a, const Value& b) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -2921,7 +2734,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -2959,7 +2771,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -2969,7 +2780,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -2982,12 +2792,6 @@ public:
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Use a nonzero integer divisor; division/remainder by zero is undefined behavior, not an expected Hjson type_mismatch outcome.
 ```
 
 ---
@@ -3016,7 +2820,6 @@ Value& Value::operator+=(const std::string& b) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -3028,7 +2831,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -3066,7 +2868,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -3076,7 +2877,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -3089,10 +2889,6 @@ public:
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -3147,7 +2943,6 @@ Value& Value::operator+=(const Value& b) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -3159,7 +2954,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -3197,7 +2991,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -3207,7 +3000,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -3220,12 +3012,6 @@ public:
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Avoid signed int64 overflow and negating INT64_MIN in generated tests; these are undefined behavior rather than valid coverage targets.
 ```
 
 ---
@@ -3275,7 +3061,6 @@ Value& Value::operator*=(const Value& b) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -3287,7 +3072,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -3325,7 +3109,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -3335,7 +3118,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -3348,12 +3130,6 @@ public:
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Avoid signed int64 overflow and negating INT64_MIN in generated tests; these are undefined behavior rather than valid coverage targets.
 ```
 
 ---
@@ -3403,7 +3179,6 @@ Value& Value::operator/=(const Value& b) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -3415,7 +3190,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -3453,7 +3227,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -3463,7 +3236,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -3476,12 +3248,6 @@ public:
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Use a nonzero integer divisor; division/remainder by zero is undefined behavior, not an expected Hjson type_mismatch outcome.
 ```
 
 ---
@@ -3510,7 +3276,6 @@ Value& Value::operator%=(const Value& b) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -3522,7 +3287,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -3560,7 +3324,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -3570,7 +3333,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -3583,12 +3345,6 @@ public:
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Use a nonzero integer divisor; division/remainder by zero is undefined behavior, not an expected Hjson type_mismatch outcome.
 ```
 
 ---
@@ -3626,7 +3382,6 @@ Value Value::operator+() const {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -3638,7 +3393,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -3676,7 +3430,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -3686,7 +3439,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -3699,10 +3451,6 @@ public:
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -3740,7 +3488,6 @@ Value Value::operator-() const {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -3752,7 +3499,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -3790,7 +3536,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -3800,7 +3545,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -3813,12 +3557,6 @@ public:
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Avoid signed int64 overflow and negating INT64_MIN in generated tests; these are undefined behavior rather than valid coverage targets.
 ```
 
 ---
@@ -3858,7 +3596,6 @@ Value& Value::operator++() {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -3870,7 +3607,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -3908,7 +3644,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -3918,7 +3653,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -3931,12 +3665,6 @@ public:
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Avoid signed int64 overflow and negating INT64_MIN in generated tests; these are undefined behavior rather than valid coverage targets.
 ```
 
 ---
@@ -3976,7 +3704,6 @@ Value& Value::operator--() {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -3988,7 +3715,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -4026,7 +3752,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -4036,7 +3761,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -4049,12 +3773,6 @@ public:
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Avoid signed int64 overflow and negating INT64_MIN in generated tests; these are undefined behavior rather than valid coverage targets.
 ```
 
 ---
@@ -4098,7 +3816,6 @@ Value Value::operator++(int) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -4110,7 +3827,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -4148,7 +3864,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -4158,7 +3873,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -4171,12 +3885,6 @@ public:
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Avoid signed int64 overflow and negating INT64_MIN in generated tests; these are undefined behavior rather than valid coverage targets.
 ```
 
 ---
@@ -4220,7 +3928,6 @@ Value Value::operator--(int) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -4232,7 +3939,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -4270,7 +3976,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -4280,7 +3985,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -4293,12 +3997,6 @@ public:
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Avoid signed int64 overflow and negating INT64_MIN in generated tests; these are undefined behavior rather than valid coverage targets.
 ```
 
 ---
@@ -4335,7 +4033,6 @@ Value::operator bool() const {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -4347,7 +4044,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -4385,7 +4081,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -4395,7 +4090,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -4408,10 +4102,6 @@ public:
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -4446,7 +4136,6 @@ Value::operator double() const {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -4458,7 +4147,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -4496,7 +4184,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -4506,7 +4193,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -4519,10 +4205,6 @@ public:
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -4557,7 +4239,6 @@ Value::operator long long() const {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -4569,7 +4250,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -4607,7 +4287,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -4617,7 +4296,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -4630,10 +4308,6 @@ public:
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -4660,7 +4334,6 @@ Value::operator const char*() const {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -4672,7 +4345,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -4710,7 +4382,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -4720,7 +4391,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -4733,10 +4403,6 @@ public:
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -4763,7 +4429,6 @@ Value::operator std::string() const {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -4775,7 +4440,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -4813,7 +4477,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -4823,7 +4486,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -4836,10 +4498,6 @@ public:
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -4866,7 +4524,6 @@ bool Value::empty() const {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -4878,7 +4535,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -4916,7 +4572,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -4926,7 +4581,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -4940,7 +4594,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value vector API declarations
   // -- Vector and Map specific functions
   // Removes all child elements from this Value if it is of type Vector or Map.
   // Does nothing if this Value is of any other type.
@@ -4955,7 +4608,6 @@ public:
   // Undefined.
   void push_back(const Value&);
 
-// Relevant Value map API declarations
   // -- Map specific functions
   // Get key by its zero-based insertion index. Throws
   // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
@@ -4982,10 +4634,6 @@ public:
   // Undefined.
   size_t erase(const std::string&);
   size_t erase(const char*);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -5008,7 +4656,6 @@ bool Value::is_container() const {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -5020,7 +4667,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -5058,7 +4704,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -5068,7 +4713,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -5082,7 +4726,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value vector API declarations
   // -- Vector and Map specific functions
   // Removes all child elements from this Value if it is of type Vector or Map.
   // Does nothing if this Value is of any other type.
@@ -5097,7 +4740,6 @@ public:
   // Undefined.
   void push_back(const Value&);
 
-// Relevant Value map API declarations
   // -- Map specific functions
   // Get key by its zero-based insertion index. Throws
   // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
@@ -5124,10 +4766,6 @@ public:
   // Undefined.
   size_t erase(const std::string&);
   size_t erase(const char*);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -5150,7 +4788,6 @@ bool Value::is_numeric() const {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -5162,7 +4799,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -5200,7 +4836,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -5210,7 +4845,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -5223,10 +4857,6 @@ public:
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -5259,7 +4889,6 @@ size_t Value::size() const {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -5271,7 +4900,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -5309,7 +4937,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -5319,7 +4946,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -5333,7 +4959,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value vector API declarations
   // -- Vector and Map specific functions
   // Removes all child elements from this Value if it is of type Vector or Map.
   // Does nothing if this Value is of any other type.
@@ -5348,7 +4973,6 @@ public:
   // Undefined.
   void push_back(const Value&);
 
-// Relevant Value map API declarations
   // -- Map specific functions
   // Get key by its zero-based insertion index. Throws
   // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
@@ -5375,10 +4999,6 @@ public:
   // Undefined.
   size_t erase(const std::string&);
   size_t erase(const char*);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -5443,7 +5063,6 @@ bool Value::deep_equal(const Value& other) const {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -5455,7 +5074,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -5493,7 +5111,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -5503,7 +5120,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -5517,7 +5133,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value vector API declarations
   // -- Vector and Map specific functions
   // Removes all child elements from this Value if it is of type Vector or Map.
   // Does nothing if this Value is of any other type.
@@ -5532,7 +5147,6 @@ public:
   // Undefined.
   void push_back(const Value&);
 
-// Relevant Value map API declarations
   // -- Map specific functions
   // Get key by its zero-based insertion index. Throws
   // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
@@ -5559,12 +5173,6 @@ public:
   // Undefined.
   size_t erase(const std::string&);
   size_t erase(const char*);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// deep_equal on independently constructed Maps compares sorted mapped values but does not verify corresponding keys. Thus {a:1} and {b:1} can return true; avoid assuming standard JSON structural equality. Shared-pointer copies enter the initial fast equality path.
 ```
 
 ---
@@ -5613,7 +5221,6 @@ Value Value::clone() const {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -5625,7 +5232,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -5663,7 +5269,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -5673,7 +5278,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -5687,7 +5291,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value vector API declarations
   // -- Vector and Map specific functions
   // Removes all child elements from this Value if it is of type Vector or Map.
   // Does nothing if this Value is of any other type.
@@ -5702,7 +5305,6 @@ public:
   // Undefined.
   void push_back(const Value&);
 
-// Relevant Value map API declarations
   // -- Map specific functions
   // Get key by its zero-based insertion index. Throws
   // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
@@ -5730,7 +5332,6 @@ public:
   size_t erase(const std::string&);
   size_t erase(const char*);
 
-// Relevant Value comment API declarations
   void set_comment_before(const std::string&);
   std::string get_comment_before() const;
   // Sets comment shown between the key and this Value. If this Value is
@@ -5756,12 +5357,6 @@ public:
   // receiving Value is of type Undefined.
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Source behavior: clone() of empty Vector/Map produces Undefined because no loop iteration materializes the destination; scalar clone shares ValueImpl. Do not assume independent deep copy for these cases.
 ```
 
 ---
@@ -5797,7 +5392,6 @@ void Value::clear() {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -5809,7 +5403,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -5847,7 +5440,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -5857,7 +5449,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -5871,7 +5462,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value vector API declarations
   // -- Vector and Map specific functions
   // Removes all child elements from this Value if it is of type Vector or Map.
   // Does nothing if this Value is of any other type.
@@ -5886,7 +5476,6 @@ public:
   // Undefined.
   void push_back(const Value&);
 
-// Relevant Value map API declarations
   // -- Map specific functions
   // Get key by its zero-based insertion index. Throws
   // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
@@ -5913,10 +5502,6 @@ public:
   // Undefined.
   size_t erase(const std::string&);
   size_t erase(const char*);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -5968,7 +5553,6 @@ void Value::erase(int index) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -5980,7 +5564,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -6018,7 +5601,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -6028,7 +5610,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -6042,7 +5623,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value vector API declarations
   // -- Vector and Map specific functions
   // Removes all child elements from this Value if it is of type Vector or Map.
   // Does nothing if this Value is of any other type.
@@ -6057,7 +5637,6 @@ public:
   // Undefined.
   void push_back(const Value&);
 
-// Relevant Value map API declarations
   // -- Map specific functions
   // Get key by its zero-based insertion index. Throws
   // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
@@ -6084,10 +5663,6 @@ public:
   // Undefined.
   size_t erase(const std::string&);
   size_t erase(const char*);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -6118,7 +5693,6 @@ void Value::push_back(const Value& other) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -6130,7 +5704,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -6168,7 +5741,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -6178,7 +5750,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -6192,7 +5763,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value vector API declarations
   // -- Vector and Map specific functions
   // Removes all child elements from this Value if it is of type Vector or Map.
   // Does nothing if this Value is of any other type.
@@ -6206,10 +5776,6 @@ public:
   // Hjson::type_mismatch if this Value is of any other type than Vector or
   // Undefined.
   void push_back(const Value&);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -6277,7 +5843,6 @@ void Value::move(int from, int to) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -6289,7 +5854,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -6327,7 +5891,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -6337,7 +5900,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -6351,7 +5913,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value vector API declarations
   // -- Vector and Map specific functions
   // Removes all child elements from this Value if it is of type Vector or Map.
   // Does nothing if this Value is of any other type.
@@ -6366,7 +5927,6 @@ public:
   // Undefined.
   void push_back(const Value&);
 
-// Relevant Value map API declarations
   // -- Map specific functions
   // Get key by its zero-based insertion index. Throws
   // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
@@ -6393,10 +5953,6 @@ public:
   // Undefined.
   size_t erase(const std::string&);
   size_t erase(const char*);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -6430,7 +5986,6 @@ std::string Value::key(int index) const {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -6442,7 +5997,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -6480,7 +6034,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -6490,7 +6043,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -6504,7 +6056,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value map API declarations
   // -- Map specific functions
   // Get key by its zero-based insertion index. Throws
   // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
@@ -6531,10 +6082,6 @@ public:
   // Undefined.
   size_t erase(const std::string&);
   size_t erase(const char*);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -6563,7 +6110,6 @@ ValueMap::iterator Value::begin() {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -6575,7 +6121,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -6613,7 +6158,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -6623,7 +6167,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -6637,7 +6180,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value map API declarations
   // -- Map specific functions
   // Get key by its zero-based insertion index. Throws
   // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
@@ -6664,10 +6206,6 @@ public:
   // Undefined.
   size_t erase(const std::string&);
   size_t erase(const char*);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -6696,7 +6234,6 @@ ValueMap::iterator Value::end() {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -6708,7 +6245,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -6746,7 +6282,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -6756,7 +6291,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -6770,7 +6304,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value map API declarations
   // -- Map specific functions
   // Get key by its zero-based insertion index. Throws
   // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
@@ -6797,10 +6330,6 @@ public:
   // Undefined.
   size_t erase(const std::string&);
   size_t erase(const char*);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -6829,7 +6358,6 @@ ValueMap::const_iterator Value::begin() const {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -6841,7 +6369,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -6879,7 +6406,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -6889,7 +6415,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -6903,7 +6428,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value map API declarations
   // -- Map specific functions
   // Get key by its zero-based insertion index. Throws
   // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
@@ -6930,10 +6454,6 @@ public:
   // Undefined.
   size_t erase(const std::string&);
   size_t erase(const char*);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -6962,7 +6482,6 @@ ValueMap::const_iterator Value::end() const {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -6974,7 +6493,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -7012,7 +6530,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -7022,7 +6539,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -7036,7 +6552,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value map API declarations
   // -- Map specific functions
   // Get key by its zero-based insertion index. Throws
   // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
@@ -7063,10 +6578,6 @@ public:
   // Undefined.
   size_t erase(const std::string&);
   size_t erase(const char*);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -7107,7 +6618,6 @@ size_t Value::erase(const std::string &key) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -7119,7 +6629,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -7157,7 +6666,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -7167,7 +6675,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -7181,7 +6688,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value map API declarations
   // -- Map specific functions
   // Get key by its zero-based insertion index. Throws
   // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
@@ -7208,12 +6714,6 @@ public:
   // Undefined.
   size_t erase(const std::string&);
   size_t erase(const char*);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// The Map lookup assertion requires an invalid internal map/vector invariant and is unreachable via valid public APIs.
 ```
 
 ---
@@ -7290,7 +6790,6 @@ double Value::to_double() const {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -7302,7 +6801,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -7340,7 +6838,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -7350,7 +6847,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -7363,10 +6859,6 @@ public:
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -7444,7 +6936,6 @@ std::int64_t Value::to_int64() const {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -7456,7 +6947,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -7494,7 +6984,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -7504,7 +6993,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -7517,10 +7005,6 @@ public:
   Value(const char*);
   Value(const std::string&);
   Value(Type);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -7651,7 +7135,6 @@ std::string Value::to_string() const {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -7663,7 +7146,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -7701,7 +7183,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -7711,7 +7192,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -7725,7 +7205,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value vector API declarations
   // -- Vector and Map specific functions
   // Removes all child elements from this Value if it is of type Vector or Map.
   // Does nothing if this Value is of any other type.
@@ -7739,10 +7218,6 @@ public:
   // Hjson::type_mismatch if this Value is of any other type than Vector or
   // Undefined.
   void push_back(const Value&);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -7772,7 +7247,6 @@ void Value::set_comment_before(const std::string& str) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -7784,7 +7258,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -7822,7 +7295,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -7832,7 +7304,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -7846,7 +7317,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value comment API declarations
   void set_comment_before(const std::string&);
   std::string get_comment_before() const;
   // Sets comment shown between the key and this Value. If this Value is
@@ -7872,8 +7342,6 @@ public:
   // receiving Value is of type Undefined.
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 ```
 
 ---
@@ -7900,7 +7368,6 @@ std::string Value::get_comment_before() const {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -7912,7 +7379,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -7950,7 +7416,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -7960,7 +7425,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -7974,7 +7438,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value comment API declarations
   void set_comment_before(const std::string&);
   std::string get_comment_before() const;
   // Sets comment shown between the key and this Value. If this Value is
@@ -8000,8 +7463,6 @@ public:
   // receiving Value is of type Undefined.
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 ```
 
 ---
@@ -8031,7 +7492,6 @@ void Value::set_comment_key(const std::string& str) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -8043,7 +7503,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -8081,7 +7540,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -8091,7 +7549,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -8105,7 +7562,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value comment API declarations
   void set_comment_before(const std::string&);
   std::string get_comment_before() const;
   // Sets comment shown between the key and this Value. If this Value is
@@ -8131,8 +7587,6 @@ public:
   // receiving Value is of type Undefined.
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 ```
 
 ---
@@ -8159,7 +7613,6 @@ std::string Value::get_comment_key() const {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -8171,7 +7624,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -8209,7 +7661,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -8219,7 +7670,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -8233,7 +7683,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value comment API declarations
   void set_comment_before(const std::string&);
   std::string get_comment_before() const;
   // Sets comment shown between the key and this Value. If this Value is
@@ -8259,8 +7708,6 @@ public:
   // receiving Value is of type Undefined.
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 ```
 
 ---
@@ -8290,7 +7737,6 @@ void Value::set_comment_inside(const std::string& str) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -8302,7 +7748,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -8340,7 +7785,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -8350,7 +7794,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -8364,7 +7807,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value comment API declarations
   void set_comment_before(const std::string&);
   std::string get_comment_before() const;
   // Sets comment shown between the key and this Value. If this Value is
@@ -8390,8 +7832,6 @@ public:
   // receiving Value is of type Undefined.
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 ```
 
 ---
@@ -8418,7 +7858,6 @@ std::string Value::get_comment_inside() const {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -8430,7 +7869,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -8468,7 +7906,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -8478,7 +7915,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -8492,7 +7928,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value comment API declarations
   void set_comment_before(const std::string&);
   std::string get_comment_before() const;
   // Sets comment shown between the key and this Value. If this Value is
@@ -8518,8 +7953,6 @@ public:
   // receiving Value is of type Undefined.
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 ```
 
 ---
@@ -8549,7 +7982,6 @@ void Value::set_comment_after(const std::string& str) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -8561,7 +7993,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -8599,7 +8030,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -8609,7 +8039,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -8623,7 +8052,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value comment API declarations
   void set_comment_before(const std::string&);
   std::string get_comment_before() const;
   // Sets comment shown between the key and this Value. If this Value is
@@ -8649,8 +8077,6 @@ public:
   // receiving Value is of type Undefined.
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 ```
 
 ---
@@ -8677,7 +8103,6 @@ std::string Value::get_comment_after() const {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -8689,7 +8114,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -8727,7 +8151,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -8737,7 +8160,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -8751,7 +8173,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value comment API declarations
   void set_comment_before(const std::string&);
   std::string get_comment_before() const;
   // Sets comment shown between the key and this Value. If this Value is
@@ -8777,8 +8198,6 @@ public:
   // receiving Value is of type Undefined.
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 ```
 
 ---
@@ -8809,7 +8228,6 @@ void Value::set_comments(const Value& other) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -8821,7 +8239,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -8859,7 +8276,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -8869,7 +8285,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -8883,7 +8298,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value comment API declarations
   void set_comment_before(const std::string&);
   std::string get_comment_before() const;
   // Sets comment shown between the key and this Value. If this Value is
@@ -8909,8 +8323,6 @@ public:
   // receiving Value is of type Undefined.
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 ```
 
 ---
@@ -8938,8 +8350,7 @@ Value& Value::assign_with_comments(const Value& other) {
 ### Context
 
 ```cpp
-// Relevant public Value construction API from hjson.h; declarations inside class Value
-  Value();
+Value();
   Value(bool);
   Value(float);
   Value(double);
@@ -8952,7 +8363,6 @@ Value& Value::assign_with_comments(const Value& other) {
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value comment API declarations
   void set_comment_before(const std::string&);
   std::string get_comment_before() const;
   // Sets comment shown between the key and this Value. If this Value is
@@ -8978,8 +8388,6 @@ Value& Value::assign_with_comments(const Value& other) {
   // receiving Value is of type Undefined.
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -9007,8 +8415,7 @@ Value& Value::assign_with_comments(Value&& other) {
 ### Context
 
 ```cpp
-// Relevant public Value construction API from hjson.h; declarations inside class Value
-  Value();
+Value();
   Value(bool);
   Value(float);
   Value(double);
@@ -9021,7 +8428,6 @@ Value& Value::assign_with_comments(Value&& other) {
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value comment API declarations
   void set_comment_before(const std::string&);
   std::string get_comment_before() const;
   // Sets comment shown between the key and this Value. If this Value is
@@ -9047,8 +8453,6 @@ Value& Value::assign_with_comments(Value&& other) {
   // receiving Value is of type Undefined.
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -9078,7 +8482,6 @@ MapProxy::MapProxy(std::shared_ptr<ValueImpl> _parent, const std::string &_key,
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -9090,7 +8493,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -9128,7 +8530,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Original MapProxy declaration from hjson.h
 // MapProxy is only used for temporary references to elements in a Map. It is
 // not possible to store a MapProxy in a variable. It only exists to make it
 // possible to check for the existence of a specific key in a Map without
@@ -9162,7 +8563,6 @@ public:
   MapProxy& assign_with_comments(Value&&);
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -9172,7 +8572,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -9186,7 +8585,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value map API declarations
   // -- Map specific functions
   // Get key by its zero-based insertion index. Throws
   // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
@@ -9213,10 +8611,6 @@ public:
   // Undefined.
   size_t erase(const std::string&);
   size_t erase(const char*);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
-
-// Both constructor outcomes are reachable through public object["missing"] and object["existing"] lookups; do not copy MapProxy.
 ```
 
 ---
@@ -9257,7 +8651,6 @@ MapProxy::~MapProxy() {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -9269,7 +8662,6 @@ enum class Type {
   Map
 };
 
-// Original backing types from hjson_value.cpp
 typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
@@ -9307,7 +8699,6 @@ public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Original MapProxy declaration from hjson.h
 // MapProxy is only used for temporary references to elements in a Map. It is
 // not possible to store a MapProxy in a variable. It only exists to make it
 // possible to check for the existence of a specific key in a Map without
@@ -9341,7 +8732,6 @@ public:
   MapProxy& assign_with_comments(Value&&);
 };
 
-// Value member declarations from hjson.h; excerpts inside class Value
   friend class MapProxy;
   class ValueImpl;
   class Comments;
@@ -9351,7 +8741,6 @@ public:
 
   Value(std::shared_ptr<ValueImpl>, std::shared_ptr<Comments>);
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -9365,7 +8754,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value vector API declarations
   // -- Vector and Map specific functions
   // Removes all child elements from this Value if it is of type Vector or Map.
   // Does nothing if this Value is of any other type.
@@ -9380,7 +8768,6 @@ public:
   // Undefined.
   void push_back(const Value&);
 
-// Relevant Value map API declarations
   // -- Map specific functions
   // Get key by its zero-based insertion index. Throws
   // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
@@ -9408,7 +8795,6 @@ public:
   size_t erase(const std::string&);
   size_t erase(const char*);
 
-// Relevant Value comment API declarations
   void set_comment_before(const std::string&);
   std::string get_comment_before() const;
   // Sets comment shown between the key and this Value. If this Value is
@@ -9434,8 +8820,6 @@ public:
   // receiving Value is of type Undefined.
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
-
-// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 ```
 
 ---
@@ -9463,7 +8847,6 @@ MapProxy& MapProxy::assign_with_comments(const Value& other) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -9475,7 +8858,6 @@ enum class Type {
   Map
 };
 
-// Original MapProxy declaration from hjson.h
 // MapProxy is only used for temporary references to elements in a Map. It is
 // not possible to store a MapProxy in a variable. It only exists to make it
 // possible to check for the existence of a specific key in a Map without
@@ -9509,7 +8891,6 @@ public:
   MapProxy& assign_with_comments(Value&&);
 };
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -9523,7 +8904,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value map API declarations
   // -- Map specific functions
   // Get key by its zero-based insertion index. Throws
   // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
@@ -9551,7 +8931,6 @@ public:
   size_t erase(const std::string&);
   size_t erase(const char*);
 
-// Relevant Value comment API declarations
   void set_comment_before(const std::string&);
   std::string get_comment_before() const;
   // Sets comment shown between the key and this Value. If this Value is
@@ -9577,8 +8956,6 @@ public:
   // receiving Value is of type Undefined.
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -9606,7 +8983,6 @@ MapProxy& MapProxy::assign_with_comments(Value&& other) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -9618,7 +8994,6 @@ enum class Type {
   Map
 };
 
-// Original MapProxy declaration from hjson.h
 // MapProxy is only used for temporary references to elements in a Map. It is
 // not possible to store a MapProxy in a variable. It only exists to make it
 // possible to check for the existence of a specific key in a Map without
@@ -9652,7 +9027,6 @@ public:
   MapProxy& assign_with_comments(Value&&);
 };
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -9666,7 +9040,6 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value map API declarations
   // -- Map specific functions
   // Get key by its zero-based insertion index. Throws
   // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
@@ -9694,7 +9067,6 @@ public:
   size_t erase(const std::string&);
   size_t erase(const char*);
 
-// Relevant Value comment API declarations
   void set_comment_before(const std::string&);
   std::string get_comment_before() const;
   // Sets comment shown between the key and this Value. If this Value is
@@ -9720,8 +9092,6 @@ public:
   // receiving Value is of type Undefined.
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
-
-// Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 ```
 
 ---
@@ -9768,7 +9138,6 @@ Value Merge(const Value& base, const Value& ext) {
 ### Context
 
 ```cpp
-// Original Value type enum from hjson.h
 enum class Type {
   Undefined,
   Null,
@@ -9780,7 +9149,6 @@ enum class Type {
   Map
 };
 
-// Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
   Value(float);
@@ -9794,7 +9162,6 @@ enum class Type {
   Value(const std::string&);
   Value(Type);
 
-// Relevant Value vector API declarations
   // -- Vector and Map specific functions
   // Removes all child elements from this Value if it is of type Vector or Map.
   // Does nothing if this Value is of any other type.
@@ -9809,7 +9176,6 @@ enum class Type {
   // Undefined.
   void push_back(const Value&);
 
-// Relevant Value map API declarations
   // -- Map specific functions
   // Get key by its zero-based insertion index. Throws
   // Hjson::index_out_of_bounds if the index is out of bounds and this Value is
@@ -9837,7 +9203,6 @@ enum class Type {
   size_t erase(const std::string&);
   size_t erase(const char*);
 
-// Relevant Value comment API declarations
   void set_comment_before(const std::string&);
   std::string get_comment_before() const;
   // Sets comment shown between the key and this Value. If this Value is
