@@ -117,9 +117,6 @@ Value::ValueImpl::ValueImpl(Type _type)
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -137,13 +134,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -166,7 +161,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -240,9 +234,7 @@ public:
   size_t erase(const std::string&);
   size_t erase(const char*);
 
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
-
-// Build: test TU includes "hjson_value.cpp"; link other three .cpp files once.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 ```
 
 ---
@@ -285,9 +277,6 @@ void Value::ValueImpl::DeepClear(Value &val) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -305,13 +294,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -334,7 +321,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -380,32 +366,7 @@ public:
   // Undefined.
   void push_back(const Value&);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
-
-// Focal-specific C++ test construction example
-namespace Hjson {
-void example_focal_118() {
-  Value nested(Type::Vector);
-  Value child(Type::Map);
-  child["x"] = Value(1);
-  nested.push_back(child);
-  Value uniqueOwner = nested.clone();
-  Value sharedOwner = nested;
-  // DeepClear uses val.size() and val.prv.use_count()==1.
-  // Vary unique ownership versus an alias; do not force destructor on live aliases.
-}
-} // namespace Hjson
-
-// Build: test TU includes "hjson_value.cpp"; link other three .cpp files once.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 ```
 
 ---
@@ -449,9 +410,6 @@ Value::ValueImpl::~ValueImpl() {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -469,13 +427,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -498,7 +454,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -572,9 +527,7 @@ public:
   size_t erase(const std::string&);
   size_t erase(const char*);
 
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
-
-// Build: test TU includes "hjson_value.cpp"; link other three .cpp files once.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 ```
 
 ---
@@ -603,9 +556,6 @@ Value::Value(const Value& other)
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -623,13 +573,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -652,7 +600,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -710,11 +657,9 @@ public:
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
 
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Copy/assignment semantics: `prv` is shared; copy construction clones Comments, not the payload. Assignment to a defined destination preserves its old comments; assignment to Undefined adopts source comments. A move assignment copies shared pointers and does not guarantee that the source becomes empty.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -745,9 +690,6 @@ Value& Value::operator=(const Value& other) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
@@ -789,22 +731,9 @@ Value& Value::operator=(const Value& other) {
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  Value withComments(1);
-  withComments.set_comment_before("# note\n");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 
 // Copy/assignment semantics: `prv` is shared; copy construction clones Comments, not the payload. Assignment to a defined destination preserves its old comments; assignment to Undefined adopts source comments. A move assignment copies shared pointers and does not guarantee that the source becomes empty.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -835,9 +764,6 @@ Value& Value::operator=(Value&& other) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
@@ -852,32 +778,9 @@ Value& Value::operator=(Value&& other) {
   Value(const std::string&);
   Value(Type);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 
 // Copy/assignment semantics: `prv` is shared; copy construction clones Comments, not the payload. Assignment to a defined destination preserves its old comments; assignment to Undefined adopts source comments. A move assignment copies shared pointers and does not guarantee that the source becomes empty.
-
-// Focal-specific C++ test construction example
-namespace Hjson {
-void example_focal_332() {
-  Value src(2); src.set_comment_before("# source\n");
-  Value undefinedDest;
-  Value definedDest(1); definedDest.set_comment_before("# destination\n");
-  undefinedDest = std::move(src); // !defined() branch
-  Value other(3); other.set_comment_before("# second\n");
-  definedDest = std::move(other); // defined() branch
-}
-} // namespace Hjson
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -915,9 +818,6 @@ const Value& Value::at(const std::string& name) const {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -935,13 +835,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -964,7 +862,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -1023,32 +920,9 @@ public:
   size_t erase(const std::string&);
   size_t erase(const char*);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Focal-specific C++ test construction example
-namespace Hjson {
-void example_focal_345() {
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  const Value& cv = object;
-  (void)cv.at(std::string("key")); // Ensures const overload dispatch rather than the mutable overload.
-}
-} // namespace Hjson
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1086,9 +960,6 @@ Value& Value::at(const std::string& name) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -1106,13 +977,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -1135,7 +1004,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -1194,22 +1062,9 @@ public:
   size_t erase(const std::string&);
   size_t erase(const char*);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1242,9 +1097,6 @@ const Value Value::operator[](const std::string& name) const {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -1262,13 +1114,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -1291,7 +1141,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -1350,32 +1199,9 @@ public:
   size_t erase(const std::string&);
   size_t erase(const char*);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Focal-specific C++ test construction example
-namespace Hjson {
-void example_focal_395() {
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  const Value& cv = object;
-  (void)cv[std::string("key")]; // Ensures const overload dispatch rather than the mutable overload.
-}
-} // namespace Hjson
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1410,9 +1236,6 @@ MapProxy Value::operator[](const std::string& name) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -1430,13 +1253,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -1460,13 +1281,12 @@ public:
   static void DeepClear(Value &val);
 };
 
-
 class Value::Comments {
 public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Original MapProxy declaration from hjson.h (access patch applies in benchmark copy only)
+// Original MapProxy declaration from hjson.h
 // MapProxy is only used for temporary references to elements in a Map. It is
 // not possible to store a MapProxy in a variable. It only exists to make it
 // possible to check for the existence of a specific key in a Map without
@@ -1474,7 +1294,6 @@ public:
 class MapProxy : public Value {
   private:
   friend class Value;
-
 
   std::shared_ptr<ValueImpl> parentPrv;
   std::string key;
@@ -1553,37 +1372,11 @@ public:
   size_t erase(const std::string&);
   size_t erase(const char*);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 
 // MapProxy lifecycle: a temporary missing-key read is not inserted unless explicitly assigned or made nonempty; normal obj["key"] = Value(...) commits at proxy destruction. A nonconst [] on Undefined converts the parent to Map. Do not store/copy a proxy to postpone destructor effects.
-
-// Focal-specific C++ test construction example
-namespace Hjson {
-void example_focal_410() {
-  Value object(Type::Map);
-  bool missing = object["not-there"].defined();
-  (void)missing; // No element created by the read.
-  object["explicitUndefined"] = Value(); // Assignment commits the missing key.
-  object["nonempty"].push_back(Value(1)); // Nonempty temporary commits.
-  object["existing"] = Value(2);
-  object["existing"] = Value(3);
-}
-} // namespace Hjson
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1634,9 +1427,6 @@ const Value& Value::operator[](int index) const {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -1654,13 +1444,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -1683,7 +1471,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -1757,34 +1544,11 @@ public:
   size_t erase(const std::string&);
   size_t erase(const char*);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 
-// Focal-specific C++ test construction example
-namespace Hjson {
-void example_focal_447() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  const Value& cv = array;
-  (void)cv[0]; // Ensures const overload dispatch rather than the mutable overload.
-}
-} // namespace Hjson
-
 // Reachability: inside Vector||Map, the later else-if Map false outcome is impossible after Vector has already been excluded. Never force an invalid type discriminator to cover it.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -1835,9 +1599,6 @@ Value& Value::operator[](int index) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -1855,13 +1616,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -1884,7 +1643,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -1958,24 +1716,11 @@ public:
   size_t erase(const std::string&);
   size_t erase(const char*);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 
 // Reachability: after the outer Vector||Map and the first Vector branch, the Map comparison cannot be false in a valid execution.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2022,9 +1767,6 @@ Value operator+(const Value& a, const Value& b) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -2042,13 +1784,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -2071,7 +1811,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -2102,22 +1841,9 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Safe branch-input matrix (choose subsets relevant to this focal): Value undef; Value nullValue(Type::Null); Value f(false), t(true); Value zero(0), one(1), two(2); Value dzero(0.0), dfrac(1.5); Value empty(""), word("text"); Value array(Type::Vector), object(Type::Map). Use two Value operands for Value-Value arithmetic/comparisons to avoid selecting other overloads.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2164,9 +1890,6 @@ bool operator<(const Value& a, const Value& b) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -2184,13 +1907,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -2213,7 +1934,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -2244,22 +1964,9 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Safe branch-input matrix (choose subsets relevant to this focal): Value undef; Value nullValue(Type::Null); Value f(false), t(true); Value zero(0), one(1), two(2); Value dzero(0.0), dfrac(1.5); Value empty(""), word("text"); Value array(Type::Vector), object(Type::Map). Use two Value operands for Value-Value arithmetic/comparisons to avoid selecting other overloads.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2306,9 +2013,6 @@ bool operator>(const Value& a, const Value& b) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -2326,13 +2030,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -2355,7 +2057,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -2386,22 +2087,9 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Safe branch-input matrix (choose subsets relevant to this focal): Value undef; Value nullValue(Type::Null); Value f(false), t(true); Value zero(0), one(1), two(2); Value dzero(0.0), dfrac(1.5); Value empty(""), word("text"); Value array(Type::Vector), object(Type::Map). Use two Value operands for Value-Value arithmetic/comparisons to avoid selecting other overloads.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2448,9 +2136,6 @@ bool operator<=(const Value& a, const Value& b) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -2468,13 +2153,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -2497,7 +2180,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -2528,22 +2210,9 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Safe branch-input matrix (choose subsets relevant to this focal): Value undef; Value nullValue(Type::Null); Value f(false), t(true); Value zero(0), one(1), two(2); Value dzero(0.0), dfrac(1.5); Value empty(""), word("text"); Value array(Type::Vector), object(Type::Map). Use two Value operands for Value-Value arithmetic/comparisons to avoid selecting other overloads.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2590,9 +2259,6 @@ bool operator>=(const Value& a, const Value& b) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -2610,13 +2276,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -2639,7 +2303,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -2670,22 +2333,9 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Safe branch-input matrix (choose subsets relevant to this focal): Value undef; Value nullValue(Type::Null); Value f(false), t(true); Value zero(0), one(1), two(2); Value dzero(0.0), dfrac(1.5); Value empty(""), word("text"); Value array(Type::Vector), object(Type::Map). Use two Value operands for Value-Value arithmetic/comparisons to avoid selecting other overloads.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2750,9 +2400,6 @@ bool operator==(const Value& a, const Value& b) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -2770,13 +2417,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -2799,7 +2444,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -2873,26 +2517,11 @@ public:
   size_t erase(const std::string&);
   size_t erase(const char*);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 
 // Value-Value == compares Vector/Map backing pointer identity, not structural content; deep_equal is separate. Use Value operands on both sides to select this focal overload, not Value==bool. The unknown Type assertion is not reachable with valid Type tags.
-
-// Safe branch-input matrix (choose subsets relevant to this focal): Value undef; Value nullValue(Type::Null); Value f(false), t(true); Value zero(0), one(1), two(2); Value dzero(0.0), dfrac(1.5); Value empty(""), word("text"); Value array(Type::Vector), object(Type::Map). Use two Value operands for Value-Value arithmetic/comparisons to avoid selecting other overloads.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -2935,9 +2564,6 @@ Value operator-(const Value& a, const Value& b) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -2955,13 +2581,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -2984,7 +2608,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -3015,24 +2638,11 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 
 // Avoid signed int64 overflow and negating INT64_MIN in generated tests; these are undefined behavior rather than valid coverage targets.
-
-// Safe branch-input matrix (choose subsets relevant to this focal): Value undef; Value nullValue(Type::Null); Value f(false), t(true); Value zero(0), one(1), two(2); Value dzero(0.0), dfrac(1.5); Value empty(""), word("text"); Value array(Type::Vector), object(Type::Map). Use two Value operands for Value-Value arithmetic/comparisons to avoid selecting other overloads.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -3075,9 +2685,6 @@ Value operator*(const Value& a, const Value& b) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -3095,13 +2702,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -3124,7 +2729,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -3155,22 +2759,9 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Safe branch-input matrix (choose subsets relevant to this focal): Value undef; Value nullValue(Type::Null); Value f(false), t(true); Value zero(0), one(1), two(2); Value dzero(0.0), dfrac(1.5); Value empty(""), word("text"); Value array(Type::Vector), object(Type::Map). Use two Value operands for Value-Value arithmetic/comparisons to avoid selecting other overloads.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -3213,9 +2804,6 @@ Value operator/(const Value& a, const Value& b) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -3233,13 +2821,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -3262,7 +2848,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -3293,24 +2878,11 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 
 // Use a nonzero integer divisor; division/remainder by zero is undefined behavior, not an expected Hjson type_mismatch outcome.
-
-// Safe branch-input matrix (choose subsets relevant to this focal): Value undef; Value nullValue(Type::Null); Value f(false), t(true); Value zero(0), one(1), two(2); Value dzero(0.0), dfrac(1.5); Value empty(""), word("text"); Value array(Type::Vector), object(Type::Map). Use two Value operands for Value-Value arithmetic/comparisons to avoid selecting other overloads.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -3337,9 +2909,6 @@ Value operator%(const Value& a, const Value& b) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -3357,13 +2926,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -3386,7 +2953,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -3417,33 +2983,11 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 
 // Use a nonzero integer divisor; division/remainder by zero is undefined behavior, not an expected Hjson type_mismatch outcome.
-
-// Safe branch-input matrix (choose subsets relevant to this focal): Value undef; Value nullValue(Type::Null); Value f(false), t(true); Value zero(0), one(1), two(2); Value dzero(0.0), dfrac(1.5); Value empty(""), word("text"); Value array(Type::Vector), object(Type::Map). Use two Value operands for Value-Value arithmetic/comparisons to avoid selecting other overloads.
-
-// Focal-specific C++ test construction example
-namespace Hjson {
-void example_focal_867() {
-  Value a(5), b(2);
-  Value remainder = a % b;
-  (void)remainder;
-}
-} // namespace Hjson
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -3472,9 +3016,6 @@ Value& Value::operator+=(const std::string& b) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -3492,13 +3033,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -3521,7 +3060,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -3552,30 +3090,9 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Safe branch-input matrix (choose subsets relevant to this focal): Value undef; Value nullValue(Type::Null); Value f(false), t(true); Value zero(0), one(1), two(2); Value dzero(0.0), dfrac(1.5); Value empty(""), word("text"); Value array(Type::Vector), object(Type::Map). Use two Value operands for Value-Value arithmetic/comparisons to avoid selecting other overloads.
-
-// Focal-specific C++ test construction example
-namespace Hjson {
-void example_focal_911() {
-  Value stringValue(std::string("a"));
-  stringValue += std::string("b");
-}
-} // namespace Hjson
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -3630,9 +3147,6 @@ Value& Value::operator+=(const Value& b) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -3650,13 +3164,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -3679,7 +3191,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -3710,24 +3221,11 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 
 // Avoid signed int64 overflow and negating INT64_MIN in generated tests; these are undefined behavior rather than valid coverage targets.
-
-// Safe branch-input matrix (choose subsets relevant to this focal): Value undef; Value nullValue(Type::Null); Value f(false), t(true); Value zero(0), one(1), two(2); Value dzero(0.0), dfrac(1.5); Value empty(""), word("text"); Value array(Type::Vector), object(Type::Map). Use two Value operands for Value-Value arithmetic/comparisons to avoid selecting other overloads.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -3777,9 +3275,6 @@ Value& Value::operator*=(const Value& b) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -3797,13 +3292,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -3826,7 +3319,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -3857,24 +3349,11 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 
 // Avoid signed int64 overflow and negating INT64_MIN in generated tests; these are undefined behavior rather than valid coverage targets.
-
-// Safe branch-input matrix (choose subsets relevant to this focal): Value undef; Value nullValue(Type::Null); Value f(false), t(true); Value zero(0), one(1), two(2); Value dzero(0.0), dfrac(1.5); Value empty(""), word("text"); Value array(Type::Vector), object(Type::Map). Use two Value operands for Value-Value arithmetic/comparisons to avoid selecting other overloads.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -3924,9 +3403,6 @@ Value& Value::operator/=(const Value& b) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -3944,13 +3420,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -3973,7 +3447,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -4004,24 +3477,11 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 
 // Use a nonzero integer divisor; division/remainder by zero is undefined behavior, not an expected Hjson type_mismatch outcome.
-
-// Safe branch-input matrix (choose subsets relevant to this focal): Value undef; Value nullValue(Type::Null); Value f(false), t(true); Value zero(0), one(1), two(2); Value dzero(0.0), dfrac(1.5); Value empty(""), word("text"); Value array(Type::Vector), object(Type::Map). Use two Value operands for Value-Value arithmetic/comparisons to avoid selecting other overloads.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -4050,9 +3510,6 @@ Value& Value::operator%=(const Value& b) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -4070,13 +3527,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -4099,7 +3554,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -4130,32 +3584,11 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 
 // Use a nonzero integer divisor; division/remainder by zero is undefined behavior, not an expected Hjson type_mismatch outcome.
-
-// Safe branch-input matrix (choose subsets relevant to this focal): Value undef; Value nullValue(Type::Null); Value f(false), t(true); Value zero(0), one(1), two(2); Value dzero(0.0), dfrac(1.5); Value empty(""), word("text"); Value array(Type::Vector), object(Type::Map). Use two Value operands for Value-Value arithmetic/comparisons to avoid selecting other overloads.
-
-// Focal-specific C++ test construction example
-namespace Hjson {
-void example_focal_1030() {
-  Value a(5), b(2);
-  a %= b;
-}
-} // namespace Hjson
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -4193,9 +3626,6 @@ Value Value::operator+() const {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -4213,13 +3643,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -4242,7 +3670,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -4273,22 +3700,9 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Safe branch-input matrix (choose subsets relevant to this focal): Value undef; Value nullValue(Type::Null); Value f(false), t(true); Value zero(0), one(1), two(2); Value dzero(0.0), dfrac(1.5); Value empty(""), word("text"); Value array(Type::Vector), object(Type::Map). Use two Value operands for Value-Value arithmetic/comparisons to avoid selecting other overloads.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -4326,9 +3740,6 @@ Value Value::operator-() const {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -4346,13 +3757,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -4375,7 +3784,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -4406,24 +3814,11 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 
 // Avoid signed int64 overflow and negating INT64_MIN in generated tests; these are undefined behavior rather than valid coverage targets.
-
-// Safe branch-input matrix (choose subsets relevant to this focal): Value undef; Value nullValue(Type::Null); Value f(false), t(true); Value zero(0), one(1), two(2); Value dzero(0.0), dfrac(1.5); Value empty(""), word("text"); Value array(Type::Vector), object(Type::Map). Use two Value operands for Value-Value arithmetic/comparisons to avoid selecting other overloads.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -4463,9 +3858,6 @@ Value& Value::operator++() {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -4483,13 +3875,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -4512,7 +3902,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -4543,24 +3932,11 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 
 // Avoid signed int64 overflow and negating INT64_MIN in generated tests; these are undefined behavior rather than valid coverage targets.
-
-// Safe branch-input matrix (choose subsets relevant to this focal): Value undef; Value nullValue(Type::Null); Value f(false), t(true); Value zero(0), one(1), two(2); Value dzero(0.0), dfrac(1.5); Value empty(""), word("text"); Value array(Type::Vector), object(Type::Map). Use two Value operands for Value-Value arithmetic/comparisons to avoid selecting other overloads.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -4600,9 +3976,6 @@ Value& Value::operator--() {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -4620,13 +3993,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -4649,7 +4020,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -4680,24 +4050,11 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 
 // Avoid signed int64 overflow and negating INT64_MIN in generated tests; these are undefined behavior rather than valid coverage targets.
-
-// Safe branch-input matrix (choose subsets relevant to this focal): Value undef; Value nullValue(Type::Null); Value f(false), t(true); Value zero(0), one(1), two(2); Value dzero(0.0), dfrac(1.5); Value empty(""), word("text"); Value array(Type::Vector), object(Type::Map). Use two Value operands for Value-Value arithmetic/comparisons to avoid selecting other overloads.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -4741,9 +4098,6 @@ Value Value::operator++(int) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -4761,13 +4115,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -4790,7 +4142,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -4821,24 +4172,11 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 
 // Avoid signed int64 overflow and negating INT64_MIN in generated tests; these are undefined behavior rather than valid coverage targets.
-
-// Safe branch-input matrix (choose subsets relevant to this focal): Value undef; Value nullValue(Type::Null); Value f(false), t(true); Value zero(0), one(1), two(2); Value dzero(0.0), dfrac(1.5); Value empty(""), word("text"); Value array(Type::Vector), object(Type::Map). Use two Value operands for Value-Value arithmetic/comparisons to avoid selecting other overloads.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -4882,9 +4220,6 @@ Value Value::operator--(int) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -4902,13 +4237,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -4931,7 +4264,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -4962,24 +4294,11 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 
 // Avoid signed int64 overflow and negating INT64_MIN in generated tests; these are undefined behavior rather than valid coverage targets.
-
-// Safe branch-input matrix (choose subsets relevant to this focal): Value undef; Value nullValue(Type::Null); Value f(false), t(true); Value zero(0), one(1), two(2); Value dzero(0.0), dfrac(1.5); Value empty(""), word("text"); Value array(Type::Vector), object(Type::Map). Use two Value operands for Value-Value arithmetic/comparisons to avoid selecting other overloads.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -5016,9 +4335,6 @@ Value::operator bool() const {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -5036,13 +4352,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -5065,7 +4379,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -5096,31 +4409,9 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Safe branch-input matrix (choose subsets relevant to this focal): Value undef; Value nullValue(Type::Null); Value f(false), t(true); Value zero(0), one(1), two(2); Value dzero(0.0), dfrac(1.5); Value empty(""), word("text"); Value array(Type::Vector), object(Type::Map). Use two Value operands for Value-Value arithmetic/comparisons to avoid selecting other overloads.
-
-// Focal-specific C++ test construction example
-namespace Hjson {
-void example_focal_1177() {
-  Value f(false), t(true), undef;
-  bool a=static_cast<bool>(f), b=static_cast<bool>(t), c=static_cast<bool>(undef);
-  (void)a; (void)b; (void)c;
-}
-} // namespace Hjson
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -5155,9 +4446,6 @@ Value::operator double() const {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -5175,13 +4463,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -5204,7 +4490,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -5235,22 +4520,9 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Safe branch-input matrix (choose subsets relevant to this focal): Value undef; Value nullValue(Type::Null); Value f(false), t(true); Value zero(0), one(1), two(2); Value dzero(0.0), dfrac(1.5); Value empty(""), word("text"); Value array(Type::Vector), object(Type::Map). Use two Value operands for Value-Value arithmetic/comparisons to avoid selecting other overloads.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -5285,9 +4557,6 @@ Value::operator long long() const {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -5305,13 +4574,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -5334,7 +4601,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -5365,24 +4631,9 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Call paths generated by HJSON_CONV_INT_IMPL are separate branch-free conversion operators; the focal is only Value::operator long long().
-// Original source L1223-L1236: nine HJSON_CONV_INT_IMPL(T) wrappers return static_cast<T>(operator long long()).
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Safe branch-input matrix (choose subsets relevant to this focal): Value undef; Value nullValue(Type::Null); Value f(false), t(true); Value zero(0), one(1), two(2); Value dzero(0.0), dfrac(1.5); Value empty(""), word("text"); Value array(Type::Vector), object(Type::Map). Use two Value operands for Value-Value arithmetic/comparisons to avoid selecting other overloads.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -5409,9 +4660,6 @@ Value::operator const char*() const {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -5429,13 +4677,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -5458,7 +4704,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -5489,20 +4734,9 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -5529,9 +4763,6 @@ Value::operator std::string() const {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -5549,13 +4780,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -5578,7 +4807,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -5609,20 +4837,9 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -5649,9 +4866,6 @@ bool Value::empty() const {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -5669,13 +4883,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -5698,7 +4910,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -5772,22 +4983,9 @@ public:
   size_t erase(const std::string&);
   size_t erase(const char*);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -5810,9 +5008,6 @@ bool Value::is_container() const {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -5830,13 +5025,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -5859,7 +5052,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -5933,22 +5125,9 @@ public:
   size_t erase(const std::string&);
   size_t erase(const char*);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -5971,9 +5150,6 @@ bool Value::is_numeric() const {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -5991,13 +5167,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -6020,7 +5194,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -6051,20 +5224,9 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -6097,9 +5259,6 @@ size_t Value::size() const {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -6117,13 +5276,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -6146,7 +5303,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -6220,22 +5376,9 @@ public:
   size_t erase(const std::string&);
   size_t erase(const char*);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -6300,9 +5443,6 @@ bool Value::deep_equal(const Value& other) const {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -6320,13 +5460,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -6349,7 +5487,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -6423,24 +5560,11 @@ public:
   size_t erase(const std::string&);
   size_t erase(const char*);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 
 // deep_equal on independently constructed Maps compares sorted mapped values but does not verify corresponding keys. Thus {a:1} and {b:1} can return true; avoid assuming standard JSON structural equality. Shared-pointer copies enter the initial fast equality path.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -6489,9 +5613,6 @@ Value Value::clone() const {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -6509,13 +5630,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -6538,7 +5657,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -6639,26 +5757,11 @@ public:
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  Value withComments(1);
-  withComments.set_comment_before("# note\n");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 
 // Source behavior: clone() of empty Vector/Map produces Undefined because no loop iteration materializes the destination; scalar clone shares ValueImpl. Do not assume independent deep copy for these cases.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -6694,9 +5797,6 @@ void Value::clear() {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -6714,13 +5814,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -6743,7 +5841,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -6817,22 +5914,9 @@ public:
   size_t erase(const std::string&);
   size_t erase(const char*);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -6884,9 +5968,6 @@ void Value::erase(int index) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -6904,13 +5985,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -6933,7 +6012,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -7007,22 +6085,9 @@ public:
   size_t erase(const std::string&);
   size_t erase(const char*);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -7053,9 +6118,6 @@ void Value::push_back(const Value& other) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -7073,13 +6135,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -7102,7 +6162,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -7148,22 +6207,9 @@ public:
   // Undefined.
   void push_back(const Value&);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -7231,9 +6277,6 @@ void Value::move(int from, int to) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -7251,13 +6294,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -7280,7 +6321,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -7354,35 +6394,9 @@ public:
   size_t erase(const std::string&);
   size_t erase(const char*);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Focal-specific C++ test construction example
-namespace Hjson {
-void example_focal_1461() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  array.push_back(Value(2));
-  array.push_back(Value(3));
-  array.move(0, 3); // from < to
-  array.move(2, 0); // from > to
-  // Also try same index, invalid bounds, and non-container Type.
-}
-} // namespace Hjson
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -7416,9 +6430,6 @@ std::string Value::key(int index) const {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -7436,13 +6447,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -7465,7 +6474,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -7524,22 +6532,9 @@ public:
   size_t erase(const std::string&);
   size_t erase(const char*);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -7568,9 +6563,6 @@ ValueMap::iterator Value::begin() {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -7588,13 +6580,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -7617,7 +6607,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -7676,22 +6665,9 @@ public:
   size_t erase(const std::string&);
   size_t erase(const char*);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -7720,9 +6696,6 @@ ValueMap::iterator Value::end() {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -7740,13 +6713,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -7769,7 +6740,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -7828,22 +6798,9 @@ public:
   size_t erase(const std::string&);
   size_t erase(const char*);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -7872,9 +6829,6 @@ ValueMap::const_iterator Value::begin() const {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -7892,13 +6846,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -7921,7 +6873,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -7980,22 +6931,9 @@ public:
   size_t erase(const std::string&);
   size_t erase(const char*);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -8024,9 +6962,6 @@ ValueMap::const_iterator Value::end() const {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -8044,13 +6979,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -8073,7 +7006,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -8132,22 +7064,9 @@ public:
   size_t erase(const std::string&);
   size_t erase(const char*);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -8188,9 +7107,6 @@ size_t Value::erase(const std::string &key) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -8208,13 +7124,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -8237,7 +7151,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -8296,24 +7209,11 @@ public:
   size_t erase(const std::string&);
   size_t erase(const char*);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 
-// Defensive path: Map lookup finding a key absent from the insertion-order vector requires corrupting the internal Map invariant; exclude it from required valid-input branch coverage.
-
-// Build: include hjson.h and link all four original .cpp files.
+// The Map lookup assertion requires an invalid internal map/vector invariant and is unreachable via valid public APIs.
 ```
 
 ---
@@ -8390,9 +7290,6 @@ double Value::to_double() const {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -8410,13 +7307,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -8439,7 +7334,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -8470,22 +7364,11 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 
 // Default allhjson C++11 build leaves HJSON_USE_CHARCONV and HJSON_USE_STRTOD undefined, so the stringstream #else code is active. STRTOD and CHARCONV alternatives need separately pinned builds; CHARCONV requires C++17; do not treat inactive #if code as runtime branches.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -8563,9 +7446,6 @@ std::int64_t Value::to_int64() const {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -8583,13 +7463,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -8612,7 +7490,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -8643,22 +7520,11 @@ public:
   Value(const std::string&);
   Value(Type);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 
 // Default allhjson C++11 build leaves HJSON_USE_CHARCONV and HJSON_USE_STRTOD undefined, so the stringstream #else code is active. STRTOD and CHARCONV alternatives need separately pinned builds; CHARCONV requires C++17; do not treat inactive #if code as runtime branches.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -8789,9 +7655,6 @@ std::string Value::to_string() const {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -8809,13 +7672,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -8838,7 +7699,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -8884,22 +7744,11 @@ public:
   // Undefined.
   void push_back(const Value&);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
 
 // Default allhjson C++11 build leaves HJSON_USE_CHARCONV and HJSON_USE_STRTOD undefined, so the stringstream #else code is active. STRTOD and CHARCONV alternatives need separately pinned builds; CHARCONV requires C++17; do not treat inactive #if code as runtime branches.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -8929,9 +7778,6 @@ void Value::set_comment_before(const std::string& str) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -8949,13 +7795,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -8978,7 +7822,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -9036,20 +7879,7 @@ public:
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  Value withComments(1);
-  withComments.set_comment_before("# note\n");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
-
-// Build: include hjson.h and link all four original .cpp files.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 ```
 
 ---
@@ -9076,9 +7906,6 @@ std::string Value::get_comment_before() const {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -9096,13 +7923,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -9125,7 +7950,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -9183,20 +8007,7 @@ public:
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  Value withComments(1);
-  withComments.set_comment_before("# note\n");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
-
-// Build: include hjson.h and link all four original .cpp files.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 ```
 
 ---
@@ -9226,9 +8037,6 @@ void Value::set_comment_key(const std::string& str) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -9246,13 +8054,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -9275,7 +8081,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -9333,20 +8138,7 @@ public:
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  Value withComments(1);
-  withComments.set_comment_before("# note\n");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
-
-// Build: include hjson.h and link all four original .cpp files.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 ```
 
 ---
@@ -9373,9 +8165,6 @@ std::string Value::get_comment_key() const {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -9393,13 +8182,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -9422,7 +8209,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -9480,20 +8266,7 @@ public:
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  Value withComments(1);
-  withComments.set_comment_before("# note\n");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
-
-// Build: include hjson.h and link all four original .cpp files.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 ```
 
 ---
@@ -9523,9 +8296,6 @@ void Value::set_comment_inside(const std::string& str) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -9543,13 +8313,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -9572,7 +8340,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -9630,20 +8397,7 @@ public:
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  Value withComments(1);
-  withComments.set_comment_before("# note\n");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
-
-// Build: include hjson.h and link all four original .cpp files.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 ```
 
 ---
@@ -9670,9 +8424,6 @@ std::string Value::get_comment_inside() const {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -9690,13 +8441,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -9719,7 +8468,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -9777,20 +8525,7 @@ public:
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  Value withComments(1);
-  withComments.set_comment_before("# note\n");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
-
-// Build: include hjson.h and link all four original .cpp files.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 ```
 
 ---
@@ -9820,9 +8555,6 @@ void Value::set_comment_after(const std::string& str) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -9840,13 +8572,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -9869,7 +8599,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -9927,20 +8656,7 @@ public:
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  Value withComments(1);
-  withComments.set_comment_before("# note\n");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
-
-// Build: include hjson.h and link all four original .cpp files.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 ```
 
 ---
@@ -9967,9 +8683,6 @@ std::string Value::get_comment_after() const {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -9987,13 +8700,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -10016,7 +8727,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -10074,20 +8784,7 @@ public:
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  Value withComments(1);
-  withComments.set_comment_before("# note\n");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
-
-// Build: include hjson.h and link all four original .cpp files.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 ```
 
 ---
@@ -10118,9 +8815,6 @@ void Value::set_comments(const Value& other) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -10138,13 +8832,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -10167,7 +8859,6 @@ public:
   ~ValueImpl();
   static void DeepClear(Value &val);
 };
-
 
 class Value::Comments {
 public:
@@ -10225,20 +8916,7 @@ public:
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  Value withComments(1);
-  withComments.set_comment_before("# note\n");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
-
-// Build: include hjson.h and link all four original .cpp files.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 ```
 
 ---
@@ -10266,9 +8944,6 @@ Value& Value::assign_with_comments(const Value& other) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
@@ -10310,20 +8985,7 @@ Value& Value::assign_with_comments(const Value& other) {
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  Value withComments(1);
-  withComments.set_comment_before("# note\n");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -10351,9 +9013,6 @@ Value& Value::assign_with_comments(Value&& other) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Relevant public Value construction API from hjson.h; declarations inside class Value
   Value();
   Value(bool);
@@ -10395,20 +9054,7 @@ Value& Value::assign_with_comments(Value&& other) {
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value value(1);
-  Value other("text");
-  Value withComments(1);
-  withComments.set_comment_before("# note\n");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -10438,9 +9084,6 @@ MapProxy::MapProxy(std::shared_ptr<ValueImpl> _parent, const std::string &_key,
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -10458,13 +9101,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -10488,13 +9129,12 @@ public:
   static void DeepClear(Value &val);
 };
 
-
 class Value::Comments {
 public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Original MapProxy declaration from hjson.h (access patch applies in benchmark copy only)
+// Original MapProxy declaration from hjson.h
 // MapProxy is only used for temporary references to elements in a Map. It is
 // not possible to store a MapProxy in a variable. It only exists to make it
 // possible to check for the existence of a specific key in a Map without
@@ -10502,7 +9142,6 @@ public:
 class MapProxy : public Value {
   private:
   friend class Value;
-
 
   std::shared_ptr<ValueImpl> parentPrv;
   std::string key;
@@ -10581,26 +9220,9 @@ public:
   size_t erase(const std::string&);
   size_t erase(const char*);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  // With the benchmark-local MapProxy visibility patch applied:
-  Value& existing = object.at("key");
-  MapProxy withTarget(object.prv, "key", &existing);
-  MapProxy withoutTarget(object.prv, "new", nullptr);
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
-
-// The direct constructor requires the narrow benchmark-local header patch. The same two ternary outcomes are reachable without any patch through public object["missing"] and object["existing"] lookups. Never construct MapProxy(Value&&) or copy a stored proxy.
-
-// Build: use the benchmark-local hjson.h with the MapProxy visibility patch.
+// Both constructor outcomes are reachable through public object["missing"] and object["existing"] lookups; do not copy MapProxy.
 ```
 
 ---
@@ -10641,9 +9263,6 @@ MapProxy::~MapProxy() {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -10661,13 +9280,11 @@ typedef std::vector<std::string> KeyVec;
 typedef std::vector<Value> ValueVec;
 typedef std::map<std::string, Value> ValueMap;
 
-
 class ValueVecMap {
 public:
   KeyVec v;
   ValueMap m;
 };
-
 
 class Value::ValueImpl {
 public:
@@ -10691,13 +9308,12 @@ public:
   static void DeepClear(Value &val);
 };
 
-
 class Value::Comments {
 public:
   std::string m_commentBefore, m_commentKey, m_commentInside, m_commentAfter;
 };
 
-// Original MapProxy declaration from hjson.h (access patch applies in benchmark copy only)
+// Original MapProxy declaration from hjson.h
 // MapProxy is only used for temporary references to elements in a Map. It is
 // not possible to store a MapProxy in a variable. It only exists to make it
 // possible to check for the existence of a specific key in a Map without
@@ -10705,7 +9321,6 @@ public:
 class MapProxy : public Value {
   private:
   friend class Value;
-
 
   std::shared_ptr<ValueImpl> parentPrv;
   std::string key;
@@ -10826,36 +9441,7 @@ public:
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  // A direct MapProxy constructor call needs the benchmark-local visibility patch.
-  Value withComments(1);
-  withComments.set_comment_before("# note\n");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// ValueImpl is incomplete in hjson.h: public-header-only tests cannot dereference prv->type/v/m. Prefer public Value APIs; if direct backing access is necessary, include hjson_value.cpp in the harness TU and link the other three files only.
-
-// Focal-specific C++ test construction example
-namespace Hjson {
-void example_focal_1971() {
-  Value object(Type::Map);
-  (void)object["missing"].defined(); // wasAssigned=false, empty=true: no insert
-  object["undefinedAssigned"] = Value(); // wasAssigned=true, inserts
-  object["nonempty"].push_back(Value(1)); // nonempty=true, inserts
-  object["existing"] = Value(2);
-  object["existing"] = Value(3); // pTarget branch, target stays alive
-  // Destroy each temporary proxy before mutating or erasing its parent Map.
-}
-} // namespace Hjson
-
-// Build: include hjson.h and link all four original .cpp files.
+// ValueImpl is incomplete in the public header; access its internal fields only where its full definition is available.
 ```
 
 ---
@@ -10883,9 +9469,6 @@ MapProxy& MapProxy::assign_with_comments(const Value& other) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -10898,7 +9481,7 @@ enum class Type {
   Map
 };
 
-// Original MapProxy declaration from hjson.h (access patch applies in benchmark copy only)
+// Original MapProxy declaration from hjson.h
 // MapProxy is only used for temporary references to elements in a Map. It is
 // not possible to store a MapProxy in a variable. It only exists to make it
 // possible to check for the existence of a specific key in a Map without
@@ -10906,7 +9489,6 @@ enum class Type {
 class MapProxy : public Value {
   private:
   friend class Value;
-
 
   std::shared_ptr<ValueImpl> parentPrv;
   std::string key;
@@ -11002,34 +9584,7 @@ public:
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  // A direct MapProxy constructor call needs the benchmark-local visibility patch.
-  Value withComments(1);
-  withComments.set_comment_before("# note\n");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Focal-specific C++ test construction example
-namespace Hjson {
-void example_focal_2018() {
-  Value object(Type::Map);
-  Value source(1); source.set_comment_before("# source\n");
-  object["new"].assign_with_comments(source);
-  object["existing"] = Value(2);
-  object["existing"].assign_with_comments(source);
-}
-} // namespace Hjson
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -11057,9 +9612,6 @@ MapProxy& MapProxy::assign_with_comments(Value&& other) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -11072,7 +9624,7 @@ enum class Type {
   Map
 };
 
-// Original MapProxy declaration from hjson.h (access patch applies in benchmark copy only)
+// Original MapProxy declaration from hjson.h
 // MapProxy is only used for temporary references to elements in a Map. It is
 // not possible to store a MapProxy in a variable. It only exists to make it
 // possible to check for the existence of a specific key in a Map without
@@ -11080,7 +9632,6 @@ enum class Type {
 class MapProxy : public Value {
   private:
   friend class Value;
-
 
   std::shared_ptr<ValueImpl> parentPrv;
   std::string key;
@@ -11176,33 +9727,7 @@ public:
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
 
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  // A direct MapProxy constructor call needs the benchmark-local visibility patch.
-  Value withComments(1);
-  withComments.set_comment_before("# note\n");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
 // Safe construction: use Value(false), Value(0.0), Value(0) for scalar payloads. Value(Type::Bool/Double/Int64) sets only the type tag, leaving the scalar union payload uninitialized. Value(Type::Null/Undefined/Vector/Map/String) is usable for those categories.
-
-// Focal-specific C++ test construction example
-namespace Hjson {
-void example_focal_2028() {
-  Value object(Type::Map);
-  object["new"].assign_with_comments(Value(1));
-  object["existing"] = Value(2);
-  object["existing"].assign_with_comments(Value(3));
-}
-} // namespace Hjson
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
 ---
@@ -11249,9 +9774,6 @@ Value Merge(const Value& base, const Value& ext) {
 ### Context
 
 ```cpp
-#include "hjson.h"
-// Source excerpts below are for model context. They already exist in the project; do not redeclare them in a test TU.
-
 // Original Value type enum from hjson.h
 enum class Type {
   Undefined,
@@ -11347,32 +9869,5 @@ enum class Type {
   // receiving Value is of type Undefined.
   Value& assign_with_comments(const Value&);
   Value& assign_with_comments(Value&&);
-
-// Example Value inputs for tests, not a full test
-namespace Hjson {
-void example_value_seed() {
-  Value array(Type::Vector);
-  array.push_back(Value(1));
-  Value object(Type::Map);
-  object["key"] = Value(1);
-  Value withComments(1);
-  withComments.set_comment_before("# note\n");
-  // Vary Value types and contents to exercise focal branches.
-}
-} // namespace Hjson
-
-// Focal-specific C++ test construction example
-namespace Hjson {
-void example_focal_2038() {
-  Value base(Type::Map); base["shared"] = Value(1); base["baseOnly"] = Value(2);
-  Value ext(Type::Map); ext["shared"] = Value(3); ext["extOnly"] = Value(4);
-  Value mergedMap = Merge(base, ext);
-  Value ignoredExtension = Merge(base, Value());
-  Value replacedScalar = Merge(Value(1), Value(2));
-  (void)mergedMap; (void)ignoredExtension; (void)replacedScalar;
-}
-} // namespace Hjson
-
-// Build: include hjson.h and link all four original .cpp files.
 ```
 
