@@ -1,0 +1,22 @@
+diff --git a/hjson.h b/hjson.h
+--- a/hjson.h
++++ b/hjson.h
+@@ -350,16 +350,18 @@
+ class MapProxy : public Value {
+   private:
+   friend class Value;
+ 
+ 
+   std::shared_ptr<ValueImpl> parentPrv;
+   std::string key;
+   Value *pTarget;
+   // True if an explicit assignment has been made to this MapProxy.
+   bool wasAssigned;
+ 
++  public:
+   MapProxy(std::shared_ptr<ValueImpl> parent, const std::string& key,
+     Value *pTarget);
+ 
++  private:
+   // Make the copy constructor private in order to avoid accidental creation of
+   // MapProxy variables like this:

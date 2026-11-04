@@ -1,0 +1,50 @@
+{
+  "dataset_id": "allhjson_all_branches_v1",
+  "repo": "Ming191/thucnghiem",
+  "source_commit": "d26d2e5b7644f42e8deeb461dbd45cb53c35fcf3",
+  "source_revision_date": "2026-10-05",
+  "scanned_files": [
+    "allhjson/hjson.h",
+    "allhjson/hjson_decode.cpp",
+    "allhjson/hjson_encode.cpp",
+    "allhjson/hjson_parsenumber.cpp",
+    "allhjson/hjson_value.cpp"
+  ],
+  "detected_function_definitions": 188,
+  "selected_with_lexical_branch_markers": 119,
+  "by_source_file": {
+    "allhjson/hjson_decode.cpp": 26,
+    "allhjson/hjson_encode.cpp": 16,
+    "allhjson/hjson_parsenumber.cpp": 4,
+    "allhjson/hjson_value.cpp": 73
+  },
+  "exposure_count": {
+    "include_defining_cpp_in_harness": 44,
+    "public_header_or_external_linkage": 74,
+    "benchmark_local_public_header": 1
+  },
+  "eligible_predicate": "active default preprocessor code contains if,for,while,switch,&&,||,or ternary; includes constructor initializers",
+  "dynamic_llvm_coverage_status": "unmeasured",
+  "visibility_policy": "separate test copy only",
+  "source_fidelity_check": "119/119 string-exact slices against pinned GitHub code, LF-normalized",
+  "focal_span_corrections": [
+    {
+      "old_id": "allhjson_hjson_value_L1223",
+      "new_id": "allhjson_hjson_value_L1239",
+      "reason": "exclude nine branch-free macro generated conversion operators from the focal method"
+    }
+  ],
+  "default_preprocessor_backend": {
+    "HJSON_USE_CHARCONV": 0,
+    "HJSON_USE_STRTOD": 0,
+    "active_path": "stringstream",
+    "language_standard": "c++11"
+  },
+  "context_review_status": "Source comment provenance verified: removed 602 non-source comment occurrences from 110 records; zero synthetic comments remain. Dynamic coverage unmeasured.",
+  "context_policy": "Selected source declarations/helper excerpts, preserving only source-authentic comments; no generated branch hints, fixture examples, or build instructions in prompt context.",
+  "context_chars": {
+    "min": 0,
+    "median": 1472,
+    "max": 5488
+  }
+}
